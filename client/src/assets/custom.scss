@@ -1,0 +1,23 @@
+$theme-colors: (
+	"primary": #3e1886,
+	"bar-yes": #2c8f31,
+	"bar-no" : #c21a23,
+	"welcome-message" : #a07373,
+	"main-block" : white
+);
+
+$body-bg:  rgb(236, 236, 235);
+$btn-border-radius: 0px;
+
+// import must be after variables overrides
+
+
+
+// general style overrides and custom classes
+body {
+	font-family: 'Verdana', sans-serif;
+}
+
+.main-block {
+	background-color: theme-color("main-block");
+}
