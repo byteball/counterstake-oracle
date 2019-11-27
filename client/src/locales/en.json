@@ -1,4 +1,11 @@
 {
-	
+	"questionCreateModalTitle" : "Create a question",
+	"landingPageButtonCreateQuestion" : "Create a question",
+	"questionCreateModalLabelFieldQuestion" : "Question",
+	"questionCreateModalSetDeadline" : "Set deadline",
+	"questionCreateModalAmountTooLowForWebsite": "Amount below {amount} GB, question will be treated by Autonomous Agent but won't be displayed on this website as spam protection.",
+	"questionCreateModalQuestionRequirements": "Should be answerable by Yes or No, {min_length} characters minimum.",
+	"questionCreateModaLinkHeader" : "Clicking the link below will open your Obyte wallet, ready to send a transaction that will create this question.",
+	"questionCreateModaLinkFooter" : "It will be taken into account a few minutes after the transaction is confirmed."
 }
 
