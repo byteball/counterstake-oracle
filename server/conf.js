@@ -3,11 +3,11 @@
 exports.bServeAsHub = false;
 exports.bLight = true;
 
-exports.api_port = process.env.testnet ? 1300 : 6000;
+exports.api_port = 1300;
 
 exports.hub = process.env.testnet ? 'obyte.org/bb-test' : 'obyte.org/bb';
 
-exports.aa_address = process.env.testnet ? 'RZ5NSJU2RVFGDBCZ5ZDXTR42JLM3DBJD' : ''; //7OUC7TREROTSUUM7AJBJGKBBRJK5R24E
+exports.aa_address = process.env.testnet ? 'WSZHLCRDJ5PLRYSATRJY7XSB544YBCEQ' : ''; //7OUC7TREROTSUUM7AJBJGKBBRJK5R24E
 
 exports.initial_witnesses = !process.env.testnet ? [
 	'BVVJ2K7ENPZZ3VYZFWQWK7ISPCATFIW3',

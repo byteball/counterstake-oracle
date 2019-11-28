@@ -1,6 +1,6 @@
 <template>
 	<form action="">
-		<div class="modal-card" style="min-height:800px;">
+		<div class="modal-card" style="min-height:900px;">
 			<header class="modal-card-head">
 					<p class="modal-card-title">{{$t('questionCreateModalTitle')}}</p>
 			</header>
@@ -13,11 +13,11 @@
 
 					<b-field :label="$t('questionCreateModalSetDeadline')" style="margin-top:30px;">
 							<b-datetimepicker
-									rounded
-									v-model="deadline"
+								rounded
+								v-model="deadline"
 								:datepicker="{ showWeekNumber:false }"
-									:min-datetime="minDateTime"
-									:timepicker="{ hourFormat: format }">
+								:min-datetime="minDateTime"
+								:timepicker="{ hourFormat: format }">
 							</b-datetimepicker>
 					</b-field>
 					<b-field grouped group-multiline>

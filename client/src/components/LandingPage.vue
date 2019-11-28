@@ -1,18 +1,29 @@
- 
 <template>
-		<section>
-				<button class="button is-primary is-medium"
-						@click="createQuestion()">
+	<div class="container">
+		<b-navbar>
+			<template slot="brand">
+					<b-navbar-item tag="router-link" :to="{ path: '/' }">
+						<h1 class="title is-1">Counterstake.org</h1>
+					</b-navbar-item>
+			</template>
+		</b-navbar>
+		<div>
+						<section>
+				<questions-table />
+			</section>
+			<section>
+					<button class="button is-primary is-medium" @click="createQuestion()">
 						{{$t('landingPageButtonCreateQuestion')}}
-				</button>
-		</section>
+					</button>
+			</section>
+		</div>
+	</div>
 </template>
-
-
 
 <script>
 import QuestionModal from './QuestionModal.vue';
 import QuestionCreateModal from './QuestionCreateModal.vue';
+import QuestionsTable from './QuestionsTable.vue';
 
 const conf = require("../conf.js");
 
@@ -21,15 +32,27 @@ export default {
 		question_id: {
 			type: String,
 			required: false
+		},
+			question: {
+			type: Object,
+			required: false
 		}
 
 	},
 	components: {
-		
+		QuestionsTable
 	},
 	created(){
 		if(this.question_id)
 			this.openQuestionModal(this.question_id);
+	},
+	watch:{
+
+		question_id: function(){
+			if(this.question_id)
+				this.openQuestionModal(this.question_id);
+
+		}
 	},
 	methods: {
 		openQuestionModal(question_id) {
@@ -38,7 +61,8 @@ export default {
 					component: QuestionModal,
 					hasModalCard: true,
 					props: {
-						question_id: question_id
+						propQuestionId: question_id,
+						propQuestion: this.question
 					},
 					customClass: 'custom-class custom-class-2'
 			})
@@ -51,6 +75,10 @@ export default {
 					width:"640",
 					customClass: 'custom-class custom-class-2'
 			})
+		},
+		questionModalClosed(){
+
+
 		}
 	}
 }

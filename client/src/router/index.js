@@ -12,7 +12,9 @@ export default new Router({
 			name: 'landingPageQuestion',
 			path: '/question/:question_id',
 			component: lazyLoading('components/LandingPage'),
-			props: true,
+			props:  route => ({
+        ...route.params
+						})
 		},
 		{
 			name: 'landingPage',
