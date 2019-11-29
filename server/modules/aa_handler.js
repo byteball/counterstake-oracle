@@ -47,13 +47,21 @@ function catchUpOperationsHistory(){
 			FROM questions_history) AND aa_address=?", [conf.aa_address], function(rows){
 				async.eachOf(rows, function(row, index, cb) {
 
+
+					console.log("catchUpOperationsHistory row")
+					console.log(row);
 				const objResponse = JSON.parse(row.response).responseVars;
 				if(!objResponse)
 					return cb();
 
 				var paid_in = 0;
 				var paid_out = 0;
-				if (objResponse.expected_reward){
+
+				if (objResponse.new_question){
+					var event_type = "new_question";
+					paid_in = objResponse.your_stake;
+					concerned_address = objResponse.your_address;
+				} else if (objResponse.expected_reward){
 					var event_type = "initial_stake";
 					paid_in = objResponse.your_stake;
 					concerned_address = objResponse.your_address;
@@ -79,19 +87,19 @@ function catchUpOperationsHistory(){
 					concerned_address = objResponse.your_address;
 				}
 				if (event_type){
-					var operation_id = objResponse.operation_id;
-					var pair = objResponse.pair;
-					db.query("INSERT "+db.getIgnore()+" INTO questions_history (question_id, paid_in, paid_out, concerned_address, pair, event_type, mci, aa_address, response, trigger_unit,timestamp) VALUES \n\
-					(?,?,?,?,?,?,?,?,?,?,?)",[question_id, paid_in, paid_out, concerned_address, pair, event_type, row.mci, row.aa_address, JSON.stringify(objResponse), row.trigger_unit, row.timestamp],
+					console.log(event_type);
+
+					var question_id = objResponse.question_id;
+					db.query("INSERT "+db.getIgnore()+" INTO questions_history (question_id, paid_in, paid_out, concerned_address, event_type, mci, aa_address, response, trigger_unit,timestamp) VALUES \n\
+					(?,?,?,?,?,?,?,?,?,?)",[question_id, paid_in, paid_out, concerned_address,  event_type, row.mci, row.aa_address, JSON.stringify(objResponse), row.trigger_unit, row.timestamp],
 					function(result){
 						if (result.affectedRows === 1){
-							objResponse.exchange = exchanges.getExchangeName[objResponse.exchange];
-							social_networks.notify(
+						/*	social_networks.notify(
 								event_type, 
 								assocCurrentQuestions[operation_id], 
 								assocNicknamesByAddress[concerned_address] || concerned_address, 
 								objResponse
-							);
+							);*/
 						}
 						cb();
 					});
@@ -123,9 +131,9 @@ function indexQuestions(objStateVars){
 		question.initial_outcome = objStateVars[key + "_initial_outcome"];
 		question.staked_on_outcome = Number(objStateVars[key + "_total_staked_on_" + outcome]);
 		question.staked_on_opposite = Number(objStateVars[key + "_total_staked_on_" + (outcome == "in" ? "out" :"in") ]);
-		question.countdown_start= objStateVars[key + "_countdown_start"];
+		question.countdown_start= Number(objStateVars[key + "_countdown_start"]);
 		question.total_staked = Number(objStateVars[key + "_total_staked"]);
-		question.key = key;
+		question.question_id = key;
 		question.staked_by_address = assocStakedByKeyAndAddress[key];
 	//	question.url_proofs_by_outcome = assocProofsByKeyAndOutcome[key];
 

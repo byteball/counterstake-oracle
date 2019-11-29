@@ -64,6 +64,10 @@ export default {
 						propQuestionId: question_id,
 						propQuestion: this.question
 					},
+					onCancel:()=>{
+						console.log("on cancel");
+						this.$router.push({ name: 'landingPage'});
+					},
 					customClass: 'custom-class custom-class-2'
 			})
 		},
