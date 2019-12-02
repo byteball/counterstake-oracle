@@ -37,6 +37,7 @@ require('./modules/sqlite_tables.js').create().then(function(){
 
 	app.get('/api/question-history/:id', function(request, response){
 		const id = request.params.id;
+		console.log("id " + id);
 		if (!validationUtils.isNonemptyString(id))
 			return response.status(400).send('Invalid question id');
 			aa_handler.getQuestionHistory(id, function(objHistory){

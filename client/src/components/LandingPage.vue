@@ -12,9 +12,13 @@
 				<questions-table />
 			</section>
 			<section>
+					<div class="ml-3 mt-2">
+
 					<button class="button is-primary is-medium" @click="createQuestion()">
 						{{$t('landingPageButtonCreateQuestion')}}
 					</button>
+
+					</div>
 			</section>
 		</div>
 	</div>

@@ -1,61 +1,50 @@
 <template>
-	<div>
+	<div style="width: auto;">
 		<div v-if="!link" fluid >
 		<div>
-			Current outcome: <h3 class="title is-3"> {{ question.outcome }} </h3>
+			<div class="is-inline">
+				Current outcome: 
+					</div >
+						<h3 class="title is-3 is-inline"> {{ question.outcome }} </h3>
 		</div>
+		<div class="mt-2" >
+			<label for="range-1">{{$t("contestOutcomeAmountToStake")}}</label>
+			<b-slider v-if="sliderEnabled" id="range-1" 
+			v-model="stakeAmountGb" 
+			:min="conf.challenge_min_stake_gb" 
+			:max="reversalStakeGb*1.01" 
+			:step="reversalStakeGb/100"/>
+		</div >
 
+		<div class="pt-3">
+			<i18n path="contestOutcomeGainIfReversed" id="potential-gain">
+				<template #stake_amount>
+					<byte-amount :amount="stakeAmount" />
+				</template>
+				<template #gain_amount>
+					<byte-amount :amount="potentialGainAmount" /> 
+				</template>
+			</i18n>
+		</div>
+		<button class="button is-primary is-medium mt-2" type="button" @click="contest">contest and report as {{my_outcome}}</button>
 
-			<div class="pt-3" >
-				<label for="range-1">{{$t("contestModalAmountToStake")}}</label>
-				<b-slider id="range-1" 
-				v-model="stakeAmountGb" 
-				type="range" 
-				:number="true" 
-				:min="conf.challenge_min_stake_gb" 
-				:max="reversalStakeGb*1.01" 
-				:step="reversalStakeGb/100"/>
-			</div >
-
-
-			<div>
-				<span v-if="text_error" class="pt-3">{{text_error}}</span>
-				<div class="pt-3">
-					<i18n path="contestModalGainIfReversed" id="potential-gain">
-						<template #stake_amount>
-							<byte-amount :amount="stakeAmount" />
-						</template>
-						<template #gain_amount>
-							<byte-amount :amount="potentialGainAmount" /> 
-						</template>
-					</i18n>
-				</div>
-			</div >
-			<div v-if="amountLeftToReverse>0">
-			<div class="pt-3">
-				<i18n path="contestModalAmountLeft" id="amount-left">
-					<template #amount>
-						<byte-amount :amount="amountLeftToReverse" />
-					</template>
-					<template #gain_amount>
-						<byte-amount :amount="potentialGainAmount" /> 
-					</template>
-				</i18n>
-			</div>
-			</div >
+		<div v-if="amountLeftToReverse>0">
+			<p>
+			<i18n path="contestOutcomeAmountLeft" id="amount-left">
+				<template #amount>
+					<byte-amount :amount="amountLeftToReverse" />
+				</template>
+				<template #gain_amount>
+					<byte-amount :amount="potentialGainAmount" /> 
+				</template>
+			</i18n>
+				</p>
+		</div >
 		</div>
 		<div v-else fluid >
-			<div class="pt-3">
-				{{$t("contestModalLinkHeader")}}
-			</div >
-		<div class="pt-3">
-			<span class="text-break">
-				<a :href="link">{{link}}</a>
-			</span>
-			</div >
-			<div class="py-3">
-				{{$t("contestModalLinkFooter")}}
-			</div >
+			<p class="mt-2">{{$t("contestOutcomeLinkHeader", {outcome: my_outcome})}}</p>
+			<div class="mt-2"><a :href="link">{{link}}</a></div>
+			<p class="mt-1">{{$t('contestOutcomeLinkFooter')}}</p>
 		</div>
 	</div>
 </template>
@@ -76,46 +65,37 @@ export default {
 	},
 	data(){
 		return {
-			text_error: null,
 			conf: conf,
-			reversalStakeGb:0,
+			reversalStakeGb: 0,
 			reversalStake: 0,
 			stakeAmountGb: 0,
 			stakeAmount: 0,
 			isOkDisabled: false,
 			link: false,
 			urls: [],
-			operation_item:{}
+			sliderEnabled: false,
+			my_outcome: null
 		}
 	},
 	computed:{
 		getTitle:function(){
-return "";
+			return "";
 		},
 
 		amountLeftToReverse: function(){
 			return ((this.reversalStake - this.stakeAmount) );
 		},
 		newTotalOppositeStakeForReversal: function(){
-			return this.reversalStake + (this.operation_item.total_staked - this.operation_item.staked_on_outcome);
+			return this.reversalStake + (Number(this.question.total_staked) - Number(this.question.staked_on_outcome));
 		},
 		newTotalStake: function(){
-			return this.operation_item.total_staked + this.stakeAmount;
+			return Number(this.question.total_staked)  + this.stakeAmount;
 		},
 		potentialGainAmount: function(){
 			return this.stakeAmount / this.newTotalOppositeStakeForReversal *  this.newTotalStake - this.stakeAmount;
 		}
 	},
 	watch:{
-		operationItem:function(){
-			if(!this.operationItem)
-				return;
-			this.operation_item = this.operationItem;
-			this.reversalStake = (conf.challenge_coeff*this.operation_item.staked_on_outcome - this.operation_item.staked_on_opposite);
-			this.reversalStakeGb = this.reversalStake/conf.gb_to_bytes;
-			this.stakeAmountGb = this.reversalStakeGb;
-			this.reset();
-		},
 		stakeAmountGb: function(){
 			if (this.stakeAmountGb > this.reversalStakeGb)
 				this.stakeAmountGb = this.reversalStakeGb;
@@ -124,29 +104,39 @@ return "";
 			this.stakeAmount = this.stakeAmountGb * conf.gb_to_bytes;
 		}
 	},
+	created(){
+			console.log("created");
+			this.reversalStake = (conf.challenge_coeff*Number(this.question.staked_on_outcome) - Number(this.question.staked_on_opposite));
+			this.reversalStakeGb = this.reversalStake/conf.gb_to_bytes;
+			this.stakeAmountGb = this.reversalStakeGb;
+			this.sliderEnabled = true;
+			this.my_outcome = this.question.outcome == 'yes' ? 'no' : 'yes'
+			this.reset();
+
+	},
 	methods:{
 		urls_updated(urls, bAreUrlsValid){
 			this.urls = urls;
 			this.isOkDisabled = !bAreUrlsValid;
 		},
 		reset(){
-			this.text_error = null;
 		},
-		handleOk(bvModalEvt){
+		contest(bvModalEvt){
 				bvModalEvt.preventDefault()	;
 				const base64url = require('base64url');
 				const data = {
-						exchange: this.operationItem.exchange
+						question_id: this.question.question_id,
+						outcome: this.my_outcome
 				};
 
-				if (this.operationItem.isRemovingOperation)
-					data.add_wallet_id = this.operationItem.wallet_id;
-				else
-					data.remove_wallet_id = this.operationItem.wallet_id;
+
 				const json_string = JSON.stringify(data);
 				const base64data = base64url(json_string);
 				this.link = (conf.testnet ? "byteball-tn" :"byteball")+":"+conf.aa_address+"?amount="
 					+Math.round(this.stakeAmountGb*conf.gb_to_bytes)+"&base64data="+base64data;
+
+				this.$emit('link_created');
+
 		}
 	}
 }

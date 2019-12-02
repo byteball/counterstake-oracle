@@ -13,8 +13,8 @@ export default new Router({
 			path: '/question/:question_id',
 			component: lazyLoading('components/LandingPage'),
 			props:  route => ({
-        ...route.params
-						})
+				...route.params
+			})
 		},
 		{
 			name: 'landingPage',

@@ -1,22 +1,36 @@
 <template>
 	<div>
 		<div v-if="!link">
-			{{label}}
-		<button class="button" type="button" @click="report('yes')">Yes</button>
-		<button class="button" type="button" @click="report('no')">No</button>
+			<div class="mt-2" >
+	{{label}}
+			</div>
+			<div class="level mt-1">
+				<div class="level-item" />
+				<button class="button is-primary is-medium level-item" type="button" @click="report('yes')">Yes</button>
+				<div class="level-item" />
+				<button class="button is-primary is-medium level-item" type="button" @click="report('no')">No</button>
+				<div class="level-item" />
+			</div>
+			<div>
+				Amount to stake: <byte-amount :amount="question.reward"/>
+			</div>
 		</div>
 				<div v-else>
-					<p>{{$t('reportOutcomeLinkHeader')}}</p>
-					<a :href="link">{{link}}</a>
-					<p>{{$t('reportOutcomeLinkFooter')}}</p>
+					<p class="mt-2">{{$t('reportOutcomeLinkHeader')}}</p>
+					<div class="mt-2"><a :href="link">{{link}}</a></div>
+					<p class="mt-1">{{$t('reportOutcomeLinkFooter')}}</p>
 				</div>
 	</div>
 </template>
 
 <script>
-const conf = require("../../conf.js");
+const conf = require("../../conf.js")
+import ByteAmount from './ByteAmount.vue'
 
 export default {
+	components: {
+		ByteAmount
+	},
 	props: {
 		question: {
 			type: Object,
@@ -33,9 +47,7 @@ export default {
 	},
 	methods:{
 		report:function(outcome){
-
-			console.log(this.question);
-	const base64url = require('base64url');
+			const base64url = require('base64url');
 			const data = {
 					question_id: this.question.question_id,
 					outcome: outcome

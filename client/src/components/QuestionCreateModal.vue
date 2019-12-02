@@ -1,17 +1,17 @@
 <template>
 	<form action="">
-		<div class="modal-card" style="min-height:900px;">
+		<div class="modal-card" style="min-height:900px;min-width:400px;">
 			<header class="modal-card-head">
 					<p class="modal-card-title">{{$t('questionCreateModalTitle')}}</p>
 			</header>
 			<section class="modal-card-body" >
-				<div v-if="!link" style="padding:20px;">
+				<div v-if="!link" class="p-2">
 					<b-field :label="$t('questionCreateModalLabelFieldQuestion')">
 							<b-input v-model="question" :maxlength="conf.question_max_length" @input='onQuestionChanged'></b-input>
 					</b-field>
 					<p>{{$t('questionCreateModalQuestionRequirements',{min_length:conf.question_min_length})}}</p>
 
-					<b-field :label="$t('questionCreateModalSetDeadline')" style="margin-top:30px;">
+					<b-field :label="$t('questionCreateModalSetDeadline')" class="mt-3">
 							<b-datetimepicker
 								rounded
 								v-model="deadline"
@@ -28,7 +28,7 @@
 							<b-switch v-model="isUtcTime">UTC time</b-switch>
 						</div>
 					</b-field>
-					<b-field label="Reward amount" style="margin-top:30px;">
+					<b-field label="Reward amount" class="mt-3">
 						<b-slider v-model="amount" 
 						:min="conf.min_reward_for_AA_gb" 
 						:max="conf.min_reward_for_website_gb*100" 
@@ -42,12 +42,15 @@
 				</div>
 				<div v-else>
 					<h4 class="title is-4">{{question}}</h4>
-					<h5 class="title is-5">Deadline: {{isUtcTime ? deadline.toUTCString() : deadline}}</h5>
-					<h5 class="title is-5">Reward: <byte-amount :amount="Math.round(amount*conf.gb_to_bytes)"/></h5>
-
-					<p>{{$t('questionCreateModaLinkHeader')}}</p>
-					<a :href="link">{{link}}</a>
-					<p>{{$t('questionCreateModaLinkFooter')}}</p>
+					<div>
+						<b>Deadline: {{isUtcTime ? deadline.toUTCString() : deadline}}</b>
+					</div>
+					<div>
+						<b>Reward: <byte-amount :amount="Math.round(amount*conf.gb_to_bytes)"/></b>
+					</div>
+					<p class="mt-2">{{$t('questionCreateModaLinkHeader')}}</p>
+					<div class="mt-2"><a :href="link">{{link}}</a></div>
+					<p class="mt-1">{{$t('questionCreateModaLinkFooter')}}</p>
 				</div>
 			</section>
 

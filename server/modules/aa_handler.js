@@ -121,16 +121,18 @@ function indexQuestions(objStateVars){
 
 	operationKeys.forEach(function(key){
 		const question = {};
+		question.reward = objStateVars[key+"_reward"];
+		if (question.reward < conf.min_reward_to_display)
+			return;
 		question.status = objStateVars[key];
 		question.question = objStateVars[key+"_question"];
 		question.deadline = objStateVars[key+"_deadline"];
-		question.reward = objStateVars[key+"_reward"];
 		var outcome = objStateVars[key+"_outcome"];
 		question.outcome = outcome;
 		question.committed_outcome = objStateVars[key + "_committed_outcome"];
 		question.initial_outcome = objStateVars[key + "_initial_outcome"];
-		question.staked_on_outcome = Number(objStateVars[key + "_total_staked_on_" + outcome]);
-		question.staked_on_opposite = Number(objStateVars[key + "_total_staked_on_" + (outcome == "in" ? "out" :"in") ]);
+		question.staked_on_outcome = Number(objStateVars[key + "_total_staked_on_" + outcome]) || 0;
+		question.staked_on_opposite = Number(objStateVars[key + "_total_staked_on_" + (outcome == "in" ? "out" :"in") ]) || 0;
 		question.countdown_start= Number(objStateVars[key + "_countdown_start"]);
 		question.total_staked = Number(objStateVars[key + "_total_staked"]);
 		question.question_id = key;

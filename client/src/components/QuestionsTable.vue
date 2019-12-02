@@ -5,6 +5,7 @@
 					@click="onClick"
 					hoverable
 					per-page
+					class="questions-table"
 					>
 						<template slot-scope="props">
 
@@ -82,8 +83,9 @@ export default {
 					}
 					else if (row.status == 'being_graded'){
 						if (moment().isBefore(moment.unix(Number(row.countdown_start) + conf.challenge_period_in_days*24*3600 )))
- 							row.possibleAction = "Contest outcome";
-
+							row.possibleAction = "Contest outcome";
+						else
+							row.possibleAction = "Commit outcome";
 					}
 
 
