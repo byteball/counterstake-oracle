@@ -20,7 +20,6 @@ exports.create = function(){
 			)");
 
 		await db.query("CREATE INDEX IF NOT EXISTS operationsHistoryByMci ON questions_history(mci)");
-		await db.query("CREATE INDEX IF NOT EXISTS operationsHistoryByPair ON questions_history(pair)");
 		await db.query("CREATE INDEX IF NOT EXISTS operationsHistoryByQuestionId ON questions_history(question_id)");
 		await db.query("CREATE INDEX IF NOT EXISTS operationsHistoryByConcernedAddress ON questions_history(concerned_address)");
 
