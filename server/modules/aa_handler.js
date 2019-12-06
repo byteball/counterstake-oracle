@@ -132,7 +132,7 @@ function indexQuestions(objStateVars){
 		question.committed_outcome = objStateVars[key + "_committed_outcome"];
 		question.initial_outcome = objStateVars[key + "_initial_outcome"];
 		question.staked_on_outcome = Number(objStateVars[key + "_total_staked_on_" + outcome]) || 0;
-		question.staked_on_opposite = Number(objStateVars[key + "_total_staked_on_" + (outcome == "in" ? "out" :"in") ]) || 0;
+		question.staked_on_opposite = Number(objStateVars[key + "_total_staked_on_" + (outcome == "yes" ? "no" : "yes") ]) || 0;
 		question.countdown_start= Number(objStateVars[key + "_countdown_start"]);
 		question.total_staked = Number(objStateVars[key + "_total_staked"]);
 		question.question_id = key;
@@ -180,8 +180,8 @@ function extractStakedByKeyAndAddress(objStateVars){
 		if (key.indexOf("k_") == 0){
 		var splitKey = key.split('_');
 		 if (splitKey[2] == "total" && splitKey[6] == "by"){
-			var address = splitKey[8];
-			var outcome = splitKey[6];
+			var address = splitKey[7];
+			var outcome = splitKey[5];
 			var operation_key = splitKey[0] + '_' + splitKey[1];
 			if (!assocStakedByKeyAndAddress[operation_key])
 				assocStakedByKeyAndAddress[operation_key] = {};

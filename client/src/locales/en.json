@@ -14,7 +14,9 @@
 	"contestOutcomeAmountToStake" : "Amount to stake",
 	"contestOutcomeLinkHeader" : "Clicking the link below will open your Obyte wallet, ready to send a transaction to report outcome as {outcome}",
 	"contestOutcomeLinkFooter" : "It will be taken into account a few minutes after  the transaction is confirmed. Note that it could be canceled if in the meantime another user contests the operation. In this case, the AA would bounce the transaction to refund you.",
-	"questionModalHowToOfferContract" : "You can offer a contract depending of the answer to this question by using these parameters:"
+	"questionModalHowToOfferContract" : "You can offer a contract depending of the answer to this question by using these parameters:",
+	"claimGainLinkHeader": "Clicking the link below will open your Obyte wallet, ready to send a transaction to claim a gain",
+	"claimGainLinkFooter" : "It will be taken into account a few minutes after  the transaction is confirmed."
 
 }
 

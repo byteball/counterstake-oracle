@@ -1,0 +1,89 @@
+<template>
+	<div class="modal-card" style="min-width:400px;">
+		<header class="modal-card-head">
+			<p class="modal-card-title">Report outcome</p>
+		</header>
+		<section class="modal-card-body">
+		<div>
+			<h4 class="title is-4" > {{question.question}} </h4>
+		</div>
+		<div v-if="!link">
+			<div class="mt-2" >
+				Report outcome:
+			</div>
+			<div class="level mt-1">
+				<div class="level-item" />
+				<b-button type="is-primary is-medium level-item" :outlined="selectedOutcome!='yes'" @click="selectedOutcome='yes'">Yes</b-button>
+				<div class="level-item" />
+				<b-button type="is-primary is-medium level-item"  :outlined="selectedOutcome!='no'"  @click="selectedOutcome='no'">No</b-button>
+				<div class="level-item" />
+			</div>
+			<div>
+				Amount to stake: <byte-amount :amount="question.reward"/>
+			</div>
+			<div class="py-2">
+				<question-history :question="question"/>
+			</div>
+		</div>
+		<div v-else>
+			<p class="mt-2">{{$t('reportOutcomeLinkHeader')}}</p>
+			<div class="mt-2"><a :href="link">{{link}}</a></div>
+			<p class="mt-1">{{$t('reportOutcomeLinkFooter')}}</p>
+		</div>
+		</section>
+		<footer class="modal-card-foot">
+			<button class="button" type="button" @click="$emit('close')">Close</button>
+			<button v-if="selectedOutcome&&!link" class="button is-primary" type="button"  @click="handleOk">Ok</button>
+		</footer>
+	</div>
+</template>
+
+<script>
+const conf = require("../conf.js")
+import ByteAmount from './commons/ByteAmount.vue'
+import QuestionHistory from './commons/QuestionHistory.vue';
+
+export default {
+	components: {
+		ByteAmount,
+		QuestionHistory
+	},
+	props: {
+		question: {
+			type: Object,
+			required: true
+		},
+		label: {
+			type: String,
+		}
+	},
+	data(){
+		return {
+			link: null,
+			selectedOutcome: null
+		}
+	},
+	methods:{
+		handleOk:function(){
+			const base64url = require('base64url');
+			const data = {
+					question_id: this.question.question_id,
+					outcome: this.selectedOutcome
+			};
+
+			const json_string = JSON.stringify(data);
+			const base64data = base64url(json_string);
+			this.link = (conf.testnet ? "byteball-tn" :"byteball")+":"+conf.aa_address+"?amount="
+				+(this.question.reward)+"&base64data="+base64data;
+		}
+	}
+}
+</script>
+
+<style lang='scss' scoped>
+.default{
+
+}
+</style>
+
+

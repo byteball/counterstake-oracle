@@ -1,16 +1,15 @@
 <template>
 	<form action="">
-		<div class="modal-card" style="min-height:900px;min-width:400px;">
+		<div class="modal-card" style="min-width:400px;">
 			<header class="modal-card-head">
-					<p class="modal-card-title">{{$t('questionCreateModalTitle')}}</p>
+				<p class="modal-card-title">{{$t('questionCreateModalTitle')}}</p>
 			</header>
-			<section class="modal-card-body" >
+			<section  class="modal-card-body" >
 				<div v-if="!link" class="p-2">
 					<b-field :label="$t('questionCreateModalLabelFieldQuestion')">
-							<b-input v-model="question" :maxlength="conf.question_max_length" @input='onQuestionChanged'></b-input>
+						<b-input v-model="question" :maxlength="conf.question_max_length" @input='onQuestionChanged'></b-input>
 					</b-field>
 					<p>{{$t('questionCreateModalQuestionRequirements',{min_length:conf.question_min_length})}}</p>
-
 					<b-field :label="$t('questionCreateModalSetDeadline')" class="mt-3">
 							<b-datetimepicker
 								rounded
@@ -50,7 +49,7 @@
 					</div>
 					<p class="mt-2">{{$t('questionCreateModaLinkHeader')}}</p>
 					<div class="mt-2"><a :href="link">{{link}}</a></div>
-					<p class="mt-1">{{$t('questionCreateModaLinkFooter')}}</p>
+					<p class="mt-1 pb-5">{{$t('questionCreateModaLinkFooter')}}</p>
 				</div>
 			</section>
 

@@ -86,9 +86,16 @@ export default {
 							row.possibleAction = "Contest outcome";
 						else
 							row.possibleAction = "Commit outcome";
+					} else if (row.status == 'committed'){
+							const assocStakedByAdress =	row.staked_by_address;
+							const outcome = row.outcome
+							for (var key in assocStakedByAdress){
+								if (assocStakedByAdress[key][outcome]){
+									row.possibleAction = "Withdraw";
+									break;
+								}
+							}
 					}
-
-
 				});
 				this.data = response.data;
 			});

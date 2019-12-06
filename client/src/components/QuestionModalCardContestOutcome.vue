@@ -1,61 +1,77 @@
 <template>
-	<div style="width: auto;">
-		<div v-if="!link" fluid >
-		<div>
-			<div class="is-inline">
-				Current outcome: 
+	<div class="modal-card" style="min-width:400px;">
+		<header class="modal-card-head">
+			<p class="modal-card-title">Contest outcome</p>
+		</header>
+		<section class="modal-card-body">
+			<h4 class="title is-4">{{question.question}}</h4>
+			<div v-if="!link" >
+				<div>
+					<div class="is-inline">
+						Current outcome: 
 					</div >
-						<h3 class="title is-3 is-inline"> {{ question.outcome }} </h3>
-		</div>
-		<div class="mt-2" >
-			<label for="range-1">{{$t("contestOutcomeAmountToStake")}}</label>
-			<b-slider v-if="sliderEnabled" id="range-1" 
-			v-model="stakeAmountGb" 
-			:min="conf.challenge_min_stake_gb" 
-			:max="reversalStakeGb*1.01" 
-			:step="reversalStakeGb/100"/>
-		</div >
+					<h3 class="title is-3 is-inline"> {{ question.outcome }} </h3>
+				</div>
+				<div class="py-3">
+					<div >
+						<label for="range-1">{{$t("contestOutcomeAmountToStake")}}</label>
+						<b-slider v-if="sliderEnabled" id="range-1" 
+						v-model="stakeAmountGb" 
+						:min="conf.challenge_min_stake_gb" 
+						:max="reversalStakeGb*1.01" 
+						:step="reversalStakeGb/100"/>
+					</div >
 
-		<div class="pt-3">
-			<i18n path="contestOutcomeGainIfReversed" id="potential-gain">
-				<template #stake_amount>
-					<byte-amount :amount="stakeAmount" />
-				</template>
-				<template #gain_amount>
-					<byte-amount :amount="potentialGainAmount" /> 
-				</template>
-			</i18n>
-		</div>
-		<button class="button is-primary is-medium mt-2" type="button" @click="contest">contest and report as {{my_outcome}}</button>
+					<div class="pt-3">
+						<i18n path="contestOutcomeGainIfReversed" id="potential-gain">
+							<template #stake_amount>
+								<byte-amount :amount="stakeAmount" />
+							</template>
+							<template #gain_amount>
+								<byte-amount :amount="potentialGainAmount" /> 
+							</template>
+						</i18n>
+					</div>
 
-		<div v-if="amountLeftToReverse>0">
-			<p>
-			<i18n path="contestOutcomeAmountLeft" id="amount-left">
-				<template #amount>
-					<byte-amount :amount="amountLeftToReverse" />
-				</template>
-				<template #gain_amount>
-					<byte-amount :amount="potentialGainAmount" /> 
-				</template>
-			</i18n>
-				</p>
-		</div >
-		</div>
-		<div v-else fluid >
-			<p class="mt-2">{{$t("contestOutcomeLinkHeader", {outcome: my_outcome})}}</p>
-			<div class="mt-2"><a :href="link">{{link}}</a></div>
-			<p class="mt-1">{{$t('contestOutcomeLinkFooter')}}</p>
-		</div>
+					<div v-if="amountLeftToReverse>0">
+						<p>
+						<i18n path="contestOutcomeAmountLeft" id="amount-left">
+							<template #amount>
+								<byte-amount :amount="amountLeftToReverse" />
+							</template>
+							<template #gain_amount>
+								<byte-amount :amount="potentialGainAmount" /> 
+							</template>
+						</i18n>
+							</p>
+					</div >
+				</div>
+				<question-history :question="question" />
+			</div>
+			<div v-else fluid >
+				<div class="py-3">
+					<p>{{$t("contestOutcomeLinkHeader", {outcome: my_outcome})}}</p>
+					<div class="mt-2"><a :href="link">{{link}}</a></div>
+					<p class="mt-1">{{$t('contestOutcomeLinkFooter')}}</p>
+				</div>
+			</div>
+		</section>
+		<footer class="modal-card-foot">
+			<button class="button" type="button" @click="$emit('close')">Close</button>
+			<button class="button is-primary" type="button" @click="contest">contest and report as {{my_outcome}}</button>
+		</footer>
 	</div>
 </template>
 
 <script>
-const conf = require("../../conf.js");
-import ByteAmount from './ByteAmount.vue';
+const conf = require("../conf.js");
+import ByteAmount from './commons/ByteAmount.vue';
+import QuestionHistory from './commons/QuestionHistory.vue';
 
 export default {	
 	components: {
-		ByteAmount
+		ByteAmount,
+		QuestionHistory
 	},
 	props: {
 		question: {
