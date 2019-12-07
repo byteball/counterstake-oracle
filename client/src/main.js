@@ -12,7 +12,6 @@ import i18n from './i18n'
 import store from './store'
 
 import Buefy from 'buefy'
-import 'buefy/dist/buefy.css'
 
 
 import { library } from '@fortawesome/fontawesome-svg-core';

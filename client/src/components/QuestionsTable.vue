@@ -13,7 +13,7 @@
 								{{props.row.question}}
 							</b-table-column>
 
-							<b-table-column field="deadline" label="Deadline"  sortable>
+							<b-table-column field="deadline" label="Report time" sortable>
 								{{props.row.countdown}}
 							</b-table-column>
 

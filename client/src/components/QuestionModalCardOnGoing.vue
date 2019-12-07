@@ -5,10 +5,16 @@
 		</header>
 		<section class="modal-card-body">
 			<h4 class="title is-4">{{question.question}}</h4>
+			<hr>
+			<div class="pt-1">Reporting start: <b>{{question.countdown}}</b></div>
+			<div class="pt-2">
 				<div>{{$t('questionModalHowToOfferContract')}}</div>
-				<div>Oracle address: {{conf.aa_address}}</div>
-				<div>Feed name: {{question.question_id}}</div>
-				<div>Expected value: yes or no</div>
+				</div>
+			<div class="py-1">
+				<div>Oracle address: <b>{{conf.aa_address}}</b></div>
+				<div>Feed name: <b>{{question.question_id}}</b></div>
+				<div>Expected value: <b>yes</b> or <b>no</b></div>
+			</div>
 			<div class="py-2">
 				<question-history :question="question"/>
 			</div>

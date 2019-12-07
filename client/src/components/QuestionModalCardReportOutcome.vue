@@ -4,32 +4,35 @@
 			<p class="modal-card-title">Report outcome</p>
 		</header>
 		<section class="modal-card-body">
-		<div>
 			<h4 class="title is-4" > {{question.question}} </h4>
-		</div>
-		<div v-if="!link">
-			<div class="mt-2" >
-				Report outcome:
+			<hr class="new">
+			<div v-if="!link">
+				<div class="py-2">
+				<div class="py-1" >
+					Report outcome:
+				</div>
+				<div class="level pb-2">
+					<div class="level-item" />
+					<b-button type="is-primary is-medium level-item" :outlined="selectedOutcome!='yes'" @click="selectedOutcome='yes'">Yes</b-button>
+					<div class="level-item" />
+					<b-button type="is-primary is-medium level-item"  :outlined="selectedOutcome!='no'"  @click="selectedOutcome='no'">No</b-button>
+					<div class="level-item" />
+				</div>
+				<div class="pb-1">
+					Amount to stake: <byte-amount :amount="question.reward"/>
+				</div>
+				<div class="pt-2">
+					<question-history :question="question"/>
+				</div>
+				</div>
 			</div>
-			<div class="level mt-1">
-				<div class="level-item" />
-				<b-button type="is-primary is-medium level-item" :outlined="selectedOutcome!='yes'" @click="selectedOutcome='yes'">Yes</b-button>
-				<div class="level-item" />
-				<b-button type="is-primary is-medium level-item"  :outlined="selectedOutcome!='no'"  @click="selectedOutcome='no'">No</b-button>
-				<div class="level-item" />
+			<div v-else>
+				<div class="py-3">
+				<p>{{$t('reportOutcomeLinkHeader')}}</p>
+				<div class="mt-2"><a :href="link">{{link}}</a></div>
+				<p class="mt-2">{{$t('reportOutcomeLinkFooter')}}</p>
+				</div>
 			</div>
-			<div>
-				Amount to stake: <byte-amount :amount="question.reward"/>
-			</div>
-			<div class="py-2">
-				<question-history :question="question"/>
-			</div>
-		</div>
-		<div v-else>
-			<p class="mt-2">{{$t('reportOutcomeLinkHeader')}}</p>
-			<div class="mt-2"><a :href="link">{{link}}</a></div>
-			<p class="mt-1">{{$t('reportOutcomeLinkFooter')}}</p>
-		</div>
 		</section>
 		<footer class="modal-card-foot">
 			<button class="button" type="button" @click="$emit('close')">Close</button>

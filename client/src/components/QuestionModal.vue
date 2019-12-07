@@ -49,7 +49,6 @@ export default  {
 				this.question = response.data;
 				this.question.countdown = moment().to(moment.unix(this.question.deadline));
 				this.setFlags();
-				this.setTitle();
 			});
 		}
 

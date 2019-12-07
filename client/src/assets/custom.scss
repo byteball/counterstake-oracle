@@ -1,22 +1,27 @@
-$theme-colors: (
-	"primary": #3e1886,
-	"bar-yes": #2c8f31,
-	"bar-no" : #c21a23,
-	"welcome-message" : #a07373,
-	"main-block" : white
+
+
+// Import Bulma's core
+@import "~bulma/sass/utilities/_all";
+
+$primary: #8c67ef;
+$primary-invert: findColorInvert($primary);
+
+
+// Setup $colors to use as bulma classes (e.g. 'is-twitter')
+$colors: (
+    "white": ($white, $black),
+    "black": ($black, $white),
+    "light": ($light, $light-invert),
+    "dark": ($dark, $dark-invert),
+    "primary": ($primary, $primary-invert),
+    "info": ($info, $info-invert),
+    "success": ($success, $success-invert),
+    "warning": ($warning, $warning-invert),
+    "danger": ($danger, $danger-invert),
 );
 
-$body-bg:  rgb(236, 236, 235);
-$btn-border-radius: 0px;
-
-// import must be after variables overrides
-
-
-
-// general style overrides and custom classes
-body {
-	font-family: 'Verdana', sans-serif;
-}
+$hr-background-color: $primary;
+$hr-margin: 0.8rem 0;
 
 .questions-table tr {
 	cursor: pointer;
@@ -47,6 +52,13 @@ body {
 .p-2 {
 	padding: 2em;
 }
+
+.py-1 {
+	padding-top: 1em;
+	padding-bottom: 1em;
+}
+
+
 .py-2 {
 	padding-top: 2em;
 	padding-bottom: 2em;
@@ -63,6 +75,19 @@ body {
 	padding-bottom: 5em;
 }
 
+.pt-1 {
+	padding-top: 1em;
+}
+
+
+.pt-2 {
+	padding-top: 2em;
+}
+
+.pb-1 {
+	padding-bottom: 1em;
+}
+
 .pb-2 {
 	padding-bottom: 2em;
 }
@@ -77,3 +102,7 @@ body {
 .pb-5 {
 	padding-bottom: 5em;
 }
+
+// Import Bulma and Buefy styles
+@import "~bulma";
+@import "~buefy/src/scss/buefy"

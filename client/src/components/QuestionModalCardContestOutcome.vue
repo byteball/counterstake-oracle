@@ -5,16 +5,18 @@
 		</header>
 		<section class="modal-card-body">
 			<h4 class="title is-4">{{question.question}}</h4>
+			<hr>
 			<div v-if="!link" >
-				<div>
+				<div class="pt-1">
 					<div class="is-inline">
 						Current outcome: 
 					</div >
-					<h3 class="title is-3 is-inline"> {{ question.outcome }} </h3>
+					<h5 class="title is-5 is-inline"> {{ question.outcome }} </h5>
+					<div>Challenging period end: <b>{{challengeCountdown}}</b></div>
 				</div>
 				<div class="py-3">
 					<div >
-						<label for="range-1">{{$t("contestOutcomeAmountToStake")}}</label>
+						<label for="range-1">{{$t("contestOutcomeAmountToStake")}} on <b>{{my_outcome}}</b></label>
 						<b-slider v-if="sliderEnabled" id="range-1" 
 						v-model="stakeAmountGb" 
 						:min="conf.challenge_min_stake_gb" 
@@ -67,6 +69,7 @@
 const conf = require("../conf.js");
 import ByteAmount from './commons/ByteAmount.vue';
 import QuestionHistory from './commons/QuestionHistory.vue';
+import moment from 'moment/src/moment'
 
 export default {	
 	components: {
@@ -121,12 +124,12 @@ export default {
 		}
 	},
 	created(){
-			console.log("created");
 			this.reversalStake = (conf.challenge_coeff*Number(this.question.staked_on_outcome) - Number(this.question.staked_on_opposite));
 			this.reversalStakeGb = this.reversalStake/conf.gb_to_bytes;
 			this.stakeAmountGb = this.reversalStakeGb;
 			this.sliderEnabled = true;
-			this.my_outcome = this.question.outcome == 'yes' ? 'no' : 'yes'
+			this.my_outcome = this.question.outcome == 'yes' ? 'no' : 'yes';
+			this.challengeCountdown = moment().to(moment.unix(conf.challenge_period_in_days*24*3600  + Number(this.question.countdown_start)));
 			this.reset();
 
 	},
