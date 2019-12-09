@@ -55,7 +55,7 @@
 
 			<footer class="modal-card-foot">
 				<button class="button" type="button" @click="$parent.close()">Close</button>
-				<button v-if="isButtonOkVisible" class="button is-primary" @click="handleOk">Ok</button>
+				<button v-if="isButtonOkVisible" class="button is-primary" @click="handleOk">Create link</button>
 			</footer>
 		</div>
 	</form>

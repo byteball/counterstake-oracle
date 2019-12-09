@@ -60,7 +60,7 @@
 		</section>
 		<footer class="modal-card-foot">
 			<button class="button" type="button" @click="$emit('close')">Close</button>
-			<button class="button is-primary" type="button" @click="contest">contest and report as {{my_outcome}}</button>
+			<button class="button is-primary" type="button" @click="contest">Create link</button>
 		</footer>
 	</div>
 </template>
@@ -100,18 +100,11 @@ export default {
 		getTitle:function(){
 			return "";
 		},
-
 		amountLeftToReverse: function(){
-			return ((this.reversalStake - this.stakeAmount) );
-		},
-		newTotalOppositeStakeForReversal: function(){
-			return this.reversalStake + (Number(this.question.total_staked) - Number(this.question.staked_on_outcome));
-		},
-		newTotalStake: function(){
-			return Number(this.question.total_staked)  + this.stakeAmount;
+			return this.reversalStake - this.stakeAmount;
 		},
 		potentialGainAmount: function(){
-			return this.stakeAmount / this.newTotalOppositeStakeForReversal *  this.newTotalStake - this.stakeAmount;
+			return this.stakeAmount / conf.challenge_coeff;
 		}
 	},
 	watch:{

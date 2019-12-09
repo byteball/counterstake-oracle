@@ -6,6 +6,7 @@
 				<contest-outcome v-if="question.isContestable" :question="question" @close="closeModal" />
 				<commit-outcome v-if="question.isCommittable" :question="question" @close="closeModal" />
 				<claim-gain v-if="question.isWithdrawable" :question="question" @close="closeModal" />
+				<committed-outcome v-if="question.isCommitted && !question.isWithdrawable" :question="question" @close="closeModal" />
 			</div>
 	</form>
 </template>
@@ -17,6 +18,7 @@ import ClaimGain from './QuestionModalCardClaimGain'
 import OnGoingQuestion from './QuestionModalCardOnGoing'
 import ReportOutcome from './QuestionModalCardReportOutcome'
 import ContestOutcome from './QuestionModalCardContestOutcome'
+import CommittedOutcome from './QuestionModalCardCommittedOutcome'
 
 const conf = require("../conf.js");
 
@@ -25,7 +27,9 @@ export default  {
 		OnGoingQuestion,
 		ReportOutcome,
 		ContestOutcome,
-		ClaimGain
+		CommitOutcome,
+		ClaimGain,
+		CommittedOutcome
 	},
 	props: ['propQuestion','propQuestionId'],
 
@@ -61,6 +65,7 @@ export default  {
 			this.question.isContestable = this.question.status == "being_graded" && moment().isBefore(moment.unix(Number(this.question.countdown_start) + conf.challenge_period_in_days*24*3600 ));
 			this.question.isCommittable =  this.question.status == "being_graded"  && !this.question.isContestable;
 			if (this.question.status == "committed"){
+				this.question.isCommitted = true;
 				const assocStakedByAdress =	this.question.staked_by_address;
 				const outcome = this.question.outcome
 				this.question.claimAddresses = [];
@@ -68,7 +73,6 @@ export default  {
 					if (assocStakedByAdress[key][outcome]){
 						this.question.isWithdrawable = true;
 						this.question.claimAddresses.push(key);
-						this.question.claimAddresses.push("TCG2II7FRR4FROZKLPOL3KO46Y7DXON3");
 					}
 				}
 			}

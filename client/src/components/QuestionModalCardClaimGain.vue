@@ -6,6 +6,7 @@
 		<section class="modal-card-body">
 			<div>
 				<h4 class="title is-4" > {{question.question}} </h4>
+				<hr>
 			</div>
 				<div v-if="!link">
 					<div class="p-2">Select one address: </div>
@@ -26,7 +27,7 @@
 		</section>
 		<footer class="modal-card-foot">
 			<button class="button" type="button" @click="$emit('close')">Close</button>
-			<button v-if="selectedAddress&&!link" class="button is-primary" type="button"  @click="handleOk">Ok</button>
+			<button v-if="selectedAddress&&!link" class="button is-primary" type="button"  @click="handleOk">Create link</button>
 		</footer>
 	</div>
 	
@@ -73,8 +74,7 @@ selectedAddress: function(){
 
 			const json_string = JSON.stringify(data);
 			const base64data = base64url(json_string);
-			this.link = (conf.testnet ? "byteball-tn" :"byteball")+":"+conf.aa_address+"?amount="
-				+(this.question.reward)+"&base64data="+base64data;
+			this.link = (conf.testnet ? "byteball-tn" :"byteball")+":"+conf.aa_address+"?amount=10000&base64data="+base64data;
 			this.$emit('link_created');
 		}
 	}
