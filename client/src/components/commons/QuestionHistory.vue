@@ -60,7 +60,7 @@
 
 <script>
 const conf = require("../../conf.js");
-import moment from 'moment/src/moment'
+import moment from 'moment'
 import ByteAmount from './ByteAmount.vue';
 import User from './User.vue';
 

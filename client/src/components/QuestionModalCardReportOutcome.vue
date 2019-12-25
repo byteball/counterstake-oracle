@@ -6,30 +6,30 @@
 		<section class="modal-card-body">
 			<h4 class="title is-4" > {{question.question}} </h4>
 			<hr class="new">
-			<div v-if="!link">
+			<div v-if="!link" ref="div-report">
 				<div class="py-2">
 					<div class="py-1" >
 						Report outcome:
 					</div>
 					<div class="level pb-2">
 						<div class="level-item" />
-						<b-button type="is-primary is-medium level-item" :outlined="selectedOutcome!='yes'" @click="selectedOutcome='yes'">Yes</b-button>
+						<b-button type="is-primary is-medium level-item" :outlined="selectedOutcome!='yes'" @click="selectedOutcome='yes'" ref="button-yes">Yes</b-button>
 						<div class="level-item" />
-						<b-button type="is-primary is-medium level-item"  :outlined="selectedOutcome!='no'"  @click="selectedOutcome='no'">No</b-button>
+						<b-button type="is-primary is-medium level-item"  :outlined="selectedOutcome!='no'"  @click="selectedOutcome='no'" ref="button-no">No</b-button>
 						<div class="level-item" />
 					</div>
 					<div class="pb-1">
 						Amount to stake: <b><byte-amount :amount="amountToStake"/></b>
 					</div>
 					<div class="pb-1">
-						Reward if your outcome eventually wins: <b><byte-amount :amount="question.reward"/></b>
+						Minimal reward if your outcome eventually wins: <b><byte-amount :amount="question.reward"/></b>
 					</div>
 					<div class="pt-2">
 						<question-history :question="question"/>
 					</div>
 				</div>
 			</div>
-			<div v-else>
+			<div v-else ref="div-link">
 				<div class="py-3">
 				<p>{{$t('reportOutcomeLinkHeader')}}</p>
 				<div class="mt-2"><a :href="link">{{link}}</a></div>
@@ -39,7 +39,7 @@
 		</section>
 		<footer class="modal-card-foot">
 			<button class="button" type="button" @click="$emit('close')">Close</button>
-			<button v-if="selectedOutcome&&!link" class="button is-primary" type="button"  @click="handleOk">Create link</button>
+			<button v-if="selectedOutcome&&!link" class="button is-primary" type="button"  @click="handleOk" ref="button-create">Create link</button>
 		</footer>
 	</div>
 </template>
@@ -58,9 +58,6 @@ export default {
 		question: {
 			type: Object,
 			required: true
-		},
-		label: {
-			type: String,
 		}
 	},
 	data(){
@@ -83,6 +80,9 @@ export default {
 			this.link = (conf.testnet ? "byteball-tn" :"byteball")+":"+conf.aa_address+"?amount="
 				+(this.amountToStake)+"&base64data="+base64data;
 		}
+	},
+	created(){
+
 	}
 }
 </script>

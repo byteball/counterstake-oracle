@@ -3,24 +3,20 @@
 		<b-navbar>
 			<template slot="brand">
 					<b-navbar-item tag="router-link" :to="{ path: '/' }">
-						<h1 class="title is-1">Counterstake.org</h1>
+						<h1 class="title is-1">{{conf.website_name}}</h1>
 					</b-navbar-item>
 			</template>
 		</b-navbar>
-		<div>
-						<section>
-				<questions-table />
-			</section>
-			<section>
-					<div class="ml-3 mt-2">
-
-					<button class="button is-primary is-medium" @click="createQuestion()">
-						{{$t('landingPageButtonCreateQuestion')}}
-					</button>
-
-					</div>
-			</section>
-		</div>
+		<section>
+			<questions-table />
+		</section>
+		<section>
+			<div class="ml-3 mt-2">
+				<button class="button is-primary is-medium" @click="createQuestion()">
+					{{$t('landingPageButtonCreateQuestion')}}
+				</button>
+			</div>
+		</section>
 	</div>
 </template>
 
@@ -42,6 +38,11 @@ export default {
 			required: false
 		}
 
+	},
+	data() {
+		return {
+			conf: conf
+		}
 	},
 	components: {
 		QuestionsTable

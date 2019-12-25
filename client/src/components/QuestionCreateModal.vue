@@ -5,9 +5,9 @@
 				<p class="modal-card-title">{{$t('questionCreateModalTitle')}}</p>
 			</header>
 			<section  class="modal-card-body" >
-				<div v-if="!link" class="p-2">
+				<div v-if="!link" ref="div-create" class="p-2">
 					<b-field :label="$t('questionCreateModalLabelFieldQuestion')">
-						<b-input v-model="question" :maxlength="conf.question_max_length" @input='onQuestionChanged'></b-input>
+						<b-input v-model="question" :maxlength="conf.question_max_length" @input='onQuestionChanged' ref="input-question"></b-input>
 					</b-field>
 					<p>{{$t('questionCreateModalQuestionRequirements',{min_length:conf.question_min_length})}}</p>
 					<b-field :label="$t('questionCreateModalSetDeadline')" class="mt-3">
@@ -36,10 +36,10 @@
 						:custom-formatter="val => val + ' GB'">
 						</b-slider>
 					</b-field>
-					<byte-amount :amount="Math.round(amount*conf.gb_to_bytes)"/>
+					<byte-amount :amount="Math.round(amount*conf.gb_to_bytes)" ref="reward-amount"/>
 					<p v-if="amount<conf.min_reward_for_website_gb">{{$t('questionCreateModalAmountTooLowForWebsite',{amount:conf.min_reward_for_website_gb})}}</p>
 				</div>
-				<div v-else>
+				<div v-else ref="div-link">
 					<h4 class="title is-4">{{question}}</h4>
 					<div>
 						<b>Deadline: {{isUtcTime ? deadline.toUTCString() : deadline}}</b>
@@ -55,7 +55,7 @@
 
 			<footer class="modal-card-foot">
 				<button class="button" type="button" @click="$parent.close()">Close</button>
-				<button v-if="isButtonOkVisible" class="button is-primary" @click="handleOk">Create link</button>
+				<button v-if="isButtonOkVisible" class="button is-primary" @click="handleOk" ref="button-create">Create link</button>
 			</footer>
 		</div>
 	</form>
@@ -95,7 +95,7 @@ import ByteAmount from './commons/ByteAmount.vue';
 				this.minDateTime =  this.convertLocalDateToUTC(this.minDateTime);
 			} else {
 				this.deadline = this.convertUtcDateToLocal(this.deadline);
-				this.minDateTime =  this.convertUtcDateToLocal(this.minDateTime);
+				this.minDateTime = this.convertUtcDateToLocal(this.minDateTime);
 			}
 		}
 
@@ -113,7 +113,6 @@ import ByteAmount from './commons/ByteAmount.vue';
 		},
 		convertUtcDateToLocal(date) {
 			var offset = new Date().getTimezoneOffset();
-			console.log(offset);
 			return new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes() - offset, date.getSeconds());
 		},
 		handleOk(bvModalEvt){
