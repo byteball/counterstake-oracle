@@ -17,7 +17,7 @@
 			</div>
 		</section>
 		<footer class="modal-card-foot">
-			<button class="button" type="button" @click="$emit('close')">Create link</button>
+			<button class="button" type="button" @click="$emit('close')">Close</button>
 		</footer>
 	</div>
 </template>

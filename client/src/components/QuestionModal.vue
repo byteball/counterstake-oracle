@@ -62,7 +62,7 @@ export default  {
 		setFlags: function(){
 			this.question.isOngoing = moment().isBefore(moment.unix(this.question.deadline));
 			this.question.isReportable = !this.question.isOngoing && !this.question.outcome;
-			this.question.isContestable = this.question.status == "being_graded" && moment().isBefore(moment.unix(Number(this.question.countdown_start) + conf.challenge_period_in_days*24*3600 ));
+			this.question.isContestable = this.question.status == "being_graded" && moment().isBefore(moment.unix(this.question.countdown_start + conf.challenge_period_in_days*24*3600 ));
 			this.question.isCommittable =  this.question.status == "being_graded"  && !this.question.isContestable;
 			if (this.question.status == "committed"){
 				this.question.isCommitted = true;

@@ -18,7 +18,7 @@
 							</b-table-column>
 
 							<b-table-column field="reward" label="Reward"  sortable>
-								<byte-amount :amount="Number(props.row.reward)" />
+								<byte-amount :amount="props.row.reward" />
 							</b-table-column>
 
 							<b-table-column field="outcome" label="Outcome">
@@ -82,7 +82,7 @@ export default {
  							row.possibleAction = "Not reportable yet";
 					}
 					else if (row.status == 'being_graded'){
-						if (moment().isBefore(moment.unix(Number(row.countdown_start) + conf.challenge_period_in_days*24*3600 )))
+						if (moment().isBefore(moment.unix(row.countdown_start + conf.challenge_period_in_days*24*3600 )))
 							row.possibleAction = "Contest outcome";
 						else
 							row.possibleAction = "Commit outcome";

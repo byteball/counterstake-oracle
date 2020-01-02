@@ -8,7 +8,7 @@ exports.api_port = 1300;
 exports.hub = process.env.testnet ? 'obyte.org/bb-test' : 'obyte.org/bb';
 exports.min_reward_to_display = 10000000;
 
-exports.aa_address = process.env.testnet ? 'YYFGEKKLY7AEAN6WFDQWZZPUUCGMNLV3' : ''; //7OUC7TREROTSUUM7AJBJGKBBRJK5R24E
+exports.aa_address = process.env.testnet ? 'JBKXRNE5Y5S3JB5GTX3Q2FTFIFFKJY3W' : ''; //7OUC7TREROTSUUM7AJBJGKBBRJK5R24E
 
 exports.initial_witnesses = !process.env.testnet ? [
 	'BVVJ2K7ENPZZ3VYZFWQWK7ISPCATFIW3',

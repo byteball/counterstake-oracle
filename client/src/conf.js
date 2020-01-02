@@ -1,7 +1,7 @@
 const testnet = true;
 
 exports.testnet = testnet;
-exports.aa_address = testnet ? "YYFGEKKLY7AEAN6WFDQWZZPUUCGMNLV3" : "";
+exports.aa_address = testnet ? "JBKXRNE5Y5S3JB5GTX3Q2FTFIFFKJY3W" : "";
 exports.challenge_period_in_days = testnet ? 1/24 : 3;
 exports.challenge_min_stake_gb = 0.001;
 exports.challenge_coeff = 1.5;

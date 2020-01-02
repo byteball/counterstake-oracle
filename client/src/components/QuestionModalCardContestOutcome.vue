@@ -117,13 +117,13 @@ export default {
 		}
 	},
 	created(){
-			this.reversalStake = (conf.challenge_coeff*Number(this.question.staked_on_outcome) - Number(this.question.staked_on_opposite));
-			this.reversalStakeGb = this.reversalStake/conf.gb_to_bytes;
-			this.stakeAmountGb = this.reversalStakeGb;
-			this.sliderEnabled = true;
-			this.my_outcome = this.question.outcome == 'yes' ? 'no' : 'yes';
-			this.challengeCountdown = moment().to(moment.unix(conf.challenge_period_in_days*24*3600  + Number(this.question.countdown_start)));
-			this.reset();
+		this.reversalStake = (conf.challenge_coeff*this.question.staked_on_outcome - this.question.staked_on_opposite);
+		this.reversalStakeGb = this.reversalStake/conf.gb_to_bytes;
+		this.stakeAmountGb = this.reversalStakeGb;
+		this.sliderEnabled = true;
+		this.my_outcome = this.question.outcome == 'yes' ? 'no' : 'yes';
+		this.challengeCountdown = moment().to(moment.unix(conf.challenge_period_in_days*24*3600  + this.question.countdown_start));
+		this.reset();
 
 	},
 	methods:{

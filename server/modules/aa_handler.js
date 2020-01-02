@@ -4,6 +4,7 @@ const myWitnesses = require('ocore/my_witnesses.js');
 const async = require('async');
 const mutex = require('ocore/mutex.js');
 const network = require('ocore/network.js');
+const wallet_general = require('ocore/wallet_general.js');
 const db = require('ocore/db.js');
 //const social_networks = require('./social_networks.js');
 
@@ -20,9 +21,12 @@ myWitnesses.readMyWitnesses(function (arrWitnesses) {
 
 function start(){
 	lightWallet.setLightVendorHost(conf.hub);
-	db.query("INSERT "+db.getIgnore()+" INTO my_watched_addresses (address) VALUES (?)", [conf.aa_address], function(){
-		network.addLightWatchedAddress(conf.address);
-		refresh(),
+	wallet_general.addWatchedAddress(conf.aa_address, function(error){
+		if (error)
+			console.log(error)
+		else
+			console.log(conf.aa_address + " added as watched address")
+		refresh();
 		setInterval(refresh, 60 * 1000);
 	});
 }
@@ -30,11 +34,46 @@ function start(){
 function refresh(){
 	lightWallet.refreshLightClientHistory();
 	catchUpOperationsHistory();
-	network.requestFromLightVendor('light/get_aa_state_vars', {address: conf.aa_address},function(error, request, objStateVars){
+	getStateVarsRangeForPrefix("question_", "0","z", function(error, objStateVars){
+		if (error)
+			return console.log(error);
 		indexQuestions(objStateVars);
 		indexNicknames(objStateVars);
 	});
 }
+
+
+function getStateVarsRangeForPrefix(prefix, start, end, handle){
+	const CHUNK_SIZE = 2000;
+	network.requestFromLightVendor('light/get_aa_state_vars', {
+		address: conf.aa_address,
+		var_prefix_from: prefix + start,
+		var_prefix_to: prefix + end,
+		limit: CHUNK_SIZE
+	}, function(ws, request, objResponse){
+		if (objResponse.error)
+			return handle(objResponse.error);
+
+		if (Object.keys(objResponse).length >= CHUNK_SIZE){
+			const delimiter =  Math.floor((end.charCodeAt(0) - start.charCodeAt(0)) / 2 + start.charCodeAt(0));
+			async.parallel([function(cb){
+				getStateVarsRange(prefix, start, String.fromCharCode(delimiter), cb)
+			},
+			function(cb){
+				getStateVarsRange(prefix, String.fromCharCode(delimiter +1), end, cb)
+			}
+			], function(error, results){
+				if (error)
+					return handle(error);
+				else
+					return handle(null, {...results[0], ...results[1]});
+			})
+		} else {
+			return handle(null, objResponse);
+		}
+	});
+}
+
 
 //we push in an indexed table all information coming from aa responses
 function catchUpOperationsHistory(){
@@ -45,11 +84,8 @@ function catchUpOperationsHistory(){
 			ELSE 0 \n\
 			END max_mci\n\
 			FROM questions_history) AND aa_address=?", [conf.aa_address], function(rows){
-				async.eachOf(rows, function(row, index, cb) {
+			async.eachOf(rows, function(row, index, cb) {
 
-
-					console.log("catchUpOperationsHistory row")
-					console.log(row);
 				const objResponse = JSON.parse(row.response).responseVars;
 				if(!objResponse)
 					return cb();
@@ -121,7 +157,7 @@ function indexQuestions(objStateVars){
 
 	operationKeys.forEach(function(key){
 		const question = {};
-		question.reward = objStateVars[key+"_reward"];
+		question.reward = Number(objStateVars[key+"_reward"]);
 		if (question.reward < conf.min_reward_to_display)
 			return;
 		question.status = objStateVars[key];
@@ -137,33 +173,12 @@ function indexQuestions(objStateVars){
 		question.total_staked = Number(objStateVars[key + "_total_staked"]);
 		question.question_id = key;
 		question.staked_by_address = assocStakedByKeyAndAddress[key];
-	//	question.url_proofs_by_outcome = assocProofsByKeyAndOutcome[key];
-
 		assocQuestions[key] = question;
 	});
 
 	assocCurrentQuestions = assocQuestions;
 
 }
-
-/*
-function extractProofUrls(objStateVars){
-	assocProofsByKeyAndOutcome= {};
-	for (var key in objStateVars){
-		if (key.indexOf("k_") == 0){
-		var splitKey = key.split('_');
-		 if (splitKey[4] == "url" && splitKey[5] == "proof"){
-			var outcome = splitKey[7];
-			var operation_key = splitKey[0] + '_' + splitKey[1] + '_' + splitKey[2] + '_' + splitKey[3];
-			if (!assocProofsByKeyAndOutcome[operation_key])
-				assocProofsByKeyAndOutcome[operation_key] = {};
-			if(!assocProofsByKeyAndOutcome[operation_key][outcome])
-				assocProofsByKeyAndOutcome[operation_key][outcome] = [];
-			assocProofsByKeyAndOutcome[operation_key][outcome].push(objStateVars[key]);
-		 }
-		}
-	}
-}*/
 
 function indexNicknames(objStateVars){
 	for (var key in objStateVars){
@@ -177,7 +192,7 @@ function indexNicknames(objStateVars){
 function extractStakedByKeyAndAddress(objStateVars){
 	assocStakedByKeyAndAddress = {};
 	for (var key in objStateVars){
-		if (key.indexOf("k_") == 0){
+		if (key.indexOf("question_") == 0){
 		var splitKey = key.split('_');
 		 if (splitKey[2] == "total" && splitKey[6] == "by"){
 			var address = splitKey[7];
@@ -197,7 +212,7 @@ function extractStakedByKeyAndAddress(objStateVars){
 function extractOperationKeys(objStateVars){
 	const assocOperationKeys = {};
 	 for (var key in objStateVars){
-		 if (key.indexOf("k_") == 0){
+		 if (key.indexOf("question_") == 0){
 			var splitKey = key.split('_');
 			assocOperationKeys[splitKey[0] + '_' + splitKey[1]] = true;
 		 }

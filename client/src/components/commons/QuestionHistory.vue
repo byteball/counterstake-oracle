@@ -19,7 +19,7 @@
 				<div class="column">
 					<div v-if="item.event_type=='new_question'">
 						<div><b>Created</b> - {{item.time}}</div>
-						<div> Reward  <byte-amount :amount="Number(question.reward)"/></div>
+						<div> Reward  <byte-amount :amount="question.reward"/></div>
 							By <user :address="item.author_address" :nickname="item.author_nickname"/>
 					</div>
 					<div v-if="item.event_type =='stake' || item.event_type=='initial_stake'" >
@@ -31,8 +31,8 @@
 						<div class="columns is-multiline">
 							<div class="column is-full">Resulting outcome: <b>{{item.new_outcome}}</b></div>
 							<div v-if="item.expected_reward" class="column is-full">Expected reward: <b><byte-amount :amount="item.expected_reward"/></b></div>
-							<div class="column is-half">Total staked on <b>yes</b>: <b><byte-amount :amount="Number(item.total_staked_on_yes)"/></b></div>
-							<div class="column is-half">Total staked on <b>no</b>: <b><byte-amount :amount="Number(item.total_staked_on_no)"/></b></div>
+							<div class="column is-half">Total staked on <b>yes</b>: <b><byte-amount :amount="item.total_staked_on_yes"/></b></div>
+							<div class="column is-half">Total staked on <b>no</b>: <b><byte-amount :amount="item.total_staked_on_no"/></b></div>
 						</div>
 					</div>
 					<div v-if="item.event_type =='commit'">
@@ -99,15 +99,15 @@ export default {
 						item.event_type = row.event_type;
 						item.author_address = row.response.your_address;
 						item.author_nickname = row.response.nickname;
-						item.total_staked_on_yes = Number(row.response['total_staked_on_yes']);
-						item.total_staked_on_no = Number(row.response['total_staked_on_no']);
+						item.total_staked_on_yes = row.response['total_staked_on_yes'];
+						item.total_staked_on_no = row.response['total_staked_on_no'];
 						item.time = moment.unix(row.timestamp).format('LLLL');
 						item.stake_on = row.response.reported_outcome;
-						item.accepted_amount = Number(row.response.your_stake) || Number(row.response.accepted_amount);
+						item.accepted_amount = row.response.your_stake || row.response.accepted_amount;
 						item.new_outcome = row.response.new_outcome;
-						item.paid_out_amount = Number(row.response.paid_out_amount);
+						item.paid_out_amount = row.response.paid_out_amount;
 						item.paid_out_address = row.response.paid_out_address;
-						item.expected_reward = Number(row.response.expected_reward);
+						item.expected_reward = row.response.expected_reward;
 						this.historyItems.push(item);
 						this.isSpinnerActive = false;
 					});
