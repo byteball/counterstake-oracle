@@ -99,8 +99,8 @@ export default {
 						item.event_type = row.event_type;
 						item.author_address = row.response.your_address;
 						item.author_nickname = row.response.nickname;
-						item.total_staked_on_yes = row.response['total_staked_on_yes'];
-						item.total_staked_on_no = row.response['total_staked_on_no'];
+						item.total_staked_on_yes = row.response['total_staked_on_yes'] || 0;
+						item.total_staked_on_no = row.response['total_staked_on_no'] || 0;
 						item.time = moment.unix(row.timestamp).format('LLLL');
 						item.stake_on = row.response.reported_outcome;
 						item.accepted_amount = row.response.your_stake || row.response.accepted_amount;

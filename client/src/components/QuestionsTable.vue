@@ -6,11 +6,11 @@
 					hoverable
 					per-page
 					class="questions-table"
+					:row-class="row => !row.is_pending ? 'active' : 'pending' "
 					>
 						<template slot-scope="props">
-
 							<b-table-column field="question" label="Question" sortable>
-								{{props.row.question}}
+								{{props.row.question}} 
 							</b-table-column>
 
 							<b-table-column field="deadline" label="Report time" sortable>

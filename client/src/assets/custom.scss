@@ -23,8 +23,12 @@ $colors: (
 $hr-background-color: $primary;
 $hr-margin: 0.8rem 0;
 
-.questions-table tr {
+.questions-table .active {
 	cursor: pointer;
+}
+
+.questions-table .pending {
+	color: gray;
 }
 
 .main-block {

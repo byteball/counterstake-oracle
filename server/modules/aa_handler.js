@@ -5,12 +5,16 @@ const async = require('async');
 const mutex = require('ocore/mutex.js');
 const network = require('ocore/network.js');
 const wallet_general = require('ocore/wallet_general.js');
+const eventBus = require('ocore/event_bus.js');
 const db = require('ocore/db.js');
 //const social_networks = require('./social_networks.js');
 
 
 var assocCurrentQuestions = {};
 var assocNicknamesByAddress = {};
+
+const assocNewQuestionsPending = {};
+const assocActionsPending = {};
 
 myWitnesses.readMyWitnesses(function (arrWitnesses) {
 	if (arrWitnesses.length > 0)
@@ -28,13 +32,17 @@ function start(){
 			console.log(conf.aa_address + " added as watched address")
 		refresh();
 		setInterval(refresh, 60 * 1000);
+		eventBus.on('new_my_transactions', treatUnconfirmedEvents);
+		eventBus.on('my_transactions_became_stable', discardUnconfirmedEvents);
+		eventBus.on('sequence_became_bad', discardUnconfirmedEvents);
+
 	});
 }
 
 function refresh(){
 	lightWallet.refreshLightClientHistory();
 	catchUpOperationsHistory();
-	getStateVarsRangeForPrefix("question_", "0","z", function(error, objStateVars){
+	getStateVarsForPrefixes(["question_", "nickname_"], function(error, objStateVars){
 		if (error)
 			return console.log(error);
 		indexQuestions(objStateVars);
@@ -42,6 +50,24 @@ function refresh(){
 	});
 }
 
+
+function getStateVarsForPrefixes(arrPrefixes, handle){
+	console.log("getStateVarsForPrefixes");
+	async.reduce(arrPrefixes, {}, function(memo, item, cb) {
+		getStateVarsRangeForPrefix(item, "0", "z", function(error, result ){
+			if (error)
+				return cb(error);
+			else
+				return cb(null, Object.assign(memo, result));
+			
+		});
+	}, function(error, result){
+		if (error)
+			return handle(error);
+		else
+			return handle(null, result);
+	})
+}
 
 function getStateVarsRangeForPrefix(prefix, start, end, handle){
 	const CHUNK_SIZE = 2000;
@@ -75,7 +101,7 @@ function getStateVarsRangeForPrefix(prefix, start, end, handle){
 }
 
 
-//we push in an indexed table all information coming from aa responses
+//we push in questions_history all information coming from aa responses
 function catchUpOperationsHistory(){
 	mutex.lock(["catchUpOperationsHistory"], function(unlock){
 		//units table is joined to get trigger unit timestamp
@@ -93,6 +119,7 @@ function catchUpOperationsHistory(){
 				var paid_in = 0;
 				var paid_out = 0;
 
+				//we analyze the response to sort questions_history by event type
 				if (objResponse.new_question){
 					var event_type = "new_question";
 					paid_in = objResponse.your_stake;
@@ -123,13 +150,12 @@ function catchUpOperationsHistory(){
 					concerned_address = objResponse.your_address;
 				}
 				if (event_type){
-					console.log(event_type);
-
+					// then the raw response is stored in questions_history alongside with data enabling statistics processing
 					var question_id = objResponse.question_id;
 					db.query("INSERT "+db.getIgnore()+" INTO questions_history (question_id, paid_in, paid_out, concerned_address, event_type, mci, aa_address, response, trigger_unit,timestamp) VALUES \n\
 					(?,?,?,?,?,?,?,?,?,?)",[question_id, paid_in, paid_out, concerned_address,  event_type, row.mci, row.aa_address, JSON.stringify(objResponse), row.trigger_unit, row.timestamp],
 					function(result){
-						if (result.affectedRows === 1){
+						if (result.affectedRows === 1){ // trigger social network notification if the event was newly inserted
 						/*	social_networks.notify(
 								event_type, 
 								assocCurrentQuestions[operation_id], 
@@ -150,8 +176,7 @@ function catchUpOperationsHistory(){
 function indexQuestions(objStateVars){
 
 	extractStakedByKeyAndAddress(objStateVars);
-	//extractProofUrls(objStateVars);
-	
+
 	const operationKeys = extractOperationKeys(objStateVars);
 	const assocQuestions = {};
 
@@ -235,11 +260,66 @@ function getNicknameForAddress(address){
 
 
 function getCurrentQuestions(){
-	return Object.values(assocCurrentQuestions);
+	return Object.values(assocNewQuestionsPending).concat(Object.values(assocCurrentQuestions)); 
 }
 
 function getQuestion(question_id){
 	return assocCurrentQuestions[question_id] || null;
+}
+
+
+function treatUnconfirmedEvents(arrUnits){
+
+	db.query("SELECT unit,payload,amount,unit_authors.address FROM messages CROSS JOIN outputs USING(unit) \n\
+	CROSS JOIN unit_authors USING(unit) \n\
+	WHERE unit IN (?) AND app='data' AND outputs.address=? AND outputs.asset IS NULL GROUP BY messages.unit",
+	[arrUnits, conf.aa_address], function(rows){
+		rows.forEach(function(row){
+			const params = {};
+			params.trigger = {};
+			params.trigger.data = JSON.parse(row.payload);
+			params.trigger.address = row.address;
+			params.trigger.outputs = {};
+			params.trigger.outputs.base = row.amount;
+			params.address = conf.aa_address;
+			network.requestFromLightVendor('light/dry_run_aa',params, function(ws, request, arrResponses){
+				if (arrResponses.error)
+					return console.log(arrResponses.error);
+				else
+					treatDryResponse(row.unit, arrResponses[0]);
+			})
+		});
+	});
+}
+
+
+function treatDryResponse(triggerUnit, objResponse){
+
+	if (!objResponse.response || !objResponse.response.responseVars)
+		return console.log("no response vars");
+	const responseVars = objResponse.response.responseVars;
+	const updatedStateVars = objResponse.updatedStateVars;
+	if (!updatedStateVars)
+		return console.log("no updatedStateVars");
+	if (responseVars.new_question){
+		const question_id =  responseVars.question_id;
+		assocNewQuestionsPending[triggerUnit] = {
+			question: responseVars.new_question
+		}
+		assocNewQuestionsPending[triggerUnit].deadline = Number(updatedStateVars[conf.aa_address][question_id + "_deadline"].value);
+		assocNewQuestionsPending[triggerUnit].reward = Number(updatedStateVars[conf.aa_address][question_id + "_reward"].value);
+		assocNewQuestionsPending[triggerUnit].is_pending = true;
+	}
+	console.log(JSON.stringify(assocNewQuestionsPending));
+
+	
+}
+
+function discardUnconfirmedEvents(arrUnits){
+	arrUnits.forEach(function(unit){
+		delete assocNewQuestionsPending[unit];
+	});
+
 }
 
 
