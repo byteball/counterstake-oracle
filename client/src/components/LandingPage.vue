@@ -24,6 +24,7 @@
 import QuestionModal from './QuestionModal.vue';
 import QuestionCreateModal from './QuestionCreateModal.vue';
 import QuestionsTable from './QuestionsTable.vue';
+import { EventBus } from './../event-bus.js';
 
 const conf = require("../conf.js");
 
@@ -33,7 +34,7 @@ export default {
 			type: String,
 			required: false
 		},
-			question: {
+		question: {
 			type: Object,
 			required: false
 		}
@@ -52,40 +53,42 @@ export default {
 			this.openQuestionModal(this.question_id);
 	},
 	watch:{
-
 		question_id: function(){
 			if(this.question_id)
 				this.openQuestionModal(this.question_id);
-
 		}
 	},
 	methods: {
 		openQuestionModal(question_id) {
 			this.$buefy.modal.open({
-					parent: this,
-					component: QuestionModal,
-					hasModalCard: true,
-					props: {
-						propQuestionId: question_id,
-						propQuestion: this.question
-					},
-					onCancel:()=>{
-						console.log("on cancel");
-						this.$router.push({ name: 'landingPage'});
-					},
-					customClass: 'custom-class custom-class-2'
+				parent: this,
+				component: QuestionModal,
+				hasModalCard: true,
+				props: {
+					propQuestionId: question_id,
+					propQuestion: this.question
+				},
+				onCancel:()=>{
+					this.$router.push({ name: 'landingPage'});
+					EventBus.$emit('refresh-questions');
+				},
+				customClass: 'custom-class custom-class-2'
 			})
 		},
 		createQuestion() {
 			this.$buefy.modal.open({
-					parent: this,
-					component: QuestionCreateModal,
-					hasModalCard: true,
-					width:"640",
-					customClass: 'custom-class custom-class-2'
+				parent: this,
+				component: QuestionCreateModal,
+				hasModalCard: true,
+				width:"640",
+				customClass: 'custom-class custom-class-2',
+				onCancel:()=>{
+					this.$router.push({ name: 'landingPage'});
+					EventBus.$emit('refresh-questions');
+				},
 			})
 		},
-		questionModalClosed(){
+		closeModalAndRefresh(){
 
 
 		}

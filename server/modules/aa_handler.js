@@ -42,6 +42,11 @@ function start(){
 function refresh(){
 	lightWallet.refreshLightClientHistory();
 	catchUpOperationsHistory();
+	indexFromStateVars();
+
+}
+
+function indexFromStateVars(){
 	getStateVarsForPrefixes(["question_", "nickname_"], function(error, objStateVars){
 		if (error)
 			return console.log(error);
@@ -49,7 +54,6 @@ function refresh(){
 		indexNicknames(objStateVars);
 	});
 }
-
 
 function getStateVarsForPrefixes(arrPrefixes, handle){
 	console.log("getStateVarsForPrefixes");
@@ -198,11 +202,22 @@ function indexQuestions(objStateVars){
 		question.total_staked = Number(objStateVars[key + "_total_staked"]);
 		question.question_id = key;
 		question.staked_by_address = assocStakedByKeyAndAddress[key];
+		appendActionsPending(question);
 		assocQuestions[key] = question;
 	});
 
 	assocCurrentQuestions = assocQuestions;
 
+}
+
+
+function appendActionsPending(question){
+
+	question.pendingActions = [];
+	for (var key in assocActionsPending){
+		if (assocActionsPending[key].question_id === question.question_id)
+			question.pendingActions.push(assocActionsPending[key]);
+	}
 }
 
 function indexNicknames(objStateVars){
@@ -250,13 +265,9 @@ function extractOperationKeys(objStateVars){
  }
 
 
-
-
-
 function getNicknameForAddress(address){
 	return assocNicknamesByAddress[address];
 }
-
 
 
 function getCurrentQuestions(){
@@ -285,15 +296,17 @@ function treatUnconfirmedEvents(arrUnits){
 			network.requestFromLightVendor('light/dry_run_aa',params, function(ws, request, arrResponses){
 				if (arrResponses.error)
 					return console.log(arrResponses.error);
-				else
-					treatDryResponse(row.unit, arrResponses[0]);
+				else {
+					treatDryAaResponse(row.unit, arrResponses[0]);
+					indexFromStateVars();
+				}
 			})
 		});
 	});
 }
 
 
-function treatDryResponse(triggerUnit, objResponse){
+function treatDryAaResponse(triggerUnit, objResponse){
 
 	if (!objResponse.response || !objResponse.response.responseVars)
 		return console.log("no response vars");
@@ -309,15 +322,32 @@ function treatDryResponse(triggerUnit, objResponse){
 		assocNewQuestionsPending[triggerUnit].deadline = Number(updatedStateVars[conf.aa_address][question_id + "_deadline"].value);
 		assocNewQuestionsPending[triggerUnit].reward = Number(updatedStateVars[conf.aa_address][question_id + "_reward"].value);
 		assocNewQuestionsPending[triggerUnit].is_pending = true;
-	}
-	console.log(JSON.stringify(assocNewQuestionsPending));
 
-	
+	} else if (responseVars.reported_outcome){
+		assocActionsPending[triggerUnit] = {};
+		assocActionsPending[triggerUnit].is_initial = !!responseVars.expected_reward;
+		assocActionsPending[triggerUnit].stake = responseVars.your_stake;
+		assocActionsPending[triggerUnit].staker = responseVars.your_address;
+		assocActionsPending[triggerUnit].reported_outcome = responseVars.reported_outcome;
+		assocActionsPending[triggerUnit].question_id = responseVars.question_id;
+		assocActionsPending[triggerUnit].new_outcome = responseVars.new_outcome;
+
+	} else if (responseVars.committed_outcome){
+		assocActionsPending[triggerUnit] = {};
+		assocActionsPending[triggerUnit].committed_outcome = responseVars.committed_outcome;
+		assocActionsPending[triggerUnit].question_id = responseVars.question_id;
+	} else if (responseVars.paid_out_amount){
+		assocActionsPending[triggerUnit] = {};
+		assocActionsPending[triggerUnit].paid_out_amount = responseVars.paid_out_amount;
+		assocActionsPending[triggerUnit].paid_out_address = responseVars.paid_out_address;
+	}
+ 
 }
 
 function discardUnconfirmedEvents(arrUnits){
 	arrUnits.forEach(function(unit){
 		delete assocNewQuestionsPending[unit];
+		delete assocActionsPending[unit];
 	});
 
 }

@@ -54,7 +54,7 @@
 			</section>
 
 			<footer class="modal-card-foot">
-				<button class="button" type="button" @click="$parent.close()">Close</button>
+				<button class="button" type="button" @click="closeAndRefresh">Close</button>
 				<button v-if="isButtonOkVisible" class="button is-primary" @click="handleOk" ref="button-create">Create link</button>
 			</footer>
 		</div>
@@ -65,6 +65,7 @@
 
 const conf = require("../conf.js");
 import ByteAmount from './commons/ByteAmount.vue';
+import { EventBus } from './../event-bus.js';
 
 	export default  {
 	components: {
@@ -105,6 +106,10 @@ import ByteAmount from './commons/ByteAmount.vue';
 		this.deadline = this.minDateTime;
 	},
 	methods:{
+		closeAndRefresh: function(){
+			EventBus.$emit('refresh-questions');
+			this.$parent.close()
+		},
 		onQuestionChanged : function(value){
 			this.isButtonOkVisible = value.length >= conf.question_min_length;
 		},

@@ -9,8 +9,9 @@
 					:row-class="row => !row.is_pending ? 'active' : 'pending' "
 					>
 						<template slot-scope="props">
+
 							<b-table-column field="question" label="Question" sortable>
-								{{props.row.question}} 
+								{{props.row.question}} <pending-actions :pendingActions=props.row.pendingActions />
 							</b-table-column>
 
 							<b-table-column field="deadline" label="Report time" sortable>
@@ -41,30 +42,38 @@
 const conf = require("../conf.js");
 import moment from 'moment/src/moment'
 import ByteAmount from './commons/ByteAmount.vue';
+import PendingActions from './commons/PendingActions.vue';
+
+import { EventBus } from './../event-bus.js';
 
 export default {
 
 	components: {
-		ByteAmount
+		ByteAmount,
+		PendingActions
 	},
 	data() {
 		return {
 			data: [],
-
 			timerId: null
 		}
 	},
 	watch: {
 
 	},
+	computed: {
+
+	},
 	created(){
 		this.getData();
 		this.timerId = setInterval(this.getData, 60000);
+		EventBus.$on("refresh-questions", this.getData);
 	},
 	beforeDestroy(){
 		clearInterval(this.timerId);
 	},
 	methods: {
+
 		onClick: function(item){
 			this.selected = null;
 			this.$router.push({ name: 'landingPageQuestion', params: { question_id: item.question_id, question: item } })

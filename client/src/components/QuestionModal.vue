@@ -19,6 +19,7 @@ import OnGoingQuestion from './QuestionModalCardOnGoing'
 import ReportOutcome from './QuestionModalCardReportOutcome'
 import ContestOutcome from './QuestionModalCardContestOutcome'
 import CommittedOutcome from './QuestionModalCardCommittedOutcome'
+import { EventBus } from './../event-bus.js';
 
 const conf = require("../conf.js");
 
@@ -80,6 +81,7 @@ export default  {
 		},
 		closeModal: function(){
 			this.$router.push({ name: 'landingPage'});
+			EventBus.$emit('refresh-questions');
 			this.$parent.close();
 		}
 	}
