@@ -7,6 +7,9 @@
 			<h4 class="title is-4">{{question.question}}</h4>
 			<hr>
 			<div v-if="!link" >
+				<div class="py-2">
+					<pending-actions :pendingActions="question.pendingActions" />
+				</div>
 				<div class="pt-1">
 					<div class="is-inline">
 						Current outcome: 
@@ -70,11 +73,13 @@ const conf = require("../conf.js");
 import ByteAmount from './commons/ByteAmount.vue';
 import QuestionHistory from './commons/QuestionHistory.vue';
 import moment from 'moment/src/moment'
+import PendingActions from './commons/PendingActions.vue';
 
 export default {	
 	components: {
 		ByteAmount,
-		QuestionHistory
+		QuestionHistory,
+		PendingActions
 	},
 	props: {
 		question: {

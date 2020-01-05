@@ -11,7 +11,8 @@
 						<template slot-scope="props">
 
 							<b-table-column field="question" label="Question" sortable>
-								{{props.row.question}} <pending-actions :pendingActions=props.row.pendingActions />
+								{{props.row.question}}
+								<pending-actions :pendingActions="props.row.pendingActions" />
 							</b-table-column>
 
 							<b-table-column field="deadline" label="Report time" sortable>
@@ -23,7 +24,11 @@
 							</b-table-column>
 
 							<b-table-column field="outcome" label="Outcome">
-								{{props.row.outcome || "Not known yet"}}
+								<b-tag v-if = "props.row.outcome" :class="{
+									'is-warning': props.row.beingGraded,
+									'is-success' : !props.row.beingGraded 
+									 }">{{props.row.outcome}}</b-tag>
+								<span v-else>Not known yet</span>
 							</b-table-column>
 
 							<b-table-column field="possibleAction" label="Action available">
@@ -91,11 +96,14 @@ export default {
  							row.possibleAction = "Not reportable yet";
 					}
 					else if (row.status == 'being_graded'){
-						if (moment().isBefore(moment.unix(row.countdown_start + conf.challenge_period_in_days*24*3600 )))
+						if (moment().isBefore(moment.unix(row.countdown_start + conf.challenge_period_in_days*24*3600 ))){
 							row.possibleAction = "Contest outcome";
+							row.beingGraded = true;
+						}
 						else
 							row.possibleAction = "Commit outcome";
 					} else if (row.status == 'committed'){
+							row.committed = true;
 							const assocStakedByAdress =	row.staked_by_address;
 							const outcome = row.outcome
 							for (var key in assocStakedByAdress){

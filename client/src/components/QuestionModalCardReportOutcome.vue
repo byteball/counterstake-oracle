@@ -8,6 +8,9 @@
 			<hr class="new">
 			<div v-if="!link" ref="div-report">
 				<div class="py-2">
+					<pending-actions :pendingActions="question.pendingActions" />
+				</div>
+				<div class="py-2">
 					<div class="py-1" >
 						Report outcome:
 					</div>
@@ -48,11 +51,13 @@
 const conf = require("../conf.js")
 import ByteAmount from './commons/ByteAmount.vue'
 import QuestionHistory from './commons/QuestionHistory.vue';
+import PendingActions from './commons/PendingActions.vue';
 
 export default {
 	components: {
 		ByteAmount,
-		QuestionHistory
+		QuestionHistory,
+		PendingActions
 	},
 	props: {
 		question: {

@@ -9,6 +9,9 @@
 				<hr>
 			</div>
 				<div v-if="!link">
+					<div class="py-2">
+						<pending-actions :pendingActions="question.pendingActions" />
+					</div>
 					<div class="p-2">Select one address: </div>
 					<div class="pb-2">
 							<div v-for="(address,index) in question.claimAddresses" :key="index" class="level">
@@ -37,10 +40,12 @@
 const conf = require("../conf.js")
 import ByteAmount from './commons/ByteAmount.vue'
 import QuestionHistory from './commons/QuestionHistory.vue';
+import PendingActions from './commons/PendingActions.vue';
 
 export default {
 	components: {
-		QuestionHistory
+		QuestionHistory,
+		PendingActions
 	},
 	props: {
 		question: {

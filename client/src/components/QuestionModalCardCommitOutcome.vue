@@ -6,6 +6,9 @@
 			<section class="modal-card-body">
 			<h4 class="title is-4">{{question.question}}</h4>
 				<hr>
+				<div class="py-2">
+					<pending-actions :pendingActions="question.pendingActions" />
+				</div>
 			<div class="py-2">
 				<div class="is-inline">
 					Resulting outcome: 
@@ -33,10 +36,12 @@
 <script>
 const conf = require("../conf.js");
 import QuestionHistory from './commons/QuestionHistory.vue';
+import PendingActions from './commons/PendingActions.vue';
 
 export default {	
 	components: {
-		QuestionHistory
+		QuestionHistory,
+		PendingActions
 	},
 	props: {
 		question: {
