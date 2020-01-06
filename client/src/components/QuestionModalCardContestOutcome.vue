@@ -63,7 +63,7 @@
 		</section>
 		<footer class="modal-card-foot">
 			<button class="button" type="button" @click="$emit('close')">Close</button>
-			<button class="button is-primary" type="button" @click="contest">Create link</button>
+			<button v-if="!link" class="button is-primary" type="button" @click="contest">Create link</button>
 		</footer>
 	</div>
 </template>

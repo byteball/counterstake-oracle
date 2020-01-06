@@ -6,7 +6,7 @@
 			<section class="modal-card-body">
 			<h4 class="title is-4">{{question.question}}</h4>
 				<hr>
-				<div class="py-2">
+				<div class="mt-1">
 					<pending-actions :pendingActions="question.pendingActions" />
 				</div>
 			<div class="py-2">
@@ -28,7 +28,7 @@
 		</section>
 		<footer class="modal-card-foot">
 			<button class="button" type="button" @click="$emit('close')">Close</button>
-			<button class="button is-primary" type="button" @click="commit">Create link</button>
+			<button v-if="!link" class="button is-primary" type="button" @click="commit">Create link</button>
 		</footer>
 	</div>
 </template>

@@ -31,6 +31,7 @@ function start(){
 		else
 			console.log(conf.aa_address + " added as watched address")
 		refresh();
+		indexFromStateVars();
 		setInterval(refresh, 60 * 1000);
 		eventBus.on('new_my_transactions', treatUnconfirmedEvents);
 		eventBus.on('my_transactions_became_stable', discardUnconfirmedEvents);
@@ -42,8 +43,6 @@ function start(){
 function refresh(){
 	lightWallet.refreshLightClientHistory();
 	catchUpOperationsHistory();
-	indexFromStateVars();
-
 }
 
 function indexFromStateVars(){
@@ -349,7 +348,7 @@ function discardUnconfirmedEvents(arrUnits){
 		delete assocNewQuestionsPending[unit];
 		delete assocActionsPending[unit];
 	});
-
+	indexFromStateVars();
 }
 
 
@@ -425,26 +424,6 @@ function getDonatorsRanking(handle){
 				row.nickname = assocNicknamesByAddress[row.address];
 		})
 		handle(rows);
-	});
-}
-
-function getContributorsGreeting(handle){
-	db.query("SELECT operation_id,timestamp,response FROM operations_history WHERE event_type='commit' ORDER BY mci DESC LIMIT 50", function(rows){
-		var arrGreetings = [];
-		for (var i = 0; i < rows.length; i++){
-			var objResponse = rows[i].response ? JSON.parse(rows[i].response) : null;
-			var objOperation = assocCurrentQuestions[rows[i].operation_id];
-			if (objResponse && objOperation && objResponse.committed_outcome == objOperation.initial_outcome){
-				var sponsorAddress = assocCurrentPoolsById[objOperation.pool_id] ? assocCurrentPoolsById[objOperation.pool_id].sponsor : null;
-				arrGreetings.push({
-					author:assocNicknamesByAddress[objResponse.paid_out_address] || objResponse.paid_out_address,
-					exchange: objOperation.exchange, 
-					outcome: objOperation.initial_outcome, 
-					sponsor: assocNicknamesByAddress[sponsorAddress] || sponsorAddress
-				});
-			}
-		}
-		handle(arrGreetings);
 	});
 }
 

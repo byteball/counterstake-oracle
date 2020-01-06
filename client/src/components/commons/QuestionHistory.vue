@@ -16,6 +16,12 @@
 			<div class="container">
 					<div v-for="(item,index) in historyItems" class="row mt-1" :key="index">
 						<div>
+							<div class="box" v-if="item.event_type =='new_question'" >
+								<div class="title is-6"><b>New question</b> - {{item.time}} </div>
+								<div class="d-block text-break">
+									Created by {{item.author_address}}
+								</div>
+							</div>
 							<div class="box" v-if="item.event_type =='stake' || item.event_type=='initial_stake'" >
 								<div class="title is-6"><b>{{item.event_type =='stake' ? 'Counter stake' : 'Initial stake'}} </b> - {{item.time}}</div>
 

@@ -61,12 +61,12 @@ export default {
 			if (!action)
 				return;
 				if (action.stake){
-					text += action.staker + " is staking " + action.stake/conf.gb_to_bytes + " on " + action.reported_outcome + ".";
+					text += action.staker + " is staking " + action.stake/conf.gb_to_bytes + " GB on " + action.reported_outcome + ".";
 					text += "\n";
 				} else if (action.committed_outcome){
 					text += "Result " + action.committed_outcome + " is being committed.";
 				} else if (action.paid_out_amount){
-					text += action.paid_out_amount/conf.gb_to_bytes + "GB are being paid to " + action.paid_out_address;
+					text += action.paid_out_amount/conf.gb_to_bytes + " GB are being paid to " + action.paid_out_address;
 				}
 
 			this.displayed_pending_action = text;
