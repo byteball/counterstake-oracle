@@ -4,13 +4,14 @@
 					:data="data"
 					@click="onClick"
 					hoverable
-					per-page
+					paginated
+					:per-page="15"
 					class="questions-table"
 					:row-class="row => !row.is_pending ? 'active' : 'pending' "
 					>
 						<template slot-scope="props">
 
-							<b-table-column field="question" label="Question" sortable>
+							<b-table-column field="question" label="Question" sortable searchable>
 								{{props.row.question}}
 								<pending-actions :pendingActions="props.row.pendingActions" />
 							</b-table-column>
@@ -31,7 +32,7 @@
 								<span v-else>Not known yet</span>
 							</b-table-column>
 
-							<b-table-column field="possibleAction" label="Action available">
+							<b-table-column field="possibleAction" label="Action available" sortable>
 								{{props.row.possibleAction}}
 							</b-table-column>
 
