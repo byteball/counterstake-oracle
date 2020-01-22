@@ -92,30 +92,30 @@ export default {
 	},
 	methods:{
 		getHistory(){
-				this.isSpinnerActive = true;
-		this.historyItems= []
-				this.axios.get('/api/question-history/'+encodeURIComponent(this.question.question_id)).then((response) => {
-					response.data.forEach((row)=>{
-						const item = {};
-						item.event_type = row.event_type;
-						item.author_address = row.response.your_address;
-						item.author_nickname = row.response.nickname;
-						item.total_staked_on_yes = row.response['total_staked_on_yes'] || 0;
-						item.total_staked_on_no = row.response['total_staked_on_no'] || 0;
-						item.time = moment.unix(row.timestamp).format('LLLL');
-						item.stake_on = row.response.reported_outcome;
-						item.accepted_amount = row.response.your_stake || row.response.accepted_amount;
-						item.new_outcome = row.response.new_outcome;
-						item.paid_out_amount = row.response.paid_out_amount;
-						item.paid_out_address = row.response.paid_out_address;
-						item.expected_reward = row.response.expected_reward;
-						this.historyItems.push(item);
-						this.isSpinnerActive = false;
-					});
-					console.log(this.historyItems);
+			this.isSpinnerActive = true;
+			this.historyItems= []
+			this.axios.get('/api/question-history/'+encodeURIComponent(this.question.question_id)).then((response) => {
+				response.data.forEach((row)=>{
+					const item = {};
+					item.event_type = row.event_type;
+					item.author_address = row.response.your_address;
+					item.author_nickname = row.response.nickname;
+					item.total_staked_on_yes = row.response['total_staked_on_yes'] || 0;
+					item.total_staked_on_no = row.response['total_staked_on_no'] || 0;
+					item.time = moment.unix(row.timestamp).format('LLLL');
+					item.stake_on = row.response.reported_outcome;
+					item.accepted_amount = row.response.your_stake || row.response.accepted_amount;
+					item.new_outcome = row.response.new_outcome;
+					item.paid_out_amount = row.response.paid_out_amount;
+					item.paid_out_address = row.response.paid_out_address;
+					item.expected_reward = row.response.expected_reward;
+					this.historyItems.push(item);
+					this.isSpinnerActive = false;
 				});
-			}
+				console.log(this.historyItems);
+			});
 		}
+	}
 }
 </script>
 
