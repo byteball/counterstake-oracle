@@ -7,14 +7,17 @@ const network = require('ocore/network.js');
 const wallet_general = require('ocore/wallet_general.js');
 const eventBus = require('ocore/event_bus.js');
 const db = require('ocore/db.js');
+const storage = require('ocore/storage.js');
+const aa_composer = require('ocore/aa_composer.js');
+
 //const social_networks = require('./social_networks.js');
 
 
-var assocCurrentQuestions = {};
+var assocAllQuestions = {};
 var assocNicknamesByAddress = {};
 
-const assocNewQuestionsPending = {};
-const assocActionsPending = {};
+const assocUnconfirmedQuestions = {};
+const assocUnconfirmedEvents = {};
 
 myWitnesses.readMyWitnesses(function (arrWitnesses) {
 	if (arrWitnesses.length > 0)
@@ -31,31 +34,32 @@ function start(){
 		else
 			console.log(conf.aa_address + " added as watched address")
 		refresh();
-		indexFromStateVars();
+		indexFromStateVars(updateOperationsHistory);
 		setInterval(refresh, 60 * 1000);
 		eventBus.on('new_my_transactions', treatUnconfirmedEvents);
-		eventBus.on('my_transactions_became_stable', discardUnconfirmedEvents);
-		eventBus.on('sequence_became_bad', discardUnconfirmedEvents);
+		eventBus.on('my_transactions_became_stable', discardUnconfirmedEventsAndUpdate);
+		eventBus.on('sequence_became_bad', discardUnconfirmedEventsAndUpdate);
 
 	});
 }
 
 function refresh(){
 	lightWallet.refreshLightClientHistory();
-	catchUpOperationsHistory();
 }
 
-function indexFromStateVars(){
+function indexFromStateVars(handle){
+	if (!handle)
+	handle = ()=>{};
 	getStateVarsForPrefixes(["question_", "nickname_"], function(error, objStateVars){
 		if (error)
 			return console.log(error);
 		indexQuestions(objStateVars);
 		indexNicknames(objStateVars);
+		handle();
 	});
 }
 
 function getStateVarsForPrefixes(arrPrefixes, handle){
-	console.log("getStateVarsForPrefixes");
 	async.reduce(arrPrefixes, {}, function(memo, item, cb) {
 		getStateVarsRangeForPrefix(item, "0", "z", function(error, result ){
 			if (error)
@@ -104,9 +108,44 @@ function getStateVarsRangeForPrefix(prefix, start, end, handle){
 }
 
 
+function parseEvent(trigger, objResponse){
+
+	const objEvent = {};
+	objEvent.event_data = {};
+	objEvent.paid_in = 0;
+	objEvent.paid_out = 0;
+	objEvent.question_id = objResponse.question_id;
+	//we analyze the response to sort questions_history by event type
+	if (objResponse.new_question){
+		objEvent.event_type = "new_question";
+		objEvent.paid_in = objResponse.your_stake;
+		objEvent.concerned_address = trigger.address;
+	} else if (objResponse.your_stake){
+		objEvent.event_type = objResponse.expected_reward ? "initial_stake" : "stake";
+		objEvent.paid_in = objResponse.your_stake;
+		objEvent.concerned_address = trigger.address;
+		objEvent.event_data.staked_on_yes = objResponse.total_staked_on_yes || 0;
+		objEvent.event_data.staked_on_no = objResponse.total_staked_on_no || 0;
+		objEvent.event_data.reported_outcome = objResponse.reported_outcome;
+		objEvent.event_data.resulting_outcome = objResponse.new_outcome;
+
+	} else if (objResponse.committed_outcome){
+		objEvent.event_type = "commit";
+		objEvent.paid_out = objResponse.paid_out_amount;
+		objEvent.concerned_address = objResponse.paid_out_address;
+		objEvent.event_data.author = trigger.address;
+	} else if (objResponse.paid_out_amount){
+		objEvent.event_type = "withdraw";
+		objEvent.paid_out = objResponse.paid_out_amount;
+		objEvent.concerned_address = objResponse.paid_out_address;
+	}
+	return objEvent;
+}
+
+
 //we push in questions_history all information coming from aa responses
-function catchUpOperationsHistory(){
-	mutex.lock(["catchUpOperationsHistory"], function(unlock){
+function updateOperationsHistory(){
+	mutex.lock(["updateOperationsHistory"], function(unlock){
 		//units table is joined to get trigger unit timestamp
 		db.query("SELECT * FROM aa_responses INNER JOIN units ON aa_responses.trigger_unit=units.unit WHERE mci >=(SELECT \n\
 			CASE WHEN mci IS NOT NULL THEN MAX(mci) \n\
@@ -114,62 +153,40 @@ function catchUpOperationsHistory(){
 			END max_mci\n\
 			FROM questions_history) AND aa_address=?", [conf.aa_address], function(rows){
 			async.eachOf(rows, function(row, index, cb) {
+					storage.readJoint(db, row.trigger_unit, {
+					ifNotFound: function(){
+						throw Error("bad unit not found: "+unit);
+					},
+					ifFound: function(objJoint){
+						const trigger = aa_composer.getTrigger(objJoint.unit, conf.aa_address);
+						const objResponse = JSON.parse(row.response).responseVars;
+						if(!objResponse)
+							return cb();
 
-				const objResponse = JSON.parse(row.response).responseVars;
-				if(!objResponse)
-					return cb();
+						const objEvent = parseEvent(trigger, objResponse);
 
-				var paid_in = 0;
-				var paid_out = 0;
+						if (objEvent.event_type){
+							// then the raw response is stored in questions_history alongside with data enabling statistics processing
+							db.query("INSERT "+db.getIgnore()+" INTO questions_history (question_id, paid_in, paid_out, concerned_address, event_type, mci, aa_address, event_data, trigger_unit,timestamp) VALUES \n\
+							(?,?,?,?,?,?,?,?,?,?)",[objEvent.question_id, objEvent.paid_in, objEvent.paid_out, objEvent.concerned_address,  objEvent.event_type, row.mci, row.aa_address, JSON.stringify(objEvent.event_data), row.trigger_unit, row.timestamp],
+							function(result){
+								if (result.affectedRows === 1){ // trigger social network notification if the event was newly inserted
+								/*	social_networks.notify(
+										event_type, 
+										assocAllQuestions[operation_id], 
+										assocNicknamesByAddress[concerned_address] || concerned_address, 
+										objResponse
+									);*/
+								}
+								cb();
+							});
+						} else
+							cb();
 
-				//we analyze the response to sort questions_history by event type
-				if (objResponse.new_question){
-					var event_type = "new_question";
-					paid_in = objResponse.your_stake;
-					concerned_address = objResponse.your_address;
-				} else if (objResponse.expected_reward){
-					var event_type = "initial_stake";
-					paid_in = objResponse.your_stake;
-					concerned_address = objResponse.your_address;
-				} else if (objResponse.your_stake){
-					var event_type = "stake";
-					paid_in = objResponse.your_stake;
-					concerned_address = objResponse.your_address;
-				} else if (objResponse.committed_outcome){
-					var event_type = "commit";
-					paid_out = objResponse.paid_out_amount;
-					concerned_address = objResponse.paid_out_address;
-				} else if (objResponse.paid_out_amount){
-					var event_type = "withdraw";
-					paid_out = objResponse.paid_out_amount;
-					concerned_address = objResponse.paid_out_address;
-				} else if (objResponse.created_pool){
-					var event_type = "create_pool";
-					paid_in = objResponse.amount;
-					concerned_address = objResponse.your_address;
-				} else if (objResponse.destroyed_pool){
-					var event_type = "destroy_pool";
-					paid_out = objResponse.amount;
-					concerned_address = objResponse.your_address;
 				}
-				if (event_type){
-					// then the raw response is stored in questions_history alongside with data enabling statistics processing
-					var question_id = objResponse.question_id;
-					db.query("INSERT "+db.getIgnore()+" INTO questions_history (question_id, paid_in, paid_out, concerned_address, event_type, mci, aa_address, response, trigger_unit,timestamp) VALUES \n\
-					(?,?,?,?,?,?,?,?,?,?)",[question_id, paid_in, paid_out, concerned_address,  event_type, row.mci, row.aa_address, JSON.stringify(objResponse), row.trigger_unit, row.timestamp],
-					function(result){
-						if (result.affectedRows === 1){ // trigger social network notification if the event was newly inserted
-						/*	social_networks.notify(
-								event_type, 
-								assocCurrentQuestions[operation_id], 
-								assocNicknamesByAddress[concerned_address] || concerned_address, 
-								objResponse
-							);*/
-						}
-						cb();
-					});
-				} else
-					cb();
+			})
+
+
 			}, unlock);
 		});
 	});
@@ -201,21 +218,21 @@ function indexQuestions(objStateVars){
 		question.total_staked = Number(objStateVars[key + "_total_staked"]);
 		question.question_id = key;
 		question.staked_by_address = assocStakedByKeyAndAddress[key];
-		appendActionsPending(question);
+		appendUnconfirmedEvents(question);
 		assocQuestions[key] = question;
 	});
 
-	assocCurrentQuestions = assocQuestions;
+	assocAllQuestions = assocQuestions;
 
 }
 
 
-function appendActionsPending(question){
+function appendUnconfirmedEvents(question){
 
-	question.pendingActions = [];
-	for (var key in assocActionsPending){
-		if (assocActionsPending[key].question_id === question.question_id)
-			question.pendingActions.push(assocActionsPending[key]);
+	question.unconfirmedEvents = [];
+	for (var key in assocUnconfirmedEvents){
+		if (assocUnconfirmedEvents[key].question_id === question.question_id)
+			question.unconfirmedEvents.push(assocUnconfirmedEvents[key]);
 	}
 }
 
@@ -270,11 +287,11 @@ function getNicknameForAddress(address){
 
 
 function getCurrentQuestions(){
-	return Object.values(assocNewQuestionsPending).concat(Object.values(assocCurrentQuestions)); 
+	return Object.values(assocUnconfirmedQuestions).concat(Object.values(assocAllQuestions)); 
 }
 
 function getQuestion(question_id){
-	return assocCurrentQuestions[question_id] || null;
+	return assocAllQuestions[question_id] || null;
 }
 
 
@@ -296,8 +313,8 @@ function treatUnconfirmedEvents(arrUnits){
 				if (arrResponses.error)
 					return console.log(arrResponses.error);
 				else {
-					treatDryAaResponse(row.unit, arrResponses[0]);
-					indexFromStateVars();
+					treatDryAaResponse(row.unit, params.trigger, arrResponses[0]);
+					indexFromStateVars(updateOperationsHistory);
 				}
 			})
 		});
@@ -305,132 +322,98 @@ function treatUnconfirmedEvents(arrUnits){
 }
 
 
-function treatDryAaResponse(triggerUnit, objResponse){
+function treatDryAaResponse(triggerUnit, trigger, objResponse){
 
 	if (!objResponse.response || !objResponse.response.responseVars)
 		return console.log("no response vars");
 	const responseVars = objResponse.response.responseVars;
-	const updatedStateVars = objResponse.updatedStateVars;
-	if (!updatedStateVars)
-		return console.log("no updatedStateVars");
+
 	if (responseVars.new_question){
+		const updatedStateVars = objResponse.updatedStateVars;
+		if (!updatedStateVars)
+		return console.log("no updatedStateVars");
 		const question_id =  responseVars.question_id;
-		assocNewQuestionsPending[triggerUnit] = {
-			question: responseVars.new_question
+		assocUnconfirmedQuestions[triggerUnit] = {
+			question: responseVars.new_question,
+			deadline : Number(updatedStateVars[conf.aa_address][question_id + "_deadline"].value),
+			reward : Number(updatedStateVars[conf.aa_address][question_id + "_reward"].value),
+			is_pending : true
 		}
-		assocNewQuestionsPending[triggerUnit].deadline = Number(updatedStateVars[conf.aa_address][question_id + "_deadline"].value);
-		assocNewQuestionsPending[triggerUnit].reward = Number(updatedStateVars[conf.aa_address][question_id + "_reward"].value);
-		assocNewQuestionsPending[triggerUnit].is_pending = true;
-
-	} else if (responseVars.reported_outcome){
-		assocActionsPending[triggerUnit] = {};
-		assocActionsPending[triggerUnit].is_initial = !!responseVars.expected_reward;
-		assocActionsPending[triggerUnit].stake = responseVars.your_stake;
-		assocActionsPending[triggerUnit].staker = responseVars.your_address;
-		assocActionsPending[triggerUnit].reported_outcome = responseVars.reported_outcome;
-		assocActionsPending[triggerUnit].question_id = responseVars.question_id;
-		assocActionsPending[triggerUnit].new_outcome = responseVars.new_outcome;
-
-	} else if (responseVars.committed_outcome){
-		assocActionsPending[triggerUnit] = {};
-		assocActionsPending[triggerUnit].committed_outcome = responseVars.committed_outcome;
-		assocActionsPending[triggerUnit].question_id = responseVars.question_id;
-	} else if (responseVars.paid_out_amount){
-		assocActionsPending[triggerUnit] = {};
-		assocActionsPending[triggerUnit].paid_out_amount = responseVars.paid_out_amount;
-		assocActionsPending[triggerUnit].paid_out_address = responseVars.paid_out_address;
-	}
+	} 
+	
+	assocUnconfirmedEvents[triggerUnit] = parseEvent(trigger, objResponse.response.responseVars);
  
 }
 
-function discardUnconfirmedEvents(arrUnits){
-	arrUnits.forEach(function(unit){
-		delete assocNewQuestionsPending[unit];
-		delete assocActionsPending[unit];
-	});
-	indexFromStateVars();
-}
 
+// returns all unconfirmed events and some last confirmed events
+function getLastEvents(handle){
+	db.query("SELECT event_type,timestamp,event_data,paid_in,paid_out,concerned_address,trigger_unit,question_id FROM questions_history ORDER BY mci DESC LIMIT 20",
+	 function(rows){
+		const confirmed_events = rows.map(function(row){
+			var objEventData = JSON.parse(row.event_data);
+			objEventData.author_nickname = assocNicknamesByAddress[objEventData.author] || null;
 
-function getLastTransactionsToAA(handle){
-
-	db.query("SELECT is_stable,payload,units.unit,timestamp FROM units INNER JOIN outputs USING(unit) INNER JOIN messages USING(unit) WHERE outputs.address=? ORDER BY main_chain_index DESC",[conf.aa_address],
-	function(rows){
-		var results = [];
-		rows.forEach(function(row){
-			if (!row.payload)
-				return null;
-			const payload = JSON.parse(row.payload);
-			if	(payload.withdraw)
-				return results.push({type:"withdrawal", unit: row.unit,timestamp: row.timestamp, is_stable: row.is_stable});
-			if	(payload.commit)
-				return results.push({type:"commit", unit: row.unit,timestamp: row.timestamp, is_stable: row.is_stable});
-			if	(payload.add_wallet_id)
-				return results.push({type:"add", unit: row.unit,timestamp: row.timestamp, is_stable: row.is_stable});
-			if	(payload.remove_wallet_id)
-				return results.push({type:"remove", unit: row.unit,timestamp: row.timestamp, is_stable: row.is_stable});
-			if	(payload.reward_amount)
-				return results.push({type:"donate", unit: row.unit,timestamp: row.timestamp, is_stable: row.is_stable});
+			return {
+				event_data: objEventData, 
+				timestamp: row.timestamp, 
+				paid_in: row.paid_in,
+				paid_out: row.paid_out,
+				concerned_address: row.concerned_address,
+				event_type: row.event_type,
+				trigger_unit: row.trigger_unit,
+				is_confirmed: true,
+				question_id: row.question_id,
+				question: assocAllQuestions[row.question_id] || null,
+				nickname:  assocNicknamesByAddress[row.concerned_address] || null
+			};
+		})
+		const unconfirmed_events = Object.values(assocUnconfirmedEvents)
+		unconfirmed_events.forEach((event)=>{
+			event.question = assocAllOperations[event.operation_id] || null;
+			event.nickname = assocNicknamesByAddress[event.concerned_address] || null;
 		});
-		return handle(results);
-	});
+		const allEvents = confirmed_events.concat(unconfirmed_events).sort(function(a, b){
+			return a.timestamp - b.timestamp;
+		});
+		return handle(allEvents);
+	})
 }
+
+
+
+function discardUnconfirmedEventsAndUpdate(arrUnits){
+	arrUnits.forEach(function(unit){
+		delete assocUnconfirmedQuestions[unit];
+		delete assocUnconfirmedEvents[unit];
+	});
+	indexFromStateVars(updateOperationsHistory);
+}
+
 
 function getQuestionHistory(id, handle){
-	db.query("SELECT event_type,timestamp,response FROM questions_history WHERE question_id=? ORDER BY mci DESC",[id], function(rows){
+	db.query("SELECT event_type,timestamp,event_data,paid_out,concerned_address,trigger_unit FROM questions_history WHERE question_id=? ORDER BY mci DESC",[id], function(rows){
 		return handle(
 			rows.map(function(row){
-				var objResponse = JSON.parse(row.response);
-				if (assocNicknamesByAddress[objResponse.your_address])
-					objResponse.nickname = assocNicknamesByAddress[objResponse.your_address];
-				return {event_type: row.event_type, response: objResponse, timestamp: row.timestamp};
+				var objEventData = JSON.parse(row.event_data);
+				const nickname = assocNicknamesByAddress[row.concerned_address] || null;
+				return {
+					event_type: row.event_type, 
+					event_data: objEventData, 
+					timestamp: row.timestamp, 
+					paid_out: row.paid_out,
+					concerned_address: row.concerned_address,
+					unit: row.trigger_unit,
+					nickname
+				};
 			})
 		)
 	});
 }
 
 
-function getContributorsRanking(handle){
-	db.query("SELECT CASE WHEN initiatives IS NOT NULL THEN initiatives \n\
-	ELSE 0 \n\
-	END initiatives,\n\
-	CASE WHEN successes IS NOT NULL THEN successes \n\
-	ELSE 0 \n\
-	END successes,\n\
-	income,s1.address FROM\n\
-	(SELECT concerned_address AS address FROM operations_history GROUP BY address)s1 \n\
-	LEFT JOIN\n\
-	(SELECT COUNT(*) AS successes, concerned_address AS address FROM operations_history WHERE event_type='commit' GROUP BY address)s2 USING (address) \n\
-	LEFT JOIN\n\
-	(SELECT COUNT(*) AS initiatives, concerned_address AS address FROM operations_history WHERE event_type='initial_stake' GROUP BY address)s3 USING (address) \n\
-	LEFT JOIN\n\
-	(SELECT (SUM(paid_out) - SUM(paid_in)) as income, concerned_address AS address FROM operations_history \n\
-	WHERE (event_type='initial_stake' OR event_type='stake' OR event_type='withdraw' OR event_type='commit') GROUP BY address)s4 USING (address)",
-	function(rows){
-		rows.forEach(function(row){
-			if (assocNicknamesByAddress[row.address])
-				row.nickname = assocNicknamesByAddress[row.address];
-		})
-		handle(rows);
-	});
-}
-
-function getDonatorsRanking(handle){
-	db.query("SELECT (SUM(paid_in) - SUM(paid_out)) as amount, concerned_address AS address FROM operations_history \n\
-	WHERE (event_type='create_pool' OR event_type='destroyed_pool') \n\
-	GROUP BY concerned_address",function(rows){
-		rows.forEach(function(row){
-			if (assocNicknamesByAddress[row.address])
-				row.nickname = assocNicknamesByAddress[row.address];
-		})
-		handle(rows);
-	});
-}
-
 exports.getCurrentQuestions = getCurrentQuestions;
 exports.getQuestion = getQuestion;
-exports.getLastTransactionsToAA = getLastTransactionsToAA;
 exports.getQuestionHistory = getQuestionHistory;
-exports.getContributorsRanking = getContributorsRanking;
-exports.getDonatorsRanking = getDonatorsRanking;
 exports.getNicknameForAddress = getNicknameForAddress;
+exports.getLastEvents = getLastEvents;

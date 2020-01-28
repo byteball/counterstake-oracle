@@ -7,7 +7,7 @@
 			<h4 class="title is-4">{{question.question}}</h4>
 				<hr>
 				<div class="mt-1">
-					<pending-actions :pendingActions="question.pendingActions" />
+					<unconfirmed-events :unconfirmedEvents="question.unconfirmedEvents" />
 				</div>
 			<div class="py-2">
 				<div class="is-inline">
@@ -36,12 +36,12 @@
 <script>
 const conf = require("../conf.js");
 import QuestionHistory from './commons/QuestionHistory.vue';
-import PendingActions from './commons/PendingActions.vue';
+import UnconfirmedEvents from './commons/UnconfirmedEvents.vue';
 
 export default {	
 	components: {
 		QuestionHistory,
-		PendingActions
+		UnconfirmedEvents
 	},
 	props: {
 		question: {

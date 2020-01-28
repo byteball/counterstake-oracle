@@ -8,7 +8,7 @@
 			<hr>
 			<div v-if="!link" >
 				<div class="py-2">
-					<pending-actions :pendingActions="question.pendingActions" />
+					<unconfirmed-events :unconfirmedEvents="question.unconfirmedEvents" />
 				</div>
 				<div class="pt-1">
 					<div class="is-inline">
@@ -73,13 +73,13 @@ const conf = require("../conf.js");
 import ByteAmount from './commons/ByteAmount.vue';
 import QuestionHistory from './commons/QuestionHistory.vue';
 import moment from 'moment/src/moment'
-import PendingActions from './commons/PendingActions.vue';
+import UnconfirmedEvents from './commons/UnconfirmedEvents.vue';
 
 export default {	
 	components: {
 		ByteAmount,
 		QuestionHistory,
-		PendingActions
+		UnconfirmedEvents
 	},
 	props: {
 		question: {

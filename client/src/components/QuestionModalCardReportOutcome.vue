@@ -8,7 +8,7 @@
 			<hr class="new">
 			<div v-if="!link" ref="div-report">
 				<div class="py-2">
-					<pending-actions :pendingActions="question.pendingActions" />
+					<unconfirmed-events :unconfirmedEvents="question.unconfirmedEvents" />
 				</div>
 				<div class="py-2">
 					<div class="py-1" >
@@ -51,13 +51,13 @@
 const conf = require("../conf.js")
 import ByteAmount from './commons/ByteAmount.vue'
 import QuestionHistory from './commons/QuestionHistory.vue';
-import PendingActions from './commons/PendingActions.vue';
+import UnconfirmedEvents from './commons/UnconfirmedEvents.vue';
 
 export default {
 	components: {
 		ByteAmount,
 		QuestionHistory,
-		PendingActions
+		UnconfirmedEvents
 	},
 	props: {
 		question: {

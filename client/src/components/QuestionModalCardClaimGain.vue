@@ -10,7 +10,7 @@
 			</div>
 				<div v-if="!link">
 					<div class="py-2">
-						<pending-actions :pendingActions="question.pendingActions" />
+						<unconfirmed-events :unconfirmedEvents="question.unconfirmedEvents" />
 					</div>
 					<div class="p-2">Select one address: </div>
 					<div class="pb-2">
@@ -40,12 +40,12 @@
 const conf = require("../conf.js")
 import ByteAmount from './commons/ByteAmount.vue'
 import QuestionHistory from './commons/QuestionHistory.vue';
-import PendingActions from './commons/PendingActions.vue';
+import UnconfirmedEvents from './commons/UnconfirmedEvents.vue';
 
 export default {
 	components: {
 		QuestionHistory,
-		PendingActions
+		UnconfirmedEvents
 	},
 	props: {
 		question: {

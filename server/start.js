@@ -45,6 +45,12 @@ require('./modules/sqlite_tables.js').create().then(function(){
 			});
 	});
 
+	app.get('/api/last-events', function(request, response){
+		aa_handler.getLastEvents(function(objLastEvents){
+			response.send(objLastEvents);
+		})
+	});
+
 	app.listen(conf.api_port);
 
 });

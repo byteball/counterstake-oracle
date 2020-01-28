@@ -13,7 +13,7 @@
 
 							<b-table-column field="question" label="Question" sortable searchable>
 								{{props.row.question}}
-								<pending-actions :pendingActions="props.row.pendingActions" />
+								<unconfirmed-events :unconfirmedEvents="props.row.unconfirmedEvents" />
 							</b-table-column>
 
 							<b-table-column field="deadline" label="Report time" sortable>
@@ -48,7 +48,7 @@
 const conf = require("../conf.js");
 import moment from 'moment/src/moment'
 import ByteAmount from './commons/ByteAmount.vue';
-import PendingActions from './commons/PendingActions.vue';
+import UnconfirmedEvents from './commons/UnconfirmedEvents.vue';
 
 import { EventBus } from './../event-bus.js';
 
@@ -56,7 +56,7 @@ export default {
 
 	components: {
 		ByteAmount,
-		PendingActions
+		UnconfirmedEvents
 	},
 	data() {
 		return {

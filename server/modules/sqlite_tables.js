@@ -13,7 +13,7 @@ exports.create = function(){
 			paid_out INTEGER DEFAULT 0,\n\
 			mci INT NOT NULL, \n\
 			aa_address CHAR(32) NOT NULL, \n\
-			response TEXT NULL, \n\
+			event_data TEXT NULL, \n\
 			trigger_unit CHAR(44) NOT NULL, \n\
 			timestamp INTEGER NOT NULL, \n\
 			UNIQUE (trigger_unit, aa_address) \n\

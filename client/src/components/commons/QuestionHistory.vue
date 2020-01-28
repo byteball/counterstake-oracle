@@ -19,7 +19,7 @@
 							<div class="box" v-if="item.event_type =='new_question'" >
 								<div class="title is-6"><b>New question</b> - {{item.time}} </div>
 								<div class="d-block text-break">
-									Created by {{item.author_address}}
+									Created by {{item.concerned_address}}
 								</div>
 							</div>
 							<div class="box" v-if="item.event_type =='stake' || item.event_type=='initial_stake'" >
@@ -27,29 +27,29 @@
 
 								<div class="d-block text-break">
 									<b><user :address="item.author_address" :nickname="item.author_nickname"/></b>
-									staked <b><byte-amount :amount="item.accepted_amount"/></b> on <b>{{item.stake_on}}</b>
+									staked <b><byte-amount :amount="item.event_data.accepted_amount"/></b> on <b>{{item.reported_outcome}}</b>
 								</div>
-								<span class="d-block">Resulting outcome: <b>{{item.new_outcome}}</b></span>
+								<span class="d-block">Resulting outcome: <b>{{item.event_data.resulting_outcome}}</b></span>
 								<span v-if="item.expected_reward" class="d-block">Expected reward: <b><byte-amount :amount="item.expected_reward"/></b></span>
 								<div class="progress-stacked mt-1">
-									<div class="bar" :style="{ height: 15 + 'px', background: '#48c774', width: ( item.total_staked_on_yes * 100) / (item.total_staked_on_yes + item.total_staked_on_no) + '%' }">
-										<byte-amount :amount="item.total_staked_on_yes"/>
+									<div class="bar" :style="{ height: 15 + 'px', background: '#48c774', width: ( item.event_data.staked_on_yes * 100) / (item.event_data.staked_on_yes + item.event_data.staked_on_no) + '%' }">
+										<byte-amount :amount="item.event_data.staked_on_yes"/>
 									</div>
-									<div class="bar" :style="{ height: 15 + 'px', background: '#f00', width: ( item.total_staked_on_no * 100) / (item.total_staked_on_yes + item.total_staked_on_no) + '%' }">
-										<byte-amount :amount="item.total_staked_on_no"/>
+									<div class="bar" :style="{ height: 15 + 'px', background: '#f00', width: ( item.event_data.staked_on_no * 100) / (item.event_data.staked_on_yes + item.event_data.staked_on_no) + '%' }">
+										<byte-amount :amount="item.event_data.staked_on_no"/>
 									</div>
 								</div>
 							</div>
 							<div class="box" v-if="item.event_type =='commit'" >
 								<div class="title is-6"><b>Committed</b> - {{item.time}} </div>
 								<div class="d-block text-break">
-									<span v-if="item.paid_out_amount" class="d-block"><b><byte-amount :amount="item.paid_out_amount"/></b> paid to <b>{{item.paid_out_address}}</b></span>
+									<span v-if="item.paid_out" class="d-block"><b><byte-amount :amount="item.paid_out"/></b> paid to <b>{{item.concerned_address}}</b></span>
 								</div>
 							</div>
 							<div class="box" v-if="item.event_type =='withdraw'" >
 								<div class="title is-6"><b>Withdraw</b> - {{item.time}} </div>
 								<div class="d-block text-break">
-									<span v-if="item.paid_out_amount" class="d-block"><b><byte-amount :amount="item.paid_out_amount"/></b> paid to <b>{{item.paid_out_address}}</b></span>
+									<span v-if="item.paid_out" class="d-block"><b><byte-amount :amount="item.paid_out"/></b> paid to <b>{{item.concerned_address}}</b></span>
 								</div>
 							</div>
 						</div>
@@ -92,28 +92,17 @@ export default {
 	},
 	methods:{
 		getHistory(){
-			this.isSpinnerActive = true;
-			this.historyItems= []
+			this.isSpinnerActive = true
+			this.historyItems = []
 			this.axios.get('/api/question-history/'+encodeURIComponent(this.question.question_id)).then((response) => {
 				response.data.forEach((row)=>{
-					const item = {};
-					item.event_type = row.event_type;
-					item.author_address = row.response.your_address;
-					item.author_nickname = row.response.nickname;
-					item.total_staked_on_yes = row.response['total_staked_on_yes'] || 0;
-					item.total_staked_on_no = row.response['total_staked_on_no'] || 0;
-					item.time = moment.unix(row.timestamp).format('LLLL');
-					item.stake_on = row.response.reported_outcome;
-					item.accepted_amount = row.response.your_stake || row.response.accepted_amount;
-					item.new_outcome = row.response.new_outcome;
-					item.paid_out_amount = row.response.paid_out_amount;
-					item.paid_out_address = row.response.paid_out_address;
-					item.expected_reward = row.response.expected_reward;
-					this.historyItems.push(item);
-					this.isSpinnerActive = false;
+					row.time = moment.unix(row.timestamp).format('LLLL');
+					row.event_data.accepted_amount = row.event_data.your_stake || row.event_data.accepted_amount; // to be changed with new AA
 				});
-				console.log(this.historyItems);
+				this.historyItems = response.data;
+				this.isSpinnerActive = false;
 			});
+			console.log(this.historyItems);
 		}
 	}
 }
