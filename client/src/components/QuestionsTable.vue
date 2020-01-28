@@ -1,7 +1,34 @@
 <template>
 	<section>
+		<div class="columns">
+			<div class="column mt-2">
+				<button class="button is-primary is-medium" @click="createQuestion()">
+					{{$t('landingPageButtonCreateQuestion')}}
+				</button>
+			</div>
+		</div>
+		<div class="columns">
+			<div class="column">
+				<b-field label="Search">
+					<b-input 
+					v-model="search_input"
+					@input="applyFilter"
+					></b-input>
+				</b-field>
+			</div>			<div class="column">
+
+		Sort by: 
+   <div class="buttons">
+						<b-button type="is-primary" :outlined="filter_type!='all'" @click="filter_type='all';applyFilter()" >all</b-button>
+            <b-button type="is-primary" :outlined="filter_type!='hot'" @click="filter_type='hot';applyFilter()" >hot</b-button>
+            <b-button type="is-success" :outlined="filter_type!='being_graded'" @click="filter_type='being_graded';applyFilter()" >being graded</b-button>
+            <b-button type="is-danger" :outlined="filter_type!='graded'" @click="filter_type='graded';applyFilter()" >graded</b-button>
+            <b-button type="is-warning" :outlined="filter_type!='not_graded'" @click="filter_type='not_graded';applyFilter()">not graded</b-button>
+        </div>
+		</div>
+		</div>
 			<b-table
-					:data="data"
+					:data="filtered_data"
 					@click="onClick"
 					hoverable
 					paginated
@@ -11,16 +38,16 @@
 					>
 						<template slot-scope="props">
 
-							<b-table-column field="question" label="Question" sortable searchable>
+							<b-table-column field="question" label="Question">
 								{{props.row.question}}
 								<unconfirmed-events :unconfirmedEvents="props.row.unconfirmedEvents" />
 							</b-table-column>
 
-							<b-table-column field="deadline" label="Report time" sortable>
+							<b-table-column field="deadline" label="Report time" >
 								{{props.row.countdown}}
 							</b-table-column>
 
-							<b-table-column field="reward" label="Reward"  sortable>
+							<b-table-column field="reward" label="Reward" >
 								<byte-amount :amount="props.row.reward" />
 							</b-table-column>
 
@@ -32,7 +59,7 @@
 								<span v-else>Not known yet</span>
 							</b-table-column>
 
-							<b-table-column field="possibleAction" label="Action available" sortable>
+							<b-table-column field="possibleAction" label="Action available">
 								{{props.row.possibleAction}}
 							</b-table-column>
 
@@ -49,6 +76,7 @@ const conf = require("../conf.js");
 import moment from 'moment/src/moment'
 import ByteAmount from './commons/ByteAmount.vue';
 import UnconfirmedEvents from './commons/UnconfirmedEvents.vue';
+import QuestionCreateModal from './QuestionCreateModal.vue';
 
 import { EventBus } from './../event-bus.js';
 
@@ -61,7 +89,10 @@ export default {
 	data() {
 		return {
 			data: [],
-			timerId: null
+			filtered_data: [],
+			timerId: null,
+			search_input: '',
+			filter_type: 'hot'
 		}
 	},
 	watch: {
@@ -84,8 +115,54 @@ export default {
 			this.selected = null;
 			this.$router.push({ name: 'landingPageQuestion', params: { question_id: item.question_id, question: item } })
 		},
+		applyFilter(search_input){
+
+			if (this.search_input.length > 0){
+				this.filtered_data = this.data.filter(question => question.question.toLowerCase().indexOf(search_input.toLowerCase()) > -1)
+			} else {
+				this.filtered_data = this.data
+			}
+
+			if (this.filter_type == 'hot'){
+				var filter = (minutes) => {
+					const data = this.filtered_data.filter((question) => {
+						if (moment.unix(question.deadline).isBetween(moment().subtract(minutes,'minutes'),moment().add(minutes,'minutes')))
+							return true
+						if (moment.unix(question.countdown).isBetween(moment().subtract(minutes,'minutes'),moment().add(minutes,'minutes')))
+							return true
+						return false;
+					})
+					if (data.length < 10){
+						filter(minutes * 2)
+					} else {
+						this.filtered_data = data
+					}
+				}
+				filter(60)
+			} else if (this.filter_type == 'being_graded') {
+					this.filtered_data = this.filtered_data.filter((question) => {
+						return question.status == 'being_graded'
+					})
+			} else if (this.filter_type == 'not_graded') {
+					this.filtered_data = this.filtered_data.filter((question) => {
+						return question.status == 'created'
+					})
+			} else if (this.filter_type == 'graded') {
+					this.filtered_data = this.filtered_data.filter((question) => {
+						return question.status == 'committed'
+					})
+			}
+		},
+		sort(){
+			this.data.sort(function(a, b) {
+				var time_a = a.status == 'created' ? a.deadline : a.countdown_start
+				var time_b = b.status == 'created' ? b.deadline : b.countdown_start
+				return time_b - time_a;
+			});
+		},
 		getData: function(){
 			this.axios.get('/api/questions').then((response) => {
+				
 				response.data.forEach(function(row){
 					row.countdown = moment().to(moment.unix(row.deadline));
 					if (row.status == 'created'){
@@ -116,8 +193,24 @@ export default {
 					}
 				});
 				this.data = response.data;
+				this.applyFilter();
+				this.sort();
+
 			});
-		}
+		},
+		createQuestion() {
+			this.$buefy.modal.open({
+				parent: this,
+				component: QuestionCreateModal,
+				hasModalCard: true,
+				width:"640",
+				customClass: 'custom-class custom-class-2',
+				onCancel:()=>{
+					this.$router.push({ name: 'landingPage'});
+					EventBus.$emit('refresh-questions');
+				},
+			})
+		},
 	}
 }
 </script>

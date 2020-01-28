@@ -12,6 +12,7 @@ const aa_composer = require('ocore/aa_composer.js');
 
 //const social_networks = require('./social_networks.js');
 
+const MAX_QUESTIONS = 200;
 
 var assocAllQuestions = {};
 var assocNicknamesByAddress = {};
@@ -198,6 +199,7 @@ function indexQuestions(objStateVars){
 	extractStakedByKeyAndAddress(objStateVars);
 
 	const operationKeys = extractOperationKeys(objStateVars);
+	const arrQuestions = [];
 	const assocQuestions = {};
 
 	operationKeys.forEach(function(key){
@@ -207,7 +209,7 @@ function indexQuestions(objStateVars){
 			return;
 		question.status = objStateVars[key];
 		question.question = objStateVars[key+"_question"];
-		question.deadline = objStateVars[key+"_deadline"];
+		question.deadline = Number(objStateVars[key+"_deadline"]);
 		var outcome = objStateVars[key+"_outcome"];
 		question.outcome = outcome;
 		question.committed_outcome = objStateVars[key + "_committed_outcome"];
@@ -219,7 +221,22 @@ function indexQuestions(objStateVars){
 		question.question_id = key;
 		question.staked_by_address = assocStakedByKeyAndAddress[key];
 		appendUnconfirmedEvents(question);
-		assocQuestions[key] = question;
+		arrQuestions.push(question)
+	});
+
+	arrQuestions.sort(function(a, b) { 
+		var time_a = a.status == 'created' ? a.deadline : a.countdown_start;
+		var time_b = b.status == 'created' ? b.deadline : b.countdown_start;
+		return time_b - time_a;
+	});
+
+	arrQuestions.slice(0, MAX_QUESTIONS).forEach(function(question){
+		assocQuestions[question.question_id] = question; // we limit assocAllQuestions size, so client receive only last ones 
+	});
+
+	arrQuestions.slice(MAX_QUESTIONS).forEach(function(question) { // anyway we must send any question that is being graded
+		if (question.status == 'being_graded')
+			assocQuestions[question.question_id] = question;
 	});
 
 	assocAllQuestions = assocQuestions;

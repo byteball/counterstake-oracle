@@ -10,19 +10,12 @@
 		<section>
 			<questions-table />
 		</section>
-		<section>
-			<div class="ml-3 mt-2">
-				<button class="button is-primary is-medium" @click="createQuestion()">
-					{{$t('landingPageButtonCreateQuestion')}}
-				</button>
-			</div>
-		</section>
+
 	</div>
 </template>
 
 <script>
 import QuestionModal from './QuestionModal.vue';
-import QuestionCreateModal from './QuestionCreateModal.vue';
 import QuestionsTable from './QuestionsTable.vue';
 import { EventBus } from './../event-bus.js';
 
@@ -73,19 +66,6 @@ export default {
 					EventBus.$emit('refresh-questions');
 				},
 				customClass: 'custom-class custom-class-2'
-			})
-		},
-		createQuestion() {
-			this.$buefy.modal.open({
-				parent: this,
-				component: QuestionCreateModal,
-				hasModalCard: true,
-				width:"640",
-				customClass: 'custom-class custom-class-2',
-				onCancel:()=>{
-					this.$router.push({ name: 'landingPage'});
-					EventBus.$emit('refresh-questions');
-				},
 			})
 		},
 		closeModalAndRefresh(){
