@@ -14,8 +14,15 @@
 					<div class="is-inline">
 						Current outcome: 
 					</div >
-					<h5 class="title is-5 is-inline"> {{ question.outcome }} </h5>
-					<div>Challenging period end: <b>{{challengeCountdown}}</b></div>
+					<b-tag 
+						:class="{
+							'is-success ml-05' : question.outcome == 'yes',
+							'is-danger ml-05' :  question.outcome == 'no',
+						}"
+						size="is-medium">
+						{{question.outcome}} 
+					</b-tag>
+					<div class="mt-05">Challenging period end: <b>{{challengeCountdown}}</b></div>
 				</div>
 				<div class="py-3">
 					<div >
@@ -23,8 +30,10 @@
 						<b-slider v-if="sliderEnabled" id="range-1" 
 						v-model="stakeAmountGb" 
 						:min="conf.challenge_min_stake_gb" 
-						:max="reversalStakeGb*1.01" 
-						:step="reversalStakeGb/100"/>
+						:max="reversalStakeGb" 
+						:step="0.00000001"
+						class="px-1"
+						/>
 					</div >
 
 					<div class="pt-3">
@@ -56,7 +65,7 @@
 			<div v-else fluid >
 				<div class="py-3">
 					<p>{{$t("contestOutcomeLinkHeader", {outcome: my_outcome})}}</p>
-					<div class="mt-2"><a :href="link">{{link}}</a></div>
+						<wallet-link :link="link" />
 					<p class="mt-1">{{$t('contestOutcomeLinkFooter')}}</p>
 				</div>
 			</div>
@@ -74,12 +83,14 @@ import ByteAmount from './commons/ByteAmount.vue';
 import QuestionHistory from './commons/QuestionHistory.vue';
 import moment from 'moment/src/moment'
 import UnconfirmedEvents from './commons/UnconfirmedEvents.vue';
+import WalletLink from './WalletLink.vue'
 
 export default {	
 	components: {
 		ByteAmount,
 		QuestionHistory,
-		UnconfirmedEvents
+		UnconfirmedEvents,
+		WalletLink
 	},
 	props: {
 		question: {

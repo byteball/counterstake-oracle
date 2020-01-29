@@ -1,17 +1,30 @@
 <template>
 		<div class="modal-card" style="min-width:400px;">
 			<header class="modal-card-head">
-				<p class="modal-card-title">Resulting outcome</p>
+				<p class="modal-card-title">Graded question</p>
 			</header>
 			<section class="modal-card-body">
 			<h4 class="title is-4">{{question.question}}</h4>
 			<hr>
 			<div class="py-2">
+
 				<div class="is-inline">
-					Resulting outcome: 
+					Definitive outcome: 
 				</div >
-				<h5 class="title is-5 is-inline"> {{ question.outcome }} </h5>
-			</div >
+				<h5 class="title is-5 is-inline"> 
+					<b-tag 
+						:class="{
+							'is-success  ml-05' : question.outcome == 'yes',
+							'is-danger  ml-05' :  question.outcome == 'no',
+						}"
+						size="is-medium">
+						{{question.outcome}} 
+					</b-tag> 
+				</h5>
+				<div class="mt-1">Oracle address: <b>{{conf.aa_address}}</b></div>
+				<div>Feed name: <b>{{question.question_id}}</b></div>
+				<div>Value: <b>{{question.outcome}}</b></div>
+			</div>
 			<div>
 			<question-history :question="question" />
 			</div>
@@ -38,7 +51,8 @@ export default {
 	},
 	data(){
 		return {
-			link: null
+			link: null,
+			conf: conf
 		}
 	},
 	methods:{

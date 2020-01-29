@@ -24,7 +24,7 @@
 				</div>
 				<div v-else>
 					<p class="mt-2">{{$t('claimGainLinkHeader')}}</p>
-					<div class="mt-2"><a :href="link">{{link}}</a></div>
+						<wallet-link :link="link" />
 					<p class="mt-1">{{$t('claimGainLinkFooter')}}</p>
 				</div>
 		</section>
@@ -41,11 +41,13 @@ const conf = require("../conf.js")
 import ByteAmount from './commons/ByteAmount.vue'
 import QuestionHistory from './commons/QuestionHistory.vue';
 import UnconfirmedEvents from './commons/UnconfirmedEvents.vue';
+import WalletLink from './WalletLink.vue'
 
 export default {
 	components: {
 		QuestionHistory,
-		UnconfirmedEvents
+		UnconfirmedEvents,
+		WalletLink
 	},
 	props: {
 		question: {

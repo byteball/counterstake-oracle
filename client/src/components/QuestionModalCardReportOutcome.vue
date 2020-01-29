@@ -7,10 +7,10 @@
 			<h4 class="title is-4" > {{question.question}} </h4>
 			<hr class="new">
 			<div v-if="!link" ref="div-report">
-				<div class="py-2">
+				<div class="py-1">
 					<unconfirmed-events :unconfirmedEvents="question.unconfirmedEvents" />
 				</div>
-				<div class="py-2">
+				<div class="py-1">
 					<div class="py-1" >
 						Report outcome:
 					</div>
@@ -35,7 +35,7 @@
 			<div v-else ref="div-link">
 				<div class="py-3">
 				<p>{{$t('reportOutcomeLinkHeader')}}</p>
-				<div class="mt-2"><a :href="link">{{link}}</a></div>
+					<wallet-link :link="link" />
 				<p class="mt-2">{{$t('reportOutcomeLinkFooter')}}</p>
 				</div>
 			</div>
@@ -52,12 +52,14 @@ const conf = require("../conf.js")
 import ByteAmount from './commons/ByteAmount.vue'
 import QuestionHistory from './commons/QuestionHistory.vue';
 import UnconfirmedEvents from './commons/UnconfirmedEvents.vue';
+import WalletLink from './WalletLink.vue'
 
 export default {
 	components: {
 		ByteAmount,
 		QuestionHistory,
-		UnconfirmedEvents
+		UnconfirmedEvents,
+		WalletLink
 	},
 	props: {
 		question: {
@@ -93,9 +95,7 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.default{
 
-}
 </style>
 
 

@@ -1,13 +1,6 @@
 <template>
 	<section>
 		<div class="columns">
-			<div class="column mt-2">
-				<button class="button is-primary is-medium" @click="createQuestion()">
-					{{$t('landingPageButtonCreateQuestion')}}
-				</button>
-			</div>
-		</div>
-		<div class="columns">
 			<div class="column">
 				<b-field label="Search">
 					<b-input 
@@ -16,16 +9,22 @@
 					></b-input>
 				</b-field>
 			</div>
-		<div class="column">
-			Filter: 
-			<div class="buttons">
-				<b-button type="is-primary" :outlined="filter_type!='all'" @click="filter_type='all';applyFilter()" >all</b-button>
-				<b-button type="is-danger" :outlined="filter_type!='hot'" @click="filter_type='hot';applyFilter()" >hot</b-button>
-				<b-button type="is-warning-2" :outlined="filter_type!='reportable'" @click="filter_type='reportable';applyFilter()" >in report</b-button>
-				<b-button type="is-success" :outlined="filter_type!='ended'" @click="filter_type='ended';applyFilter()" >ended</b-button>
-				<b-button type="is-warning" :outlined="filter_type!='in_play'" @click="filter_type='in_play';applyFilter()">in play</b-button>
+			<div class="column">
+				<b-field label="Filter">
+					<div class="buttons">
+						<b-button type="is-primary" :outlined="filter_type!='all'" @click="filter_type='all';applyFilter()" >all</b-button>
+						<b-button type="is-danger" :outlined="filter_type!='hot'" @click="filter_type='hot';applyFilter()" >hot</b-button>
+						<b-button type="is-warning" :outlined="filter_type!='in_play'" @click="filter_type='in_play';applyFilter()">in play</b-button>
+						<b-button type="is-warning-2" :outlined="filter_type!='reportable'" @click="filter_type='reportable';applyFilter()" >in report</b-button>
+						<b-button type="is-success" :outlined="filter_type!='ended'" @click="filter_type='ended';applyFilter()" >ended</b-button>
+					</div>
+				</b-field>
 			</div>
-		</div>
+			<div class="column">
+				<button class="button is-primary is-medium  mt-1" @click="createQuestion()">
+					{{$t('landingPageButtonCreateQuestion')}}
+				</button>
+			</div>
 		</div>
 			<b-table
 					:data="filtered_data"
@@ -35,6 +34,8 @@
 					:per-page="15"
 					class="questions-table"
 					:row-class="row => !row.is_pending ? 'active' : 'pending' "
+					sort-icon="arrow-up"
+					sort-icon-size="is-small"
 					>
 						<template slot-scope="props">
 
@@ -54,12 +55,13 @@
 							<b-table-column field="outcome" custom-key='outcome' label="Outcome">
 								<b-tag v-if = "props.row.outcome" :class="{
 									'is-warning': props.row.beingGraded,
-									'is-success' : !props.row.beingGraded 
+									'is-success' : !props.row.beingGraded && props.row.outcome == 'yes',
+									'is-danger' : !props.row.beingGraded && props.row.outcome == 'no',
 									 }">{{props.row.outcome}}</b-tag>
 								<span v-else>Not known yet</span>
 							</b-table-column>
 
-							<b-table-column v-if="filter_type!='ended' && filter_type!='in_play'" custom-key='possibleAction'  field="possibleAction" label="Action available">
+							<b-table-column :visible="filter_type!='ended' && filter_type!='in_play'" custom-key='possibleAction' field="possibleAction" label="Action available">
 								{{props.row.possibleAction}}
 							</b-table-column>
 
@@ -101,9 +103,11 @@ export default {
 	computed: {
 		getTimeLabel: function(){
 			if (this.filter_type == 'ended')
-				return 'Report time';
+				return 'Reported time';
+			if (this.filter_type == 'in_play')
+				return 'Reported time';
 			else
-				return 'Report time/ challenge end time';
+				return 'Report time/challenge end time';
 		},
 	},
 	created(){
@@ -221,3 +225,11 @@ export default {
 	}
 }
 </script>
+
+<style lang='scss' scoped>
+.vert-bottom *{
+	vertical-align: bottom;
+}
+</style>
+
+

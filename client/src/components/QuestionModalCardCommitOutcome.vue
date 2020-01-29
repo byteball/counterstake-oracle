@@ -13,15 +13,21 @@
 				<div class="is-inline">
 					Resulting outcome: 
 				</div >
-			<h5 class="title is-5 is-inline"> {{ question.outcome }} </h5>
-		</div >
+					<b-tag 
+						:class="{
+							'is-success ml-05' : question.outcome == 'yes',
+							'is-danger ml-05' :  question.outcome == 'no',
+						}"
+						size="is-medium">
+						{{question.outcome}} 
+					</b-tag> 		</div >
 		<div v-if="!link">
 		<question-history :question="question" />
 		</div>
 			<div v-else>
 				<div class="py-2">
 					<p>{{$t("commitOutcomeLinkHeader")}}</p>
-					<div class="mt-2"><a :href="link">{{link}}</a></div>
+						<wallet-link :link="link" />
 					<p class="mt-1">{{$t('commitOutcomeLinkFooter')}}</p>
 				</div>
 			</div>
@@ -37,11 +43,13 @@
 const conf = require("../conf.js");
 import QuestionHistory from './commons/QuestionHistory.vue';
 import UnconfirmedEvents from './commons/UnconfirmedEvents.vue';
+import WalletLink from './WalletLink.vue'
 
 export default {	
 	components: {
 		QuestionHistory,
-		UnconfirmedEvents
+		UnconfirmedEvents,
+		WalletLink
 	},
 	props: {
 		question: {

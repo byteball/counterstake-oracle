@@ -314,8 +314,9 @@ function getQuestion(question_id){
 
 function treatUnconfirmedEvents(arrUnits){
 
-	db.query("SELECT unit,payload,amount,unit_authors.address FROM messages CROSS JOIN outputs USING(unit) \n\
+	db.query("SELECT units.unit,payload,amount,unit_authors.address,units.timestamp FROM messages CROSS JOIN outputs USING(unit) \n\
 	CROSS JOIN unit_authors USING(unit) \n\
+	CROSS JOIN units USING(unit) \n\
 	WHERE unit IN (?) AND app='data' AND outputs.address=? AND outputs.asset IS NULL GROUP BY messages.unit",
 	[arrUnits, conf.aa_address], function(rows){
 		rows.forEach(function(row){
@@ -323,6 +324,7 @@ function treatUnconfirmedEvents(arrUnits){
 			params.trigger = {};
 			params.trigger.data = JSON.parse(row.payload);
 			params.trigger.address = row.address;
+			params.trigger.timestamp = row.timestamp;
 			params.trigger.outputs = {};
 			params.trigger.outputs.base = row.amount;
 			params.address = conf.aa_address;
@@ -359,7 +361,9 @@ function treatDryAaResponse(triggerUnit, trigger, objResponse){
 	} 
 	
 	assocUnconfirmedEvents[triggerUnit] = parseEvent(trigger, objResponse.response.responseVars);
- 
+	assocUnconfirmedEvents[triggerUnit].trigger_unit = triggerUnit;
+	assocUnconfirmedEvents[triggerUnit].timestamp = trigger.timestamp;
+
 }
 
 
@@ -387,7 +391,7 @@ function getLastEvents(handle){
 		})
 		const unconfirmed_events = Object.values(assocUnconfirmedEvents)
 		unconfirmed_events.forEach((event)=>{
-			event.question = assocAllOperations[event.operation_id] || null;
+			event.question = assocAllQuestions[event.operation_id] || null;
 			event.nickname = assocNicknamesByAddress[event.concerned_address] || null;
 		});
 		const allEvents = confirmed_events.concat(unconfirmed_events).sort(function(a, b){

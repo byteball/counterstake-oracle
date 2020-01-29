@@ -9,7 +9,7 @@
 					History - {{historyItems.length}} event{{historyItems.length>1 ? "s" :""}}
 				</p>
 				<a class="card-header-icon">
-					<b-icon :icon="isHistoryOpen ? 'angle-up' : 'angle-down'" />
+					<v-icon :name="isHistoryOpen ? 'chevron-up' : 'chevron-down'" />
 				</a>
 		</div>
 		<div class="card-content">
@@ -17,13 +17,17 @@
 					<div v-for="(item,index) in historyItems" class="row mt-1" :key="index">
 						<div>
 							<div class="box" v-if="item.event_type =='new_question'" >
-								<div class="title is-6"><b>New question</b> - {{item.time}} </div>
+								<div class="title is-6"><b>New question</b> - {{item.time}}
+									- Unit: <unit-link :unit="item.unit"/>
+								 </div>
 								<div class="d-block text-break">
 									Created by {{item.concerned_address}}
 								</div>
 							</div>
 							<div class="box" v-if="item.event_type =='stake' || item.event_type=='initial_stake'" >
-								<div class="title is-6"><b>{{item.event_type =='stake' ? 'Counter stake' : 'Initial stake'}} </b> - {{item.time}}</div>
+								<div class="title is-6"><b>{{item.event_type =='stake' ? 'Counter stake' : 'Initial stake'}} </b> - {{item.time}}
+									- Unit: <unit-link :unit="item.unit"/>
+								</div>
 
 								<div class="d-block text-break">
 									<b><user :address="item.author_address" :nickname="item.author_nickname"/></b>
@@ -41,13 +45,17 @@
 								</div>
 							</div>
 							<div class="box" v-if="item.event_type =='commit'" >
-								<div class="title is-6"><b>Committed</b> - {{item.time}} </div>
+								<div class="title is-6"><b>Committed</b> - {{item.time}} 
+									- Unit: <unit-link :unit="item.unit"/>
+								</div>
 								<div class="d-block text-break">
 									<span v-if="item.paid_out" class="d-block"><b><byte-amount :amount="item.paid_out"/></b> paid to <b>{{item.concerned_address}}</b></span>
 								</div>
 							</div>
 							<div class="box" v-if="item.event_type =='withdraw'" >
-								<div class="title is-6"><b>Withdraw</b> - {{item.time}} </div>
+								<div class="title is-6"><b>Withdraw</b> - {{item.time}} 
+									- Unit: <unit-link :unit="item.unit"/>
+								</div>
 								<div class="d-block text-break">
 									<span v-if="item.paid_out" class="d-block"><b><byte-amount :amount="item.paid_out"/></b> paid to <b>{{item.concerned_address}}</b></span>
 								</div>
@@ -64,11 +72,13 @@ const conf = require("../../conf.js");
 import moment from 'moment'
 import ByteAmount from './ByteAmount.vue';
 import User from './User.vue';
+import UnitLink from './UnitLink.vue'
 
 export default {	
 	components: {
 		ByteAmount,
-		User
+		User,
+		UnitLink
 	},
 	props: {
 		question: {

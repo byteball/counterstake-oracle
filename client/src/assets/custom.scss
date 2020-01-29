@@ -2,6 +2,7 @@
 
 // Import Bulma's core
 @import "~bulma/sass/utilities/_all";
+@import url('https://cdn.materialdesignicons.com/2.5.94/css/materialdesignicons.min.css');
 
 $primary: #8c67ef;
 $primary-invert: findColorInvert($primary);
@@ -40,6 +41,15 @@ $hr-margin: 0.8rem 0;
 
 //helpers
 
+.ml-05 {
+	margin-left: 0.5em;
+}
+
+
+.mt-05 {
+	margin-top: 0.5em;
+}
+
 .mt-1 {
 	margin-top: 1em;
 }
@@ -61,8 +71,19 @@ $hr-margin: 0.8rem 0;
 	margin-bottom: 1em;
 }
 
+.p-1 {
+	padding: 1em;
+}
+
+
 .p-2 {
 	padding: 2em;
+}
+
+
+.px-1{
+	padding-right: 1em;
+	padding-left: 1em;
 }
 
 .py-1 {
@@ -86,6 +107,11 @@ $hr-margin: 0.8rem 0;
 	padding-top: 5em;
 	padding-bottom: 5em;
 }
+
+.pt-05 {
+	padding-top: 0.5em;
+}
+
 
 .pt-1 {
 	padding-top: 1em;

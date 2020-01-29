@@ -1,4 +1,5 @@
 {
+	"commonEmptyTable" : "Nothing here.",
 	"questionCreateModalTitle" : "Create a question",
 	"landingPageButtonCreateQuestion" : "Create a question",
 	"questionCreateModalLabelFieldQuestion" : "Question",
