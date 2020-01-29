@@ -12,7 +12,7 @@
 					<b-icon :icon="isHistoryOpen ? 'angle-up' : 'angle-down'" />
 				</a>
 		</div>
-		<div class="card-content scrollable">
+		<div class="card-content">
 			<div class="container">
 					<div v-for="(item,index) in historyItems" class="row mt-1" :key="index">
 						<div>

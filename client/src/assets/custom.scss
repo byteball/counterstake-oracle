@@ -5,6 +5,9 @@
 
 $primary: #8c67ef;
 $primary-invert: findColorInvert($primary);
+$warning-2: #ec9044;
+$warning-2-invert: findColorInvert($warning-2);
+
 
 // Setup $colors to use as bulma classes (e.g. 'is-twitter')
 $colors: (
@@ -17,6 +20,7 @@ $colors: (
 	"success": ($success, $success-invert),
 	"warning": ($warning, $warning-invert),
 	"danger": ($danger, $danger-invert),
+	"warning-2": ($warning-2, $warning-2-invert),
 );
 
 $hr-background-color: $primary;

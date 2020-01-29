@@ -15,16 +15,16 @@
 					@input="applyFilter"
 					></b-input>
 				</b-field>
-			</div>			<div class="column">
-
-		Sort by: 
-   <div class="buttons">
-						<b-button type="is-primary" :outlined="filter_type!='all'" @click="filter_type='all';applyFilter()" >all</b-button>
-            <b-button type="is-primary" :outlined="filter_type!='hot'" @click="filter_type='hot';applyFilter()" >hot</b-button>
-            <b-button type="is-success" :outlined="filter_type!='being_graded'" @click="filter_type='being_graded';applyFilter()" >being graded</b-button>
-            <b-button type="is-danger" :outlined="filter_type!='graded'" @click="filter_type='graded';applyFilter()" >graded</b-button>
-            <b-button type="is-warning" :outlined="filter_type!='not_graded'" @click="filter_type='not_graded';applyFilter()">not graded</b-button>
-        </div>
+			</div>
+		<div class="column">
+			Filter: 
+			<div class="buttons">
+				<b-button type="is-primary" :outlined="filter_type!='all'" @click="filter_type='all';applyFilter()" >all</b-button>
+				<b-button type="is-danger" :outlined="filter_type!='hot'" @click="filter_type='hot';applyFilter()" >hot</b-button>
+				<b-button type="is-warning-2" :outlined="filter_type!='reportable'" @click="filter_type='reportable';applyFilter()" >in report</b-button>
+				<b-button type="is-success" :outlined="filter_type!='ended'" @click="filter_type='ended';applyFilter()" >ended</b-button>
+				<b-button type="is-warning" :outlined="filter_type!='in_play'" @click="filter_type='in_play';applyFilter()">in play</b-button>
+			</div>
 		</div>
 		</div>
 			<b-table
@@ -38,20 +38,20 @@
 					>
 						<template slot-scope="props">
 
-							<b-table-column field="question" label="Question">
+							<b-table-column field="question" custom-key='question' label="Question">
 								{{props.row.question}}
 								<unconfirmed-events :unconfirmedEvents="props.row.unconfirmedEvents" />
 							</b-table-column>
 
-							<b-table-column field="deadline" label="Report time" >
+							<b-table-column field="deadline" custom-key='deadline' :label="getTimeLabel" sortable>
 								{{props.row.countdown}}
 							</b-table-column>
 
-							<b-table-column field="reward" label="Reward" >
+							<b-table-column field="reward" custom-key='reward'  label="Reward" >
 								<byte-amount :amount="props.row.reward" />
 							</b-table-column>
 
-							<b-table-column field="outcome" label="Outcome">
+							<b-table-column field="outcome" custom-key='outcome' label="Outcome">
 								<b-tag v-if = "props.row.outcome" :class="{
 									'is-warning': props.row.beingGraded,
 									'is-success' : !props.row.beingGraded 
@@ -59,7 +59,7 @@
 								<span v-else>Not known yet</span>
 							</b-table-column>
 
-							<b-table-column field="possibleAction" label="Action available">
+							<b-table-column v-if="filter_type!='ended' && filter_type!='in_play'" custom-key='possibleAction'  field="possibleAction" label="Action available">
 								{{props.row.possibleAction}}
 							</b-table-column>
 
@@ -99,7 +99,12 @@ export default {
 
 	},
 	computed: {
-
+		getTimeLabel: function(){
+			if (this.filter_type == 'ended')
+				return 'Report time';
+			else
+				return 'Report time/ challenge end time';
+		},
 	},
 	created(){
 		this.getData();
@@ -115,14 +120,13 @@ export default {
 			this.selected = null;
 			this.$router.push({ name: 'landingPageQuestion', params: { question_id: item.question_id, question: item } })
 		},
-		applyFilter(search_input){
+		applyFilter(){
 
 			if (this.search_input.length > 0){
-				this.filtered_data = this.data.filter(question => question.question.toLowerCase().indexOf(search_input.toLowerCase()) > -1)
+				this.filtered_data = this.data.filter(question => question.question.toLowerCase().indexOf(this.search_input.toLowerCase()) > -1)
 			} else {
 				this.filtered_data = this.data
 			}
-
 			if (this.filter_type == 'hot'){
 				var filter = (minutes) => {
 					const data = this.filtered_data.filter((question) => {
@@ -132,22 +136,22 @@ export default {
 							return true
 						return false;
 					})
-					if (data.length < 10){
-						filter(minutes * 2)
-					} else {
+
+					if (this.filtered_data.length == data.length || data.length > 10)
 						this.filtered_data = data
-					}
+					else
+						filter(minutes * 2)
 				}
-				filter(60)
-			} else if (this.filter_type == 'being_graded') {
+				filter(12*60)
+			} else if (this.filter_type == 'reportable') {
 					this.filtered_data = this.filtered_data.filter((question) => {
-						return question.status == 'being_graded'
+						return question.status == 'being_graded' || (moment.unix(question.deadline).isBefore(moment()) && question.status == 'created')
 					})
-			} else if (this.filter_type == 'not_graded') {
+			} else if (this.filter_type == 'in_play') {
 					this.filtered_data = this.filtered_data.filter((question) => {
-						return question.status == 'created'
+						return question.status == 'created' && moment.unix(question.deadline).isAfter(moment())
 					})
-			} else if (this.filter_type == 'graded') {
+			} else if (this.filter_type == 'ended') {
 					this.filtered_data = this.filtered_data.filter((question) => {
 						return question.status == 'committed'
 					})
@@ -164,8 +168,8 @@ export default {
 			this.axios.get('/api/questions').then((response) => {
 				
 				response.data.forEach(function(row){
-					row.countdown = moment().to(moment.unix(row.deadline));
 					if (row.status == 'created'){
+						row.countdown = moment().to(moment.unix(row.deadline));
 						if (moment().isAfter(moment.unix(row.deadline)))
 							row.possibleAction = 'Report now!';
 						else if (row.yes_before_deadline)
@@ -174,6 +178,7 @@ export default {
  							row.possibleAction = "Not reportable yet";
 					}
 					else if (row.status == 'being_graded'){
+						row.countdown = moment().to(moment.unix(row.countdown_start + conf.challenge_period_in_days*24*3600));
 						if (moment().isBefore(moment.unix(row.countdown_start + conf.challenge_period_in_days*24*3600 ))){
 							row.possibleAction = "Contest outcome";
 							row.beingGraded = true;
@@ -181,6 +186,7 @@ export default {
 						else
 							row.possibleAction = "Commit outcome";
 					} else if (row.status == 'committed'){
+							row.countdown = moment().to(moment.unix(row.deadline));
 							row.committed = true;
 							const assocStakedByAdress =	row.staked_by_address;
 							const outcome = row.outcome
@@ -198,6 +204,7 @@ export default {
 
 			});
 		},
+
 		createQuestion() {
 			this.$buefy.modal.open({
 				parent: this,
