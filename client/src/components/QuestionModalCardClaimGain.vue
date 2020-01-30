@@ -9,7 +9,7 @@
 				<hr>
 			</div>
 				<div v-if="!link">
-					<div class="py-2">
+					<div v-if="question.unconfirmedEvents" class="py-2" >
 						<unconfirmed-events :unconfirmedEvents="question.unconfirmedEvents" />
 					</div>
 					<div class="p-2">Select one address: </div>

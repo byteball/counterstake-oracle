@@ -7,9 +7,10 @@
 			<h4 class="title is-4" > {{question.question}} </h4>
 			<hr class="new">
 			<div v-if="!link" ref="div-report">
-				<div class="py-1">
+				<div v-if="question.unconfirmedEvents" class="py-1">
 					<unconfirmed-events :unconfirmedEvents="question.unconfirmedEvents" />
 				</div>
+				<div class="pt-1"><b>{{question.description}}</b></div>
 				<div class="py-1">
 					<div class="py-1" >
 						Report outcome:

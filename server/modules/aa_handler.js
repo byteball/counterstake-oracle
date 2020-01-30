@@ -121,14 +121,14 @@ function parseEvent(trigger, objResponse){
 		objEvent.event_type = "new_question";
 		objEvent.paid_in = objResponse.your_stake;
 		objEvent.concerned_address = trigger.address;
-	} else if (objResponse.your_stake){
+	} else if (objResponse.resulting_outcome){
 		objEvent.event_type = objResponse.expected_reward ? "initial_stake" : "stake";
-		objEvent.paid_in = objResponse.your_stake;
+		objEvent.paid_in = objResponse.accepted_amount;
 		objEvent.concerned_address = trigger.address;
 		objEvent.event_data.staked_on_yes = objResponse.total_staked_on_yes || 0;
 		objEvent.event_data.staked_on_no = objResponse.total_staked_on_no || 0;
 		objEvent.event_data.reported_outcome = objResponse.reported_outcome;
-		objEvent.event_data.resulting_outcome = objResponse.new_outcome;
+		objEvent.event_data.resulting_outcome = objResponse.resulting_outcome;
 
 	} else if (objResponse.committed_outcome){
 		objEvent.event_type = "commit";
@@ -183,11 +183,8 @@ function updateOperationsHistory(){
 							});
 						} else
 							cb();
-
 				}
 			})
-
-
 			}, unlock);
 		});
 	});
@@ -209,6 +206,7 @@ function indexQuestions(objStateVars){
 			return;
 		question.status = objStateVars[key];
 		question.question = objStateVars[key+"_question"];
+		question.description = objStateVars[key + "_description"];
 		question.deadline = Number(objStateVars[key+"_deadline"]);
 		var outcome = objStateVars[key+"_outcome"];
 		question.outcome = outcome;
@@ -240,12 +238,10 @@ function indexQuestions(objStateVars){
 	});
 
 	assocAllQuestions = assocQuestions;
-
 }
 
 
 function appendUnconfirmedEvents(question){
-
 	question.unconfirmedEvents = [];
 	for (var key in assocUnconfirmedEvents){
 		if (assocUnconfirmedEvents[key].question_id === question.question_id)
@@ -359,7 +355,7 @@ function treatDryAaResponse(triggerUnit, trigger, objResponse){
 			is_pending : true
 		}
 	} 
-	
+
 	assocUnconfirmedEvents[triggerUnit] = parseEvent(trigger, objResponse.response.responseVars);
 	assocUnconfirmedEvents[triggerUnit].trigger_unit = triggerUnit;
 	assocUnconfirmedEvents[triggerUnit].timestamp = trigger.timestamp;

@@ -7,9 +7,10 @@
 			<h4 class="title is-4">{{question.question}}</h4>
 			<hr>
 			<div v-if="!link" >
-				<div class="py-2">
+				<div v-if="question.unconfirmedEvents"  class="py-2">
 					<unconfirmed-events :unconfirmedEvents="question.unconfirmedEvents" />
 				</div>
+				<div class="pt-1"><b>{{question.description}}</b></div>
 				<div class="pt-1">
 					<div class="is-inline">
 						Current outcome: 

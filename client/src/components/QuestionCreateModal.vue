@@ -5,12 +5,17 @@
 				<p class="modal-card-title">{{$t('questionCreateModalTitle')}}</p>
 			</header>
 			<section  class="modal-card-body" >
-				<div v-if="!link" ref="div-create" class="p-2">
-					<b-field :label="$t('questionCreateModalLabelFieldQuestion')">
+				<div v-show ="!link" ref="div-create" class="p-2">
+					<b-field :label="$t('questionCreateModalLabelFieldQuestion')"  :message="question_input_message">
 						<b-input v-model="question" :maxlength="conf.question_max_length" @input='onQuestionChanged' ref="input-question"></b-input>
 					</b-field>
 					<p>{{$t('questionCreateModalQuestionRequirements',{min_length:conf.question_min_length})}}</p>
-					<b-field :label="$t('questionCreateModalSetDeadline')" class="mt-3">
+
+					<b-field class="mt-2" label="Optional description" :message="description_input_message">
+						<b-input v-model="description" :maxlength="conf.description_max_length" type="textarea"  @input='onDescriptionChanged' ref="input-description" ></b-input>
+					</b-field>
+
+					<b-field :label="$t('questionCreateModalSetDeadline')" class="mt-1">
 							<b-datetimepicker
 								rounded
 								v-model="deadline"
@@ -39,7 +44,7 @@
 					<byte-amount :amount="Math.round(amount*conf.gb_to_bytes)" ref="reward-amount"/>
 					<p v-if="amount<conf.min_reward_for_website_gb">{{$t('questionCreateModalAmountTooLowForWebsite',{amount:conf.min_reward_for_website_gb})}}</p>
 				</div>
-				<div v-else ref="div-link">
+				<div v-if="link" ref="div-link">
 					<h4 class="title is-4">{{question}}</h4>
 					<div>
 						<b>Deadline: {{isUtcTime ? deadline.toUTCString() : deadline}}</b>
@@ -48,14 +53,15 @@
 						<b>Reward: <byte-amount :amount="Math.round(amount*conf.gb_to_bytes)"/></b>
 					</div>
 					<p class="mt-2">{{$t('questionCreateModaLinkHeader')}}</p>
-					<div class="mt-2"><a :href="link">{{link}}</a></div>
+						<wallet-link :link="link" />
 					<p class="mt-1 pb-5">{{$t('questionCreateModaLinkFooter')}}</p>
 				</div>
 			</section>
 
 			<footer class="modal-card-foot">
+				<button class="button is-primary" v-if="link" @click="link=null">{{$t('commonButtonBack')}}</button>
 				<button class="button" type="button" @click="closeAndRefresh">Close</button>
-				<button v-if="isButtonOkVisible" class="button is-primary" @click="handleOk" ref="button-create">Create link</button>
+				<button v-if="isButtonOkVisible && !link" class="button is-primary" @click="handleOk" ref="button-create">Create link</button>
 			</footer>
 		</div>
 	</form>
@@ -66,14 +72,19 @@
 const conf = require("../conf.js");
 import ByteAmount from './commons/ByteAmount.vue';
 import { EventBus } from './../event-bus.js';
+import WalletLink from './WalletLink.vue'
 
 	export default  {
 	components: {
-		ByteAmount
+		ByteAmount,
+		WalletLink
 	},
 	data() {
 		return {
 			question: "",
+			question_input_message: null,
+			description: "",
+			description_input_message: null,
 			isUtcTime: false,
 			formatAmPm: false,
 			conf: conf,
@@ -111,7 +122,21 @@ import { EventBus } from './../event-bus.js';
 			this.$parent.close()
 		},
 		onQuestionChanged : function(value){
+			if (value.indexOf('_') > -1){
+				this.question_input_message = "Question cannot contain underscore"
+				this.question = value.replace('_',' ')
+			} else {
+				this.question_input_message = null
+			}
 			this.isButtonOkVisible = value.length >= conf.question_min_length;
+		},
+		onDescriptionChanged : function(value){
+			if (value.indexOf('_') > -1){
+				this.description_input_message = "Description cannot contain underscore"
+				this.description = value.replace('_',' ')
+			} else {
+				this.description_input_message = null
+			}
 		},
 		convertLocalDateToUTC(date) {
 			return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
@@ -125,14 +150,15 @@ import { EventBus } from './../event-bus.js';
 			const base64url = require('base64url');
 			const data = {
 					question: this.question,
-					deadline: Math.round(this.deadline.getTime()/1000)
-			};
+					deadline: this.deadline.toISOString().slice(0,-5)
+			}
+			if (this.description.length > 0 )
+				data.description = this.description
 
 			const json_string = JSON.stringify(data);
 			const base64data = base64url(json_string);
 			this.link = (conf.testnet ? "byteball-tn" :"byteball")+":"+conf.aa_address+"?amount="
-				+(this.amount * conf.gb_to_bytes)+"&base64data="+base64data;
-			this.isButtonOkVisible = false;
+				+Math.round(this.amount * conf.gb_to_bytes)+"&base64data="+base64data;
 		}
 	}
 }

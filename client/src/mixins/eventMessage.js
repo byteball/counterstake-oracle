@@ -8,9 +8,9 @@ export default {
 			if (event.event_type == "new_question") {
 				message += event.concerned_address + " creates a new question."
 			} else if (event.event_type == "initial_stake") {
-				message += event.concerned_address + " reports " + event.reported_outcome
+				message += event.concerned_address + " reports " + event.event_data.reported_outcome
 			} else if (event.event_type == "stake") {
-				message += event.concerned_address + " counterstakes for " + event.reported_outcome
+				message += event.concerned_address + " counterstakes for " + event.event_data.reported_outcome
 			} else if (event.event_type == "commit") {
 				message += event.event_data.author + " commits result "
 			} else if (event.event_type == "withdraw") {

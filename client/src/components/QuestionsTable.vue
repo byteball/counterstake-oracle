@@ -13,18 +13,15 @@
 				<b-field label="Filter">
 					<div class="buttons">
 						<b-button type="is-primary" :outlined="filter_type!='all'" @click="filter_type='all';applyFilter()" >all</b-button>
-						<b-button type="is-danger" :outlined="filter_type!='hot'" @click="filter_type='hot';applyFilter()" >hot</b-button>
-						<b-button type="is-warning" :outlined="filter_type!='in_play'" @click="filter_type='in_play';applyFilter()">in play</b-button>
-						<b-button type="is-warning-2" :outlined="filter_type!='reportable'" @click="filter_type='reportable';applyFilter()" >in report</b-button>
-						<b-button type="is-success" :outlined="filter_type!='ended'" @click="filter_type='ended';applyFilter()" >ended</b-button>
+						<b-button type="is-primary" :outlined="filter_type!='hot'" @click="filter_type='hot';applyFilter()" >hot</b-button>
+						<b-button type="is-primary" :outlined="filter_type!='in_play'" @click="filter_type='in_play';applyFilter()">in play</b-button>
+						<b-button type="is-primary" :outlined="filter_type!='reportable'" @click="filter_type='reportable';applyFilter()" >in report</b-button>
+						<b-button type="is-primary" :outlined="filter_type!='ended'" @click="filter_type='ended';applyFilter()" >ended</b-button>
+						<b-button class="ml-1" type="is-primary"  @click="createQuestion()">{{$t('landingPageButtonCreateQuestion')}}</b-button>
 					</div>
 				</b-field>
 			</div>
-			<div class="column">
-				<button class="button is-primary is-medium  mt-1" @click="createQuestion()">
-					{{$t('landingPageButtonCreateQuestion')}}
-				</button>
-			</div>
+
 		</div>
 			<b-table
 					:data="filtered_data"
@@ -41,7 +38,7 @@
 
 							<b-table-column field="question" custom-key='question' label="Question">
 								{{props.row.question}}
-								<unconfirmed-events :unconfirmedEvents="props.row.unconfirmedEvents" />
+								<unconfirmed-events v-if="props.row.unconfirmedEvents" :unconfirmedEvents="props.row.unconfirmedEvents" />
 							</b-table-column>
 
 							<b-table-column field="deadline" custom-key='deadline' :label="getTimeLabel" sortable>
@@ -227,9 +224,7 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.vert-bottom *{
-	vertical-align: bottom;
-}
+
 </style>
 
 

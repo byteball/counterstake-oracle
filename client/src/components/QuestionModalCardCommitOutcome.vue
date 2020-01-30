@@ -6,7 +6,7 @@
 			<section class="modal-card-body">
 			<h4 class="title is-4">{{question.question}}</h4>
 				<hr>
-				<div class="mt-1">
+				<div v-if="question.unconfirmedEvents" class="mt-1">
 					<unconfirmed-events :unconfirmedEvents="question.unconfirmedEvents" />
 				</div>
 			<div class="py-2">
