@@ -9,11 +9,11 @@
 				<hr>
 			</div>
 				<div v-if="!link">
-					<div v-if="question.unconfirmedEvents" class="py-2" >
+					<div v-if="question.unconfirmedEvents" >
 						<unconfirmed-events :unconfirmedEvents="question.unconfirmedEvents" />
 					</div>
 					<div class="p-2">Select one address: </div>
-					<div class="pb-2">
+					<div class="pb-1">
 							<div v-for="(address,index) in question.claimAddresses" :key="index" class="level">
 								<div class="level-item"/>
 								<b-button type="is-primary level-item" :outlined="selectedAddress!=address" @click="selectedAddress=address">{{address}}</b-button>

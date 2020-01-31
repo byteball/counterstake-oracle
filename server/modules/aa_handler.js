@@ -54,9 +54,11 @@ function indexFromStateVars(handle){
 	getStateVarsForPrefixes(["question_", "nickname_"], function(error, objStateVars){
 		if (error)
 			return console.log(error);
-		indexQuestions(objStateVars);
-		indexNicknames(objStateVars);
-		handle();
+		purgeUnconfirmedEvents(function(){
+			indexQuestions(objStateVars);
+			indexNicknames(objStateVars);
+			handle();	
+		});
 	});
 }
 
@@ -407,9 +409,26 @@ function discardUnconfirmedEventsAndUpdate(arrUnits){
 	indexFromStateVars(updateOperationsHistory);
 }
 
+// we purge unconfirmed events that are now stable from the hub point of view, so we won't show unconfirmed events 
+// that were actually taken into account in state vars
+// to do: update questions history from there as well
+function purgeUnconfirmedEvents(handle){
+	network.requestFromLightVendor('light/get_aa_responses', {aas: [conf.aa_address]}, function(ws, request, response){
+		if (!Array.isArray(response)){
+			console.log("light/get_aa_responses didn't return an array");
+			return handle();
+		}
+		response.forEach(function(row){
+			delete assocUnconfirmedEvents[row.trigger_unit];
+			delete assocUnconfirmedQuestions[row.trigger_unit];
+		})
+		return handle();
+	});
+}
+
 
 function getQuestionHistory(id, handle){
-	db.query("SELECT event_type,timestamp,event_data,paid_out,concerned_address,trigger_unit FROM questions_history WHERE question_id=? ORDER BY mci DESC",[id], function(rows){
+	db.query("SELECT event_type,timestamp,event_data,paid_in,paid_out,concerned_address,trigger_unit FROM questions_history WHERE question_id=? ORDER BY mci DESC",[id], function(rows){
 		return handle(
 			rows.map(function(row){
 				var objEventData = JSON.parse(row.event_data);
@@ -419,6 +438,7 @@ function getQuestionHistory(id, handle){
 					event_data: objEventData, 
 					timestamp: row.timestamp, 
 					paid_out: row.paid_out,
+					paid_in: row.paid_in,
 					concerned_address: row.concerned_address,
 					unit: row.trigger_unit,
 					nickname

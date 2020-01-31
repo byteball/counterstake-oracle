@@ -31,7 +31,7 @@
 
 								<div class="d-block text-break">
 									<b><user :address="item.author_address" :nickname="item.author_nickname"/></b>
-									staked <b><byte-amount :amount="item.event_data.accepted_amount"/></b> on <b>{{item.reported_outcome}}</b>
+									staked <b><byte-amount :amount="item.paid_in"/></b> on <b>{{item.event_data.reported_outcome}}</b>
 								</div>
 								<span class="d-block">Resulting outcome: <b>{{item.event_data.resulting_outcome}}</b></span>
 								<span v-if="item.expected_reward" class="d-block">Expected reward: <b><byte-amount :amount="item.expected_reward"/></b></span>
