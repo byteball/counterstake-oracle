@@ -17,24 +17,33 @@
 					<div v-for="(item,index) in historyItems" class="row mt-1" :key="index">
 						<div>
 							<div class="box" v-if="item.event_type =='new_question'" >
-								<div class="title is-6"><b>New question</b> - {{item.time}}
-									- Unit: <unit-link :unit="item.unit"/>
+								<div class="title is-6"><b>{{$t('questionHistoryNewQuestion')}}</b> - {{item.time}}
+									- {{$t('questionHistoryUnit')}} <unit-link :unit="item.unit"/>
 								 </div>
-								<div class="d-block text-break">
-									Created by {{item.concerned_address}}
+								<div class="d-block">
+									{{$t('questionHistoryCreatedBy', {author: item.concerned_address})}}
 								</div>
 							</div>
 							<div class="box" v-if="item.event_type =='stake' || item.event_type=='initial_stake'" >
-								<div class="title is-6"><b>{{item.event_type =='stake' ? 'Counter stake' : 'Initial stake'}} </b> - {{item.time}}
-									- Unit: <unit-link :unit="item.unit"/>
+								<div class="title is-6"><b>{{item.event_type =='stake' ? $t('questionCounterStake') : $t('questionInitialStake')}} </b> - {{item.time}}
+									- {{$t('questionHistoryUnit')}} <unit-link :unit="item.unit"/>
 								</div>
 
-								<div class="d-block text-break">
-									<b><user :address="item.author_address" :nickname="item.author_nickname"/></b>
-									staked <b><byte-amount :amount="item.paid_in"/></b> on <b>{{item.event_data.reported_outcome}}</b>
-								</div>
-								<span class="d-block">Resulting outcome: <b>{{item.event_data.resulting_outcome}}</b></span>
-								<span v-if="item.expected_reward" class="d-block">Expected reward: <b><byte-amount :amount="item.expected_reward"/></b></span>
+							<div class="d-block">
+								<i18n path="questionHistoryUserStakedOn">
+									<template #user>
+										<b><user :address="item.concerned_address" :nickname="item.author_nickname"/></b>
+									</template>
+									<template #amount>
+										<b><byte-amount :amount="item.paid_in"/></b>
+									</template>
+									<template #side>
+										<b>{{item.event_data.reported_outcome}}</b>
+									</template>
+								</i18n>
+							</div>
+								<span class="d-block">{{$t('questionHistoryResultingOutcome')}}<b>{{item.event_data.resulting_outcome}}</b></span>
+								<span v-if="item.expected_reward" class="d-block">{{$t('questionHistoryExpectedReward')}}<b><byte-amount :amount="item.expected_reward"/></b></span>
 								<div class="progress-stacked mt-1">
 									<div class="bar" :style="{ height: 15 + 'px', background: '#48c774', width: ( item.event_data.staked_on_yes * 100) / (item.event_data.staked_on_yes + item.event_data.staked_on_no) + '%' }">
 										<byte-amount :amount="item.event_data.staked_on_yes"/>
@@ -45,19 +54,33 @@
 								</div>
 							</div>
 							<div class="box" v-if="item.event_type =='commit'" >
-								<div class="title is-6"><b>Committed</b> - {{item.time}} 
-									- Unit: <unit-link :unit="item.unit"/>
+								<div class="title is-6"><b>{{$t('questionHistoryCommitted')}}</b> - {{item.time}} 
+									- {{$t('questionHistoryUnit')}} <unit-link :unit="item.unit"/>
 								</div>
-								<div class="d-block text-break">
-									<span v-if="item.paid_out" class="d-block"><b><byte-amount :amount="item.paid_out"/></b> paid to <b>{{item.concerned_address}}</b></span>
+								<div class="d-block" v-if="item.paid_out">
+									<i18n path="questionHistoryPaidTo">
+										<template #amount>
+											<b><byte-amount :amount="item.paid_out"/></b>
+										</template>
+										<template #user>
+											<b>{{item.concerned_address}}</b>
+										</template>
+									</i18n>
 								</div>
 							</div>
 							<div class="box" v-if="item.event_type =='withdraw'" >
-								<div class="title is-6"><b>Withdraw</b> - {{item.time}} 
-									- Unit: <unit-link :unit="item.unit"/>
+								<div class="title is-6"><b>{{$t('questionHistoryWithdrawal')}}</b> - {{item.time}} 
+									- {{$t('questionHistoryUnit')}} <unit-link :unit="item.unit"/>
 								</div>
 								<div class="d-block text-break">
-									<span v-if="item.paid_out" class="d-block"><b><byte-amount :amount="item.paid_out"/></b> paid to <b>{{item.concerned_address}}</b></span>
+									<i18n path="questionHistoryPaidTo">
+										<template #amount>
+											<b><byte-amount :amount="item.paid_out"/></b>
+										</template>
+										<template #user>
+											<b>{{item.concerned_address}}</b>
+										</template>
+									</i18n>
 								</div>
 							</div>
 						</div>
@@ -104,7 +127,7 @@ export default {
 		getHistory(){
 			this.isSpinnerActive = true
 			this.historyItems = []
-			this.axios.get('/api/question-history/'+encodeURIComponent(this.question.question_id)).then((response) => {
+			this.axios.get('/api/question-history/'+this.question.question_id).then((response) => {
 				response.data.forEach((row)=>{
 					row.time = moment.unix(row.timestamp).format('LLLL');
 					row.event_data.accepted_amount = row.event_data.your_stake || row.event_data.accepted_amount; // to be changed with new AA
@@ -112,18 +135,12 @@ export default {
 				this.historyItems = response.data;
 				this.isSpinnerActive = false;
 			});
-			console.log(this.historyItems);
 		}
 	}
 }
 </script>
 
 <style lang='scss' scoped>
-.scrollable{
-	max-height: 12rem;
-	overflow: auto;
-}
-
 .history-tile{
 	background-color: colors("light");
 	margin-top: 1rem;

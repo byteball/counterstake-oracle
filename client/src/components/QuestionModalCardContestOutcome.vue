@@ -1,7 +1,7 @@
 <template>
 	<div class="modal-card" style="min-width:400px;">
 		<header class="modal-card-head">
-			<p class="modal-card-title">Contest outcome</p>
+			<p class="modal-card-title">{{$t('contestOutcomeModalTitle')}}</p>
 		</header>
 		<section class="modal-card-body">
 			<h4 class="title is-4">{{question.question}}</h4>
@@ -13,7 +13,7 @@
 				<div class="pt-1"><b>{{question.description}}</b></div>
 				<div class="pt-1">
 					<div class="is-inline">
-						Current outcome: 
+						{{$t('contestOutcomeCurrentOutcome')}}
 					</div >
 					<b-tag 
 						:class="{
@@ -23,7 +23,7 @@
 						size="is-medium">
 						{{question.outcome}} 
 					</b-tag>
-					<div class="mt-05">Challenging period end: <b>{{challengeCountdown}}</b></div>
+					<div class="mt-05">{{$t('contestOutcomePeriodEnd')}}<b>{{challengeCountdown}}</b></div>
 				</div>
 				<div class="py-3">
 					<div >
@@ -72,8 +72,8 @@
 			</div>
 		</section>
 		<footer class="modal-card-foot">
-			<button class="button" type="button" @click="$emit('close')">Close</button>
-			<button v-if="!link" class="button is-primary" type="button" @click="contest">Create link</button>
+			<button class="button" type="button" @click="$emit('close')">{{$t('commonButtonClose')}}</button>
+			<button v-if="!link" class="button is-primary" type="button" @click="contest">{{$t('commonButtonCreateLink')}}</button>
 		</footer>
 	</div>
 </template>

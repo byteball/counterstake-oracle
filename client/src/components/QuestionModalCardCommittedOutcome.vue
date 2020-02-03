@@ -1,7 +1,7 @@
 <template>
 		<div class="modal-card" style="min-width:400px;">
 			<header class="modal-card-head">
-				<p class="modal-card-title">Graded question</p>
+				<p class="modal-card-title">{{$t('questionCommittedModalTitle')}}</p>
 			</header>
 			<section class="modal-card-body">
 			<h4 class="title is-4">{{question.question}}</h4>
@@ -21,16 +21,16 @@
 						{{question.outcome}} 
 					</b-tag> 
 				</h5>
-				<div class="mt-1">Oracle address: <b>{{conf.aa_address}}</b></div>
-				<div>Feed name: <b>{{question.question_id}}</b></div>
-				<div>Value: <b>{{question.outcome}}</b></div>
+				<div class="mt-1">{{$t('questionCommittedOracleAddress')}}<b>{{conf.aa_address}}</b></div>
+				<div>{{$t('questionCommittedFeedName')}}<b>{{question.question_id}}</b></div>
+				<div>{{$t('questionCommittedValue')}}<b>{{question.outcome}}</b></div>
 			</div>
 			<div>
-			<question-history :question="question" />
+				<question-history :question="question" />
 			</div>
 		</section>
 		<footer class="modal-card-foot">
-			<button class="button" type="button" @click="$emit('close')">Close</button>
+			<button class="button" type="button" @click="$emit('close')">{{$t('commonButtonClose')}}</button>
 		</footer>
 	</div>
 </template>
@@ -59,8 +59,8 @@ export default {
 		commit:function(outcome){
 			const base64url = require('base64url');
 			const data = {
-					question_id: this.question.question_id,
-					commit: true
+				question_id: this.question.question_id,
+				commit: true
 			};
 
 			const json_string = JSON.stringify(data);

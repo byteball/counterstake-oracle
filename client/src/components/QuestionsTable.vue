@@ -12,11 +12,11 @@
 			<div class="column">
 				<b-field label="Filter">
 					<div class="buttons">
-						<b-button type="is-primary" :outlined="filter_type!='all'" @click="filter_type='all';applyFilter()" >all</b-button>
-						<b-button type="is-primary" :outlined="filter_type!='hot'" @click="filter_type='hot';applyFilter()" >hot</b-button>
-						<b-button type="is-primary" :outlined="filter_type!='in_play'" @click="filter_type='in_play';applyFilter()">in play</b-button>
-						<b-button type="is-primary" :outlined="filter_type!='reportable'" @click="filter_type='reportable';applyFilter()" >in report</b-button>
-						<b-button type="is-primary" :outlined="filter_type!='ended'" @click="filter_type='ended';applyFilter()" >ended</b-button>
+						<b-button type="is-primary" :outlined="filter_type!='all'" @click="filter_type='all';applyFilter()" >{{$t('questionsTableFilterTagAll')}}</b-button>
+						<b-button type="is-primary" :outlined="filter_type!='hot'" @click="filter_type='hot';applyFilter()" >{{$t('questionsTableFilterTagHot')}}</b-button>
+						<b-button type="is-primary" :outlined="filter_type!='pending'" @click="filter_type='pending';applyFilter()">{{$t('questionsTableFilterTagPending')}}</b-button>
+						<b-button type="is-primary" :outlined="filter_type!='reportable'" @click="filter_type='reportable';applyFilter()" >{{$t('questionsTableFilterTagInReport')}}</b-button>
+						<b-button type="is-primary" :outlined="filter_type!='ended'" @click="filter_type='ended';applyFilter()" >{{$t('questionsTableFilterTagEnded')}}</b-button>
 						<b-button class="ml-1" type="is-primary"  @click="createQuestion()">{{$t('landingPageButtonCreateQuestion')}}</b-button>
 					</div>
 				</b-field>
@@ -36,7 +36,7 @@
 					>
 						<template slot-scope="props">
 
-							<b-table-column field="question" custom-key='question' label="Question">
+							<b-table-column field="question" custom-key='question' :label="$t('questionsTableColumnHeaderQuestion')">
 								{{props.row.question}}
 								<unconfirmed-events v-if="props.row.unconfirmedEvents" :unconfirmedEvents="props.row.unconfirmedEvents" />
 							</b-table-column>
@@ -45,20 +45,20 @@
 								{{props.row.countdown}}
 							</b-table-column>
 
-							<b-table-column field="reward" custom-key='reward'  label="Reward" >
+							<b-table-column field="reward" custom-key='reward'  :label="$t('questionsTableColumnHeaderReward')" >
 								<byte-amount :amount="props.row.reward" />
 							</b-table-column>
 
-							<b-table-column field="outcome" custom-key='outcome' label="Outcome">
+							<b-table-column field="outcome" custom-key='outcome' :label="$t('questionsTableColumnHeaderOutcome')">
 								<b-tag v-if = "props.row.outcome" :class="{
 									'is-warning': props.row.beingGraded,
 									'is-success' : !props.row.beingGraded && props.row.outcome == 'yes',
 									'is-danger' : !props.row.beingGraded && props.row.outcome == 'no',
 									 }">{{props.row.outcome}}</b-tag>
-								<span v-else>Not known yet</span>
+								<span v-else>{{$t('questionsTableColumnNotKnownYet')}}</span>
 							</b-table-column>
 
-							<b-table-column :visible="filter_type!='ended' && filter_type!='in_play'" custom-key='possibleAction' field="possibleAction" label="Action available">
+							<b-table-column :visible="filter_type!='ended' && filter_type!='pending'" custom-key='possibleAction' field="possibleAction" :label="$t('questionsTableColumnActionAvailable')">
 								{{props.row.possibleAction}}
 							</b-table-column>
 
@@ -100,11 +100,11 @@ export default {
 	computed: {
 		getTimeLabel: function(){
 			if (this.filter_type == 'ended')
-				return 'Reported time';
-			if (this.filter_type == 'in_play')
-				return 'Reported time';
+				return this.$t('questionsTableColumnReportTime')
+			if (this.filter_type == 'pending')
+				return this.$t('questionsTableColumnReportTime');
 			else
-				return 'Report time/challenge end time';
+				return this.$t('questionsTableColumnReportTimeChallengeTime')
 		},
 	},
 	created(){
@@ -148,7 +148,7 @@ export default {
 					this.filtered_data = this.filtered_data.filter((question) => {
 						return question.status == 'being_graded' || (moment.unix(question.deadline).isBefore(moment()) && question.status == 'created')
 					})
-			} else if (this.filter_type == 'in_play') {
+			} else if (this.filter_type == 'pending') {
 					this.filtered_data = this.filtered_data.filter((question) => {
 						return question.status == 'created' && moment.unix(question.deadline).isAfter(moment())
 					})
@@ -168,24 +168,22 @@ export default {
 		getData: function(){
 			this.axios.get('/api/questions').then((response) => {
 				
-				response.data.forEach(function(row){
+				response.data.forEach((row)=>{
 					if (row.status == 'created'){
-						row.countdown = moment().to(moment.unix(row.deadline));
+						row.countdown = moment().to(moment.unix(row.deadline))
 						if (moment().isAfter(moment.unix(row.deadline)))
-							row.possibleAction = 'Report now!';
-						else if (row.yes_before_deadline)
-							row.possibleAction = "Reportable as yes";
+							row.possibleAction = this.$t('questionsTableColumnReportNow')
 						else
- 							row.possibleAction = "Not reportable yet";
+ 							row.possibleAction = this.$t('questionsTableColumnNotReportableYet')
 					}
 					else if (row.status == 'being_graded'){
 						row.countdown = moment().to(moment.unix(row.countdown_start + conf.challenge_period_in_days*24*3600));
 						if (moment().isBefore(moment.unix(row.countdown_start + conf.challenge_period_in_days*24*3600 ))){
-							row.possibleAction = "Contest outcome";
-							row.beingGraded = true;
+							row.possibleAction = this.$t('questionsTableColumnContestOutcome')
+							row.beingGraded = true
 						}
 						else
-							row.possibleAction = "Commit outcome";
+							row.possibleAction = this.$t('questionsTableColumnCommitOutcome')
 					} else if (row.status == 'committed'){
 							row.countdown = moment().to(moment.unix(row.deadline));
 							row.committed = true;
@@ -193,7 +191,7 @@ export default {
 							const outcome = row.outcome
 							for (var key in assocStakedByAdress){
 								if (assocStakedByAdress[key][outcome]){
-									row.possibleAction = "Withdraw";
+									row.possibleAction = this.$t('questionsTableColumnWithdraw')
 									break;
 								}
 							}

@@ -9,18 +9,18 @@
 		</b-navbar>
 		<section>
 			<div class="p-1">
-				<h5 class="title is-5">Decentralized oracle on Obyte platform.</h5>
+				<h5 class="title is-5">{{$t('landingPageSecondTitle')}}</h5>
 			</div>
 		</section>
 		<section>
 			<b-tabs>
-				<b-tab-item label="Questions">
+				<b-tab-item :label="$t('landingPageTabQuestions')">
 					<questions-table />
 				</b-tab-item>
-				<b-tab-item label="Last events">
+				<b-tab-item :label="$t('landingPageTabLastEvents')">
 					<last-events-table class="mt-1" />
 				</b-tab-item>
-				<b-tab-item label="FAQ">
+				<b-tab-item :label="$t('landingPageTabFaq')">
 						FAQ
 				</b-tab-item>
 			</b-tabs>

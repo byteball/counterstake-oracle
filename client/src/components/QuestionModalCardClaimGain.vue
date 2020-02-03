@@ -1,7 +1,7 @@
 <template>
 	<div class="modal-card" style="min-width:400px;">
 		<header class="modal-card-head">
-			<p class="modal-card-title">Withdraw gain</p>
+			<p class="modal-card-title">{{$t('claimModalTitle')}}</p>
 		</header>
 		<section class="modal-card-body">
 			<div>
@@ -12,13 +12,13 @@
 					<div v-if="question.unconfirmedEvents" >
 						<unconfirmed-events :unconfirmedEvents="question.unconfirmedEvents" />
 					</div>
-					<div class="p-2">Select one address: </div>
+					<div class="p-2">{{$t('claimSelectAddress')}}</div>
 					<div class="pb-1">
-							<div v-for="(address,index) in question.claimAddresses" :key="index" class="level">
-								<div class="level-item"/>
-								<b-button type="is-primary level-item" :outlined="selectedAddress!=address" @click="selectedAddress=address">{{address}}</b-button>
-								<div class="level-item"/>
-							</div>
+						<div v-for="(address,index) in question.claimAddresses" :key="index" class="level">
+							<div class="level-item"/>
+							<b-button type="is-primary level-item" :outlined="selectedAddress!=address" @click="selectedAddress=address">{{address}}</b-button>
+							<div class="level-item"/>
+						</div>
 					</div>
 					<question-history :question="question" />
 				</div>
@@ -29,8 +29,8 @@
 				</div>
 		</section>
 		<footer class="modal-card-foot">
-			<button class="button" type="button" @click="$emit('close')">Close</button>
-			<button v-if="selectedAddress&&!link" class="button is-primary" type="button"  @click="handleOk">Create link</button>
+			<button class="button" type="button" @click="$emit('close')">{{$t('commonButtonClose')}}</button>
+			<button v-if="selectedAddress&&!link" class="button is-primary" type="button"  @click="handleOk">{{$t('commonButtonCreateLink')}}</button>
 		</footer>
 	</div>
 	
@@ -62,21 +62,20 @@ export default {
 		}
 	},
 	watch:{
+		selectedAddress: function(){
 
-selectedAddress: function(){
-	console.log(this.selectedAddress);
-}
+		}
 	},
 	created(){
-		console.log(this.question);
-	},
+
+},
 	methods:{
 		handleOk:function(outcome){
 			const base64url = require('base64url');
 			const data = {
-					question_id: this.question.question_id,
-					withdraw: true,
-					address: this.selectedAddress
+				question_id: this.question.question_id,
+				withdraw: true,
+				address: this.selectedAddress
 			};
 
 			const json_string = JSON.stringify(data);
@@ -89,8 +88,6 @@ selectedAddress: function(){
 </script>
 
 <style lang='scss' scoped>
-.default{
 
-}
 </style>
 

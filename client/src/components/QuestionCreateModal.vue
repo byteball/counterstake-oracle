@@ -6,30 +6,35 @@
 			</header>
 			<section  class="modal-card-body" >
 				<div v-show ="!link" ref="div-create" class="p-2">
-					<b-field :label="$t('questionCreateModalLabelFieldQuestion')"  :message="question_input_message">
-						<b-input v-model="question" :maxlength="conf.question_max_length" @input='onQuestionChanged' ref="input-question"></b-input>
+					<b-field :label="$t('questionCreateLabelFieldQuestion')"  :message="question_input_message">
+						<b-input 
+						v-model="question" 
+						:maxlength="conf.question_max_length" 
+						@input='onQuestionChanged' 
+						ref="input-question" 
+						:message="$t('questionCreateQuestionRequirements',{min_length:conf.question_min_length})"
+						/>
 					</b-field>
-					<p>{{$t('questionCreateModalQuestionRequirements',{min_length:conf.question_min_length})}}</p>
 
-					<b-field class="mt-2" label="Optional description" :message="description_input_message">
-						<b-input v-model="description" :maxlength="conf.description_max_length" type="textarea"  @input='onDescriptionChanged' ref="input-description" ></b-input>
+					<b-field class="mt-2" label="Optional description">
+						<b-input v-model="description" :maxlength="conf.description_max_length" type="textarea" ref="input-description" ></b-input>
 					</b-field>
 
-					<b-field :label="$t('questionCreateModalSetDeadline')" class="mt-1">
-							<b-datetimepicker
-								rounded
-								v-model="deadline"
-								:datepicker="{ showWeekNumber:false }"
-								:min-datetime="minDateTime"
-								:timepicker="{ hourFormat: format }">
-							</b-datetimepicker>
+					<b-field :label="$t('questionCreateSetDeadline')" class="mt-1">
+						<b-datetimepicker
+							rounded
+							v-model="deadline"
+							:datepicker="{ showWeekNumber:false }"
+							:min-datetime="minDateTime"
+							:timepicker="{ hourFormat: format }">
+						</b-datetimepicker>
 					</b-field>
 					<b-field grouped group-multiline>
 						<div class="control">
-								<b-switch v-model="formatAmPm">AM/PM</b-switch>
+							<b-switch v-model="formatAmPm">AM/PM</b-switch>
 						</div>
 						<div class="control">
-							<b-switch v-model="isUtcTime">UTC time</b-switch>
+							<b-switch v-model="isUtcTime">{{$t('questionCreateUtcTime')}}</b-switch>
 						</div>
 					</b-field>
 					<b-field label="Reward amount" class="mt-3">
@@ -42,26 +47,26 @@
 						</b-slider>
 					</b-field>
 					<byte-amount :amount="Math.round(amount*conf.gb_to_bytes)" ref="reward-amount"/>
-					<p v-if="amount<conf.min_reward_for_website_gb">{{$t('questionCreateModalAmountTooLowForWebsite',{amount:conf.min_reward_for_website_gb})}}</p>
+					<p v-if="amount<conf.min_reward_for_website_gb">{{$t('questionCreateAmountTooLowForWebsite',{amount:conf.min_reward_for_website_gb})}}</p>
 				</div>
 				<div v-if="link" ref="div-link">
 					<h4 class="title is-4">{{question}}</h4>
 					<div>
-						<b>Deadline: {{isUtcTime ? deadline.toUTCString() : deadline}}</b>
+						<b>{{$t('questionCreateModalDeadline')}}{{isUtcTime ? deadline.toUTCString() : deadline}}</b>
 					</div>
 					<div>
-						<b>Reward: <byte-amount :amount="Math.round(amount*conf.gb_to_bytes)"/></b>
+						<b>{{$t('questionCreateReward')}}<byte-amount :amount="Math.round(amount*conf.gb_to_bytes)"/></b>
 					</div>
-					<p class="mt-2">{{$t('questionCreateModaLinkHeader')}}</p>
+					<p class="mt-2">{{$t('questionCreateLinkHeader')}}</p>
 						<wallet-link :link="link" />
-					<p class="mt-1 pb-5">{{$t('questionCreateModaLinkFooter')}}</p>
+					<p class="mt-1 pb-5">{{$t('questionCreateLinkFooter')}}</p>
 				</div>
 			</section>
 
 			<footer class="modal-card-foot">
 				<button class="button is-primary" v-if="link" @click="link=null">{{$t('commonButtonBack')}}</button>
-				<button class="button" type="button" @click="closeAndRefresh">Close</button>
-				<button v-if="isButtonOkVisible && !link" class="button is-primary" @click="handleOk" ref="button-create">Create link</button>
+				<button class="button" type="button" @click="closeAndRefresh">{{$t('commonButtonClose')}}</button>
+				<button v-if="isButtonOkVisible && !link" class="button is-primary" @click="handleOk" ref="button-create">{{$t('commonButtonCreateLink')}}</button>
 			</footer>
 		</div>
 	</form>
@@ -74,7 +79,7 @@ import ByteAmount from './commons/ByteAmount.vue';
 import { EventBus } from './../event-bus.js';
 import WalletLink from './WalletLink.vue'
 
-	export default  {
+export default {
 	components: {
 		ByteAmount,
 		WalletLink
@@ -110,33 +115,18 @@ import WalletLink from './WalletLink.vue'
 				this.minDateTime = this.convertUtcDateToLocal(this.minDateTime);
 			}
 		}
-
 	},
 	created(){
 		this.minDateTime.setSeconds(this.minDateTime.getSeconds() + conf.min_delay_from_now);
 		this.deadline = this.minDateTime;
 	},
 	methods:{
+		onQuestionChanged : function(value){
+			this.isButtonOkVisible = value.length >= conf.question_min_length;
+		},
 		closeAndRefresh: function(){
 			EventBus.$emit('refresh-questions');
 			this.$parent.close()
-		},
-		onQuestionChanged : function(value){
-			if (value.indexOf('_') > -1){
-				this.question_input_message = "Question cannot contain underscore"
-				this.question = value.replace('_',' ')
-			} else {
-				this.question_input_message = null
-			}
-			this.isButtonOkVisible = value.length >= conf.question_min_length;
-		},
-		onDescriptionChanged : function(value){
-			if (value.indexOf('_') > -1){
-				this.description_input_message = "Description cannot contain underscore"
-				this.description = value.replace('_',' ')
-			} else {
-				this.description_input_message = null
-			}
 		},
 		convertLocalDateToUTC(date) {
 			return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
@@ -149,8 +139,8 @@ import WalletLink from './WalletLink.vue'
 			bvModalEvt.preventDefault()	;
 			const base64url = require('base64url');
 			const data = {
-					question: this.question,
-					deadline: this.deadline.toISOString().slice(0,-5)
+				question: this.question,
+				deadline: this.deadline.toISOString().slice(0,-5)
 			}
 			if (this.description.length > 0 )
 				data.description = this.description

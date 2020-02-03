@@ -1,7 +1,7 @@
 <template>
 	<form action="">
 			<div v-if="question">
-				<on-going-question v-if="question.isOngoing" :question="question" @close="closeModal" />
+				<pending-question v-if="question.isOngoing" :question="question" @close="closeModal" />
 				<report-outcome v-if="question.isReportable" :question="question" @close="closeModal" />
 				<contest-outcome v-if="question.isContestable" :question="question" @close="closeModal" />
 				<commit-outcome v-if="question.isCommittable" :question="question" @close="closeModal" />
@@ -15,7 +15,7 @@
 import moment from 'moment/src/moment'
 import CommitOutcome from './QuestionModalCardCommitOutcome'
 import ClaimGain from './QuestionModalCardClaimGain'
-import OnGoingQuestion from './QuestionModalCardOnGoing'
+import PendingQuestion from './QuestionModalCardPending'
 import ReportOutcome from './QuestionModalCardReportOutcome'
 import ContestOutcome from './QuestionModalCardContestOutcome'
 import CommittedOutcome from './QuestionModalCardCommittedOutcome'
@@ -25,7 +25,7 @@ const conf = require("../conf.js");
 
 export default  {
 	components:{
-		OnGoingQuestion,
+		PendingQuestion,
 		ReportOutcome,
 		ContestOutcome,
 		CommitOutcome,
@@ -40,7 +40,6 @@ export default  {
 				history: [],
 				hideHistory: false,
 				conf: conf,
-				title: "Question",
 				isHistoryOpen: false,
 			}
 		},

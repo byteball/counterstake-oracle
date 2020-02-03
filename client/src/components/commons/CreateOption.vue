@@ -1,6 +1,6 @@
 <template>
 	<span>
-		<a :href="link" target="_blank">Create option</a>
+		<a :href="link" target="_blank">{{$t('createOptionLinkLabel')}}</a>
 	</span>
 </template>
 

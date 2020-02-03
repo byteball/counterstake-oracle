@@ -21,8 +21,8 @@
 					{{props.row.message}}
 				</b-table-column>
 				<b-table-column field="status" label="Status"  >
-					<b-tag v-if="props.row.is_confirmed" type="is-success">confirmed</b-tag>
-					<b-tag v-else type="is-warning">unconfirmed</b-tag>
+					<b-tag v-if="props.row.is_confirmed" type="is-success">{{$t('lastEventsTableTagConfirmed')}}</b-tag>
+					<b-tag v-else type="is-warning">{{$t('lastEventsTableTagUnconfirmed')}}</b-tag>
 				</b-table-column>
 				<b-table-column field="time" label="Time" sortable>
 					{{moment().to(props.row.time)}}

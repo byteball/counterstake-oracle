@@ -33,7 +33,7 @@ export default {
 	},
 	created(){
 		this.timerId = setInterval(this.update, 100);
-		this.updateDisplayedPendingAction();
+		this.rollDisplayedPendingEvent();
 	},
 	beforeDestroy(){
 		clearInterval(this.timerId);
@@ -47,11 +47,11 @@ export default {
 				if (this.event_index >= this.unconfirmedEvents.length){
 					this.event_index = 0;
 				}
-				this.updateDisplayedPendingAction();
+				this.rollDisplayedPendingEvent();
 				this.counter = 0;
 			}
 		},
-		updateDisplayedPendingAction: function() {
+		rollDisplayedPendingEvent: function() {
 			var text = '';
 			const event = this.unconfirmedEvents[this.event_index];
 			if (!event)

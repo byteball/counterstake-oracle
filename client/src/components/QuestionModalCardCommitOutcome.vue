@@ -1,7 +1,7 @@
 <template>
 		<div class="modal-card" style="min-width:400px;">
 			<header class="modal-card-head">
-				<p class="modal-card-title">Commit outcome</p>
+				<p class="modal-card-title">{{$t('questionCommitModalTitle')}}</p>
 			</header>
 			<section class="modal-card-body">
 			<h4 class="title is-4">{{question.question}}</h4>
@@ -33,8 +33,8 @@
 			</div>
 		</section>
 		<footer class="modal-card-foot">
-			<button class="button" type="button" @click="$emit('close')">Close</button>
-			<button v-if="!link" class="button is-primary" type="button" @click="commit">Create link</button>
+			<button class="button" type="button" @click="$emit('close')">{{$t('commonButtonClose')}}</button>
+			<button v-if="!link" class="button is-primary" type="button" @click="commit">{{$t('commonButtonCreateLink')}}</button>
 		</footer>
 	</div>
 </template>
@@ -66,8 +66,8 @@ export default {
 		commit:function(outcome){
 			const base64url = require('base64url');
 			const data = {
-					question_id: this.question.question_id,
-					commit: true
+				question_id: this.question.question_id,
+				commit: true
 			};
 
 			const json_string = JSON.stringify(data);
@@ -80,8 +80,6 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.default{
 
-}
 </style>
 

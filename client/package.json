@@ -23,8 +23,8 @@
     "style-loader": "^1.1.1",
     "vue": "^2.6.10",
     "vue-axios": "^2.1.4",
-		"vue-i18n": "^8.0.0",
-		"vue-icon": "^2.1.1",
+    "vue-i18n": "^8.0.0",
+    "vue-icon": "^2.1.1",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
@@ -34,8 +34,8 @@
     "@vue/cli-plugin-vuex": "^4.0.0-rc.8",
     "@vue/cli-service": "^4.0.0-rc.3",
     "@vue/test-utils": "^1.0.0-beta.30",
-		"babel-eslint": "^10.0.1",
-		"chai": "^4.2.0",
+    "babel-eslint": "^10.0.1",
+    "chai": "^4.2.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.2.3",
     "jsdom": "^15.2.1",

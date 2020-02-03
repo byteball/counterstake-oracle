@@ -1,20 +1,29 @@
 <template>
 	<div class="modal-card" style="min-width:400px;">
 		<header class="modal-card-head">
-			<p class="modal-card-title">Question</p>
+			<p class="modal-card-title">{{$t('questionPendingModalTitle')}}Question</p>
 		</header>
 		<section class="modal-card-body">
 			<h4 class="title is-4">{{question.question}}</h4>
 			<hr>
 			<div class="pt-1"><b>{{question.description}}</b></div>
-			<div class="pt-1">Reporting start: <b>{{question.countdown}}</b></div>
+			<div class="pt-1">{{$t('questionPendingReportingStart')}}<b>{{question.countdown}}</b></div>
 			<div class="pt-2">
-				<div>{{$t('questionModalHowToOfferContract')}}</div>
+				<div>{{$t('questionPendingModalHowToOfferContract')}}</div>
 				</div>
 			<div class="py-1">
-				<div>Oracle address: <b>{{conf.aa_address}}</b></div>
-				<div>Feed name: <b>{{question.question_id}}</b></div>
-				<div>Expected value: <b>yes</b> or <b>no</b></div>
+				<div>{{$t('questionPendingOracleAddress')}}<b>{{conf.aa_address}}</b></div>
+				<div>{{$t('questionPendingFeedName')}}<b>{{question.question_id}}</b></div>
+				<div>
+					<i18n path="questionPendingExpectedValue">
+						<template #value_1>
+							<b>yes</b>
+						</template>
+						<template #value_2>
+							<b>no</b>
+						</template>
+					</i18n>
+				</div>
 				<create-option :question="question" />
 			</div>
 			<div class="py-2">
@@ -22,7 +31,7 @@
 			</div>
 		</section>
 		<footer class="modal-card-foot">
-			<button class="button" type="button" @click="$emit('close')">Close</button>
+			<button class="button" type="button" @click="$emit('close')">{{$t('commonButtonClose')}}</button>
 		</footer>
 	</div>
 </template>
@@ -49,17 +58,13 @@ export default  {
 	},
 	data() {
 		return {
-		conf: conf
-
+			conf: conf
 			}
 		},
-
 	created(){
 
 	},
 	methods:{
-
-
 
 	}
 
