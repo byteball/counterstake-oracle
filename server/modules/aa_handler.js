@@ -234,8 +234,8 @@ function indexQuestions(objStateVars){
 		assocQuestions[question.question_id] = question; // we limit assocAllQuestions size, so client receive only last ones 
 	});
 
-	arrQuestions.slice(MAX_QUESTIONS).forEach(function(question) { // anyway we must send any question that is being graded
-		if (question.status == 'being_graded')
+	arrQuestions.slice(MAX_QUESTIONS).forEach(function(question) { // anyway we must send any question that is being graded or pending
+		if (question.status == 'being_graded' || question.status == 'created')
 			assocQuestions[question.question_id] = question;
 	});
 

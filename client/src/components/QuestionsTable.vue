@@ -26,6 +26,7 @@
 			<b-table
 					:data="filtered_data"
 					@click="onClick"
+					ref="table"
 					hoverable
 					paginated
 					:per-page="15"
@@ -33,6 +34,7 @@
 					:row-class="row => !row.is_pending ? 'active' : 'pending' "
 					sort-icon="arrow-up"
 					sort-icon-size="is-small"
+					:default-sort="sortingParameters"
 					>
 						<template slot-scope="props">
 
@@ -45,11 +47,11 @@
 								{{props.row.countdown}}
 							</b-table-column>
 
-							<b-table-column field="reward" custom-key='reward'  :label="$t('questionsTableColumnHeaderReward')" >
+							<b-table-column field="reward" custom-key='reward' :label="$t('questionsTableColumnHeaderReward')" sortable>
 								<byte-amount :amount="props.row.reward" />
 							</b-table-column>
 
-							<b-table-column field="outcome" custom-key='outcome' :label="$t('questionsTableColumnHeaderOutcome')">
+							<b-table-column field="outcome" custom-key='outcome' :label="$t('questionsTableColumnHeaderOutcome')" sortable>
 								<b-tag v-if = "props.row.outcome" :class="{
 									'is-warning': props.row.beingGraded,
 									'is-success' : !props.row.beingGraded && props.row.outcome == 'yes',
@@ -58,7 +60,7 @@
 								<span v-else>{{$t('questionsTableColumnNotKnownYet')}}</span>
 							</b-table-column>
 
-							<b-table-column :visible="filter_type!='ended' && filter_type!='pending'" custom-key='possibleAction' field="possibleAction" :label="$t('questionsTableColumnActionAvailable')">
+							<b-table-column :visible="filter_type!='ended' && filter_type!='pending'" custom-key='possibleAction' field="possibleAction" :label="$t('questionsTableColumnActionAvailable')" sortable>
 								{{props.row.possibleAction}}
 							</b-table-column>
 
@@ -91,7 +93,8 @@ export default {
 			filtered_data: [],
 			timerId: null,
 			search_input: '',
-			filter_type: 'hot'
+			filter_type: 'hot',
+			sortingParameters: ['deadline', 'asc']
 		}
 	},
 	watch: {
@@ -129,6 +132,7 @@ export default {
 				this.filtered_data = this.data
 			}
 			if (this.filter_type == 'hot'){
+				this.sortingParameters = ['deadline', 'asc']
 				var filter = (minutes) => {
 					const data = this.filtered_data.filter((question) => {
 						if (moment.unix(question.deadline).isBetween(moment().subtract(minutes,'minutes'),moment().add(minutes,'minutes')))
@@ -145,18 +149,24 @@ export default {
 				}
 				filter(12*60)
 			} else if (this.filter_type == 'reportable') {
+					this.sortingParameters = ['deadline', 'asc']
 					this.filtered_data = this.filtered_data.filter((question) => {
 						return question.status == 'being_graded' || (moment.unix(question.deadline).isBefore(moment()) && question.status == 'created')
 					})
 			} else if (this.filter_type == 'pending') {
+					this.sortingParameters = ['deadline', 'asc']
 					this.filtered_data = this.filtered_data.filter((question) => {
 						return question.status == 'created' && moment.unix(question.deadline).isAfter(moment())
 					})
 			} else if (this.filter_type == 'ended') {
+					this.sortingParameters = ['deadline', 'desc']
 					this.filtered_data = this.filtered_data.filter((question) => {
 						return question.status == 'committed'
 					})
+			} else {
+				this.sortingParameters = ['deadline', 'desc']
 			}
+			this.sort()
 		},
 		sort(){
 			this.data.sort(function(a, b) {
@@ -164,6 +174,9 @@ export default {
 				var time_b = b.status == 'created' ? b.deadline : b.countdown_start
 				return time_b - time_a;
 			});
+			this.$nextTick(function () {
+				this.$refs.table.initSort()
+			})
 		},
 		getData: function(){
 			this.axios.get('/api/questions').then((response) => {
@@ -199,7 +212,6 @@ export default {
 				});
 				this.data = response.data;
 				this.applyFilter();
-				this.sort();
 
 			});
 		},
