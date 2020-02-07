@@ -47,8 +47,8 @@
 								{{props.row.countdown}}
 							</b-table-column>
 
-							<b-table-column field="reward" custom-key='reward' :label="$t('questionsTableColumnHeaderReward')" sortable>
-								<byte-amount :amount="props.row.reward" />
+							<b-table-column :visible="filter_type!='ended'"  field="reward" custom-key='reward' :label="getRewardLabel" sortable>
+								<byte-amount v-if="props.row.reward" :amount="props.row.reward" />
 							</b-table-column>
 
 							<b-table-column field="outcome" custom-key='outcome' :label="$t('questionsTableColumnHeaderOutcome')" sortable>
@@ -108,6 +108,12 @@ export default {
 				return this.$t('questionsTableColumnReportTime');
 			else
 				return this.$t('questionsTableColumnReportTimeChallengeTime')
+		},
+		getRewardLabel: function(row){
+			if (this.filter_type == 'pending')
+				return this.$t('questionsTableColumnHeaderReward')
+			else
+				return this.$t('questionsTableColumnHeaderRewardOrPotentialGain')
 		},
 	},
 	created(){
@@ -190,17 +196,21 @@ export default {
  							row.possibleAction = this.$t('questionsTableColumnNotReportableYet')
 					}
 					else if (row.status == 'being_graded'){
-						row.countdown = moment().to(moment.unix(row.countdown_start + conf.challenge_period_in_days*24*3600));
+						row.countdown = moment().to(moment.unix(row.countdown_start + conf.challenge_period_in_days*24*3600))
 						if (moment().isBefore(moment.unix(row.countdown_start + conf.challenge_period_in_days*24*3600 ))){
 							row.possibleAction = this.$t('questionsTableColumnContestOutcome')
 							row.beingGraded = true
+							row.reward = row.staked_on_outcome - row.staked_on_opposite/conf.challenge_coeff
 						}
-						else
+						else {
 							row.possibleAction = this.$t('questionsTableColumnCommitOutcome')
+							row.reward = 0
+						}
 					} else if (row.status == 'committed'){
 							row.countdown = moment().to(moment.unix(row.deadline));
-							row.committed = true;
-							const assocStakedByAdress =	row.staked_by_address;
+							row.committed = true
+							row.reward = 0
+							const assocStakedByAdress =	row.staked_by_address
 							const outcome = row.outcome
 							for (var key in assocStakedByAdress){
 								if (assocStakedByAdress[key][outcome]){

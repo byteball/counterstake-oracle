@@ -64,6 +64,7 @@
 	"questionsTableFilterTagEnded" : "ended",
 	"questionsTableColumnHeaderQuestion" : "Question",
 	"questionsTableColumnHeaderReward" : "Reward",
+	"questionsTableColumnHeaderRewardOrPotentialGain" : "Reward/potential gain",
 	"questionsTableColumnHeaderOutcome" : "Outcome",
 	"questionsTableColumnNotKnownYet" : "Not known yet",
 	"questionsTableColumnActionAvailable" : "Action available",
