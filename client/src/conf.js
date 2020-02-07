@@ -14,3 +14,4 @@ exports.min_delay_from_now = 1800; // in seconds
 exports.min_reward_for_AA_gb = 0.0001;
 exports.min_reward_for_website_gb = 0.01;
 exports.options_website_base_url = "http://dev.twoogi.ru/";
+exports.github ='https://github.com/byteball/counterstats/';

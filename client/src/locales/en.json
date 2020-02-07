@@ -44,7 +44,7 @@
 	"reportOutcomeLinkHeader" : "Clicking the link below will open your Obyte wallet, ready to send a transaction to report this outcome.",
 	"reportOutcomeLinkFooter" : "It will be taken into account a few minutes after the transaction is confirmed.",
 	"contestOutcomeModalTitle" : "Contest outcome",
-	"contestOutcomeGainIfReversed" : "Stake {stake_amount}, gain {gain_amount} if outcome is eventually reversed",
+	"contestOutcomeGainIfReversed" : "Stake {stake_amount}, gain at least {gain_amount} if outcome is eventually reversed",
 	"contestOutcomeAmountLeft" : "{amount} left to reverse outcome",
 	"contestOutcomeAmountToStake" : "Amount to stake",
 	"contestOutcomePeriodEnd" : "Challenging period end: ",
@@ -79,6 +79,28 @@
 	"claimModalTitle" : "Withdraw gain",
 	"claimSelectAddress" : "Select address: ",
 	"commitOutcomeLinkHeader": "Clicking the link below will open your Obyte wallet, ready to send a transaction to commit the outcome",
-	"commitOutcomeLinkFooter" : "It will be taken into account a few minutes after the transaction is confirmed."
+	"commitOutcomeLinkFooter" : "It will be taken into account a few minutes after the transaction is confirmed.",
+	"faq": [
+		{
+			"title": " What does 'oracle' mean?",
+			"text": "An oracle is an agent that submits real world data into a decentralized ledger. This oracle posts in the Obyte DAG a datafeed corresponding to a question with a value 'yes' or 'no' as  anwser. Since the data can be used as condition by a smart contract or an autonomous agent, it's critical that the oracle can be trusted for providing right information. In our case, we rely on a protocol called 'counterstake' where users are financially incentivitized to provide honest answer to the question."
+		},
+		{
+			"title": "How trustless is this website?",
+			"text": "This website is only an interface representing the states of an autonomous agent running on Obyte platform. You interact directly with the autonomous agent using your Obyte wallet, the website only helps you by prefilling the transactions that have to be sent to interact with autonomous agent."
+		},
+		{
+			"title": "How does this work?",
+			"text": "First someone has to create a question and set a reward and a deadline. The reward is an amount in bytes that will be shared by all users reporting the right result, usually it's fully earned by the first reporter if no one contested the outcome he provided. The higher is the reward, the more seriously your question will be considered. The deadline is the time when reporting is opened. Anyone can answer a question opened for reporting, for that an initial stake of 1.5x the reward has to be sent. There is then a period of 3 days during which one can contest the outcome with a counterstake, which means staking an amount 1.5x higher than the initial stake. The result is definitive after a 3 days period without any counterstake placed. The participants who chose the right outcome share the opposite party stake as well as the reward proportionally to their contribution."
+		},
+		{
+			"title": "What is a commit?",
+			"text": "When a result is definitive, someone has to trigger the AA in order get the datafeed posted into the Obyte DAG. Meamwhile the initial reporter will get its reward and its stake back if he has chosen the winning outcome. If there are other winners, they need to trigger a withdraw selecting their address to get their gain."
+		},
+		{
+			"title": "Is this opensource?",
+			"text": "Yes! <a>{github}</a> We hope it will inspire other developers to create cool application based on the counterstake protocol. If you want to contribute to this website please join the <a href='http://discord.obyte.org'>Obyte Discord</a> to discuss your plans with us."
+		}
+	]
 }
 

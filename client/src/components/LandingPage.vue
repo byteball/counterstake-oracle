@@ -21,7 +21,7 @@
 					<last-events-table class="mt-1" />
 				</b-tab-item>
 				<b-tab-item :label="$t('landingPageTabFaq')">
-						FAQ
+					<faq />
 				</b-tab-item>
 			</b-tabs>
 		</section>
@@ -33,6 +33,7 @@
 import QuestionModal from './QuestionModal.vue'
 import QuestionsTable from './QuestionsTable.vue'
 import LastEventsTable from './LastEventsTable.vue'
+import Faq from './Faq.vue'
 import { EventBus } from './../event-bus.js'
 const conf = require("../conf.js")
 
@@ -40,6 +41,7 @@ export default {
 	components: {
 		QuestionsTable,
 		LastEventsTable,
+		Faq
 	},
 	props: {
 		question_id: {
