@@ -9,8 +9,7 @@ const eventBus = require('ocore/event_bus.js');
 const db = require('ocore/db.js');
 const storage = require('ocore/storage.js');
 const aa_composer = require('ocore/aa_composer.js');
-
-//const social_networks = require('./social_networks.js');
+const social_networks = require('./social_networks.js');
 
 const MAX_QUESTIONS = 200;
 
@@ -112,7 +111,6 @@ function getStateVarsRangeForPrefix(prefix, start, end, handle){
 
 
 function parseEvent(trigger, objResponse){
-
 	const objEvent = {};
 	objEvent.event_data = {};
 	objEvent.paid_in = 0;
@@ -121,7 +119,7 @@ function parseEvent(trigger, objResponse){
 	//we analyze the response to sort questions_history by event type
 	if (objResponse.new_question){
 		objEvent.event_type = "new_question";
-		objEvent.paid_in = objResponse.your_stake;
+		objEvent.paid_in = trigger.outputs.base;
 		objEvent.concerned_address = trigger.address;
 	} else if (objResponse.resulting_outcome){
 		objEvent.event_type = objResponse.expected_reward ? "initial_stake" : "stake";
@@ -134,8 +132,8 @@ function parseEvent(trigger, objResponse){
 
 	} else if (objResponse.committed_outcome){
 		objEvent.event_type = "commit";
-		objEvent.paid_out = objResponse.paid_out_amount;
-		objEvent.concerned_address = objResponse.paid_out_address;
+		objEvent.paid_out = objResponse.paid_out_amount || 0;
+		objEvent.concerned_address = objResponse.paid_out_address || 'nobody';
 		objEvent.event_data.author = trigger.address;
 	} else if (objResponse.paid_out_amount){
 		objEvent.event_type = "withdraw";
@@ -173,13 +171,13 @@ function updateOperationsHistory(){
 							db.query("INSERT "+db.getIgnore()+" INTO questions_history (question_id, paid_in, paid_out, concerned_address, event_type, mci, aa_address, event_data, trigger_unit,timestamp) VALUES \n\
 							(?,?,?,?,?,?,?,?,?,?)",[objEvent.question_id, objEvent.paid_in, objEvent.paid_out, objEvent.concerned_address,  objEvent.event_type, row.mci, row.aa_address, JSON.stringify(objEvent.event_data), row.trigger_unit, row.timestamp],
 							function(result){
+								console.log(result);
 								if (result.affectedRows === 1){ // trigger social network notification if the event was newly inserted
-								/*	social_networks.notify(
-										event_type, 
-										assocAllQuestions[operation_id], 
-										assocNicknamesByAddress[concerned_address] || concerned_address, 
-										objResponse
-									);*/
+									social_networks.notify(
+										objEvent, 
+										assocAllQuestions[objEvent.question_id], 
+										assocNicknamesByAddress[objEvent.concerned_address] || objEvent.concerned_address
+									);
 								}
 								cb();
 							});

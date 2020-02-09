@@ -24,7 +24,7 @@
 									{{$t('questionHistoryCreatedBy', {author: item.concerned_address})}}
 								</div>
 							</div>
-							<div class="box" v-if="item.event_type =='stake' || item.event_type=='initial_stake'" >
+							<div class="box" v-if="item.event_type == 'stake' || item.event_type == 'initial_stake'" >
 								<div class="title is-6"><b>{{item.event_type =='stake' ? $t('questionCounterStake') : $t('questionInitialStake')}} </b> - {{item.time}}
 									- {{$t('questionHistoryUnit')}} <unit-link :unit="item.unit"/>
 								</div>

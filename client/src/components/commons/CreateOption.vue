@@ -17,7 +17,6 @@ export default {
 	},
 	data(){
 		return {
-			gb_to_bytes: conf.gb_to_bytes,
 			link: 'test'
 		}
 	},
@@ -29,9 +28,7 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.default{
 
-}
 </style>
 
 

@@ -218,7 +218,9 @@ export default {
 									break;
 								}
 							}
-					}
+					} else 
+						row.countdown = moment().to(moment.unix(row.deadline)); // for unconfirmed questions
+
 				});
 				this.data = response.data;
 				this.applyFilter();
