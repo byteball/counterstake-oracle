@@ -359,6 +359,8 @@ function treatDryAaResponse(triggerUnit, trigger, objResponse){
 	const objEvent =  parseEvent(trigger, objResponse.response.responseVars);
 	if (!objEvent)
 		return;
+	if (objEvent.event_type == 'new_question')
+		delete objEvent.question_id;
 	assocUnconfirmedEvents[triggerUnit] = objEvent;
 	assocUnconfirmedEvents[triggerUnit].trigger_unit = triggerUnit;
 	assocUnconfirmedEvents[triggerUnit].timestamp = trigger.timestamp;

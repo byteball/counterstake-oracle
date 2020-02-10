@@ -17,7 +17,6 @@
 					</b-field>
 				</div>
 				<div v-if="link" ref="div-link">
-					<h4 class="title is-4">{{$t('setNicknameModalTitle')}}</h4>
 					<div>
 						<b>{{$t('setNicknameNewNickname')}} {{nickname}}</b>
 					</div>

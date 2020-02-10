@@ -16,7 +16,7 @@
 				aria-page-label="Page"
 				aria-current-label="Current page"
 				class="events-table"
-				:row-class="row => row.is_confirmed ? 'active' : 'pending' "
+				:row-class="row => row.question_id ? 'active' : 'pending' "
 				@click="onClick"
 		>
 			<template slot-scope="props">
@@ -83,6 +83,9 @@
 		methods: {
 			moment: moment,
 			onClick: function(item){
+				console.log(item.question_id)
+				if (!item.question_id)
+					return
 				this.$router.push({ name: 'landingPageQuestion', params: { question_id: item.question_id} })
 			},
 			getData () {

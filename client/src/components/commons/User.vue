@@ -1,6 +1,6 @@
 <template>
 	<div class="is-inline">
-		<span v-if="nickname" v-b-tooltip.hover :title="address">{{nickname}}</span>
+		<b-tooltip  v-if="nickname" :label="address" position="is-right">{{nickname}}</b-tooltip>
 		<span v-else>{{address}}</span>
 	</div>
 </template>

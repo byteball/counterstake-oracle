@@ -19,7 +19,7 @@
 	"questionCreateLinkHeader" : "Clicking the link below will open your Obyte wallet, ready to send a transaction that will create this question.",
 	"questionCreateLinkFooter" : "It will be taken into account a few minutes after the transaction is confirmed.",
 	"questionCreateUtcTime" : "UTC time",
-	"c" : "Deadline: ",
+	"questionCreateModalDeadline" : "Deadline: ",
 	"questionCreateReward" : "Reward: ",
 	"questionCommitModalTitle" : "Commit outcome",
 	"questionCommittedModalTitle" : "Graded question",
