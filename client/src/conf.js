@@ -15,3 +15,5 @@ exports.min_reward_for_AA_gb = 0.0001;
 exports.min_reward_for_website_gb = 0.01;
 exports.options_website_base_url = "http://dev.twoogi.ru/";
 exports.github ='https://github.com/byteball/counterstats/';
+exports.nickname_min_length = 3;
+exports.nickname_max_length = 50;

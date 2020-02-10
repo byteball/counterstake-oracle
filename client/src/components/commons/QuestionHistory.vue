@@ -20,19 +20,23 @@
 								<div class="title is-6"><b>{{$t('questionHistoryNewQuestion')}}</b> - {{item.time}}
 									- {{$t('questionHistoryUnit')}} <unit-link :unit="item.unit"/>
 								 </div>
-								<div class="d-block">
-									{{$t('questionHistoryCreatedBy', {author: item.concerned_address})}}
+								<div>
+
+									<i18n path="questionHistoryCreatedBy">
+										<template #author>
+											<b><user :address="item.concerned_address" :nickname="item.concerned_address_nickname"/></b>
+										</template>
+									</i18n>
 								</div>
 							</div>
 							<div class="box" v-if="item.event_type == 'stake' || item.event_type == 'initial_stake'" >
 								<div class="title is-6"><b>{{item.event_type =='stake' ? $t('questionCounterStake') : $t('questionInitialStake')}} </b> - {{item.time}}
 									- {{$t('questionHistoryUnit')}} <unit-link :unit="item.unit"/>
 								</div>
-
-							<div class="d-block">
+							<div>
 								<i18n path="questionHistoryUserStakedOn">
 									<template #user>
-										<b><user :address="item.concerned_address" :nickname="item.author_nickname"/></b>
+										<b><user :address="item.concerned_address" :nickname="item.concerned_address_nickname"/></b>
 									</template>
 									<template #amount>
 										<b><byte-amount :amount="item.paid_in"/></b>
@@ -42,7 +46,7 @@
 									</template>
 								</i18n>
 							</div>
-								<span class="d-block">{{$t('questionHistoryResultingOutcome')}}<b>{{item.event_data.resulting_outcome}}</b></span>
+								<span>{{$t('questionHistoryResultingOutcome')}}<b>{{item.event_data.resulting_outcome}}</b></span>
 								<span v-if="item.expected_reward" class="d-block">{{$t('questionHistoryExpectedReward')}}<b><byte-amount :amount="item.expected_reward"/></b></span>
 								<div class="progress-stacked mt-1">
 									<div class="bar" :style="{ height: 15 + 'px', background: '#48c774', width: ( item.event_data.staked_on_yes * 100) / (item.event_data.staked_on_yes + item.event_data.staked_on_no) + '%' }">

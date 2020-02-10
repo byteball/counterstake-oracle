@@ -8,12 +8,11 @@ const conf = require('ocore/conf.js');
 require('./modules/sqlite_tables.js').create().then(function(){
 	
 	const aa_handler = require("./modules/aa_handler.js");
-//	const social_networks = require('./modules/social_networks.js');
 	const app = express()
 
 	const limiter = rateLimit({
 		windowMs: 5 * 60 * 1000, // 5 minutes
-		max: 500 // limit each IP to 300 requests per windowMs
+		max: 500 // limit each IP to 500 requests per windowMs
 	});
 
 	app.set('trust proxy', 1);
@@ -23,7 +22,6 @@ require('./modules/sqlite_tables.js').create().then(function(){
 
 
 	app.get('/api/questions', function(request, response){
-		console.log('/api/operations');
 		return response.send(aa_handler.getCurrentQuestions());
 	});
 
@@ -37,12 +35,11 @@ require('./modules/sqlite_tables.js').create().then(function(){
 
 	app.get('/api/question-history/:id', function(request, response){
 		const id = request.params.id;
-		console.log("id " + id);
 		if (!validationUtils.isNonemptyString(id))
 			return response.status(400).send('Invalid question id');
-			aa_handler.getQuestionHistory(id, function(objHistory){
-				return response.send(objHistory);
-			});
+		aa_handler.getQuestionHistory(id, function(objHistory){
+			return response.send(objHistory);
+		});
 	});
 
 	app.get('/api/last-events', function(request, response){

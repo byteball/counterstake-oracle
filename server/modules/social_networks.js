@@ -33,20 +33,20 @@ function sendToDiscord(text){
 }
 
 
-function notify(event, question, author){
+function notify(event, question){
 
 		var message = '';
 
 		if (event.event_type == "new_question") {
-			message += event.concerned_address + " creates a new question: '" + question.question +"'";
+			message += event.concerned_address_nickname + " creates a new question: '" + question.question +"'";
 		} else if (event.event_type == "initial_stake") {
-			message += "Question: '" + question.question + "', " + event.concerned_address + " reports " + event.event_data.reported_outcome;
+			message += "Question: '" + question.question + "', " + event.concerned_address_nickname + " reports " + event.event_data.reported_outcome;
 		} else if (event.event_type == "stake") {
-			message += "Question: '" + question.question + "', " + event.concerned_address + " counterstakes for " + event.event_data.reported_outcome;
+			message += "Question: '" + question.question + "', " + event.concerned_address_nickname + " counterstakes for " + event.event_data.reported_outcome;
 		} else if (event.event_type == "commit") {
 			message += "Question: '" + question.question + "', " + event.event_data.author + " commits result " + question.outcome ;
 		} else if (event.event_type == "withdraw") {
-			message += "Question: '" + question.question + "', " + getByteAmountString(event.paid_out) + " paid to " + event.concerned_address;
+			message += "Question: '" + question.question + "', " + getByteAmountString(event.paid_out) + " paid to " + event.concerned_address_nickname;
 		}
 
 	sendToDiscord(message);

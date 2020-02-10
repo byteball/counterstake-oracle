@@ -9,7 +9,7 @@
 					></b-input>
 				</b-field>
 			</div>
-			<div class="column">
+			<div class="column is-8">
 				<b-field label="Filter">
 					<div class="buttons">
 						<b-button type="is-primary" :outlined="filter_type!='all'" @click="filter_type='all';applyFilter()" >{{$t('questionsTableFilterTagAll')}}</b-button>
@@ -18,55 +18,53 @@
 						<b-button type="is-primary" :outlined="filter_type!='reportable'" @click="filter_type='reportable';applyFilter()" >{{$t('questionsTableFilterTagInReport')}}</b-button>
 						<b-button type="is-primary" :outlined="filter_type!='ended'" @click="filter_type='ended';applyFilter()" >{{$t('questionsTableFilterTagEnded')}}</b-button>
 						<b-button class="ml-1" type="is-primary"  @click="createQuestion()">{{$t('landingPageButtonCreateQuestion')}}</b-button>
+						<b-button type="is-primary"  @click="setNickname()">{{$t('landingPageButtonSetnickname')}}</b-button>
 					</div>
 				</b-field>
 			</div>
-
 		</div>
-			<b-table
-					:data="filtered_data"
-					@click="onClick"
-					ref="table"
-					hoverable
-					paginated
-					:per-page="15"
-					class="questions-table"
-					:row-class="row => !row.is_pending ? 'active' : 'pending' "
-					sort-icon="arrow-up"
-					sort-icon-size="is-small"
-					:default-sort="sortingParameters"
-					>
-						<template slot-scope="props">
+		<b-table
+				:data="filtered_data"
+				@click="onClick"
+				ref="table"
+				hoverable
+				paginated
+				:per-page="15"
+				class="questions-table"
+				:row-class="row => !row.is_pending ? 'active' : 'pending' "
+				sort-icon="arrow-up"
+				sort-icon-size="is-small"
+				:default-sort="sortingParameters"
+				>
+			<template slot-scope="props">
 
-							<b-table-column field="question" custom-key='question' :label="$t('questionsTableColumnHeaderQuestion')">
-								{{props.row.question}}
-								<unconfirmed-events v-if="props.row.unconfirmedEvents" :unconfirmedEvents="props.row.unconfirmedEvents" />
-							</b-table-column>
+				<b-table-column field="question" custom-key='question' :label="$t('questionsTableColumnHeaderQuestion')">
+					{{props.row.question}}
+					<unconfirmed-events v-if="props.row.unconfirmedEvents" :unconfirmedEvents="props.row.unconfirmedEvents" />
+				</b-table-column>
 
-							<b-table-column field="deadline" custom-key='deadline' :label="getTimeLabel" sortable>
-								{{props.row.countdown}}
-							</b-table-column>
+				<b-table-column field="deadline" custom-key='deadline' :label="getTimeLabel" sortable>
+					{{props.row.countdown}}
+				</b-table-column>
 
-							<b-table-column :visible="filter_type!='ended'"  field="reward" custom-key='reward' :label="getRewardLabel" sortable>
-								<byte-amount v-if="props.row.reward" :amount="props.row.reward" />
-							</b-table-column>
+				<b-table-column :visible="filter_type!='ended'"  field="reward" custom-key='reward' :label="getRewardLabel" sortable>
+					<byte-amount v-if="props.row.reward" :amount="props.row.reward" />
+				</b-table-column>
 
-							<b-table-column field="outcome" custom-key='outcome' :label="$t('questionsTableColumnHeaderOutcome')" sortable>
-								<b-tag v-if = "props.row.outcome" :class="{
-									'is-warning': props.row.beingGraded,
-									'is-success' : !props.row.beingGraded && props.row.outcome == 'yes',
-									'is-danger' : !props.row.beingGraded && props.row.outcome == 'no',
-									 }">{{props.row.outcome}}</b-tag>
-								<span v-else>{{$t('questionsTableColumnNotKnownYet')}}</span>
-							</b-table-column>
+				<b-table-column field="outcome" custom-key='outcome' :label="$t('questionsTableColumnHeaderOutcome')" sortable>
+					<b-tag v-if = "props.row.outcome" :class="{
+						'is-warning': props.row.beingGraded,
+						'is-success' : !props.row.beingGraded && props.row.outcome == 'yes',
+						'is-danger' : !props.row.beingGraded && props.row.outcome == 'no',
+							}">{{props.row.outcome}}</b-tag>
+					<span v-else>{{$t('questionsTableColumnNotKnownYet')}}</span>
+				</b-table-column>
 
-							<b-table-column :visible="filter_type!='ended' && filter_type!='pending'" custom-key='possibleAction' field="possibleAction" :label="$t('questionsTableColumnActionAvailable')" sortable>
-								{{props.row.possibleAction}}
-							</b-table-column>
-
-						</template>
-
-			</b-table>
+				<b-table-column :visible="filter_type!='ended' && filter_type!='pending'" custom-key='possibleAction' field="possibleAction" :label="$t('questionsTableColumnActionAvailable')" sortable>
+					{{props.row.possibleAction}}
+				</b-table-column>
+			</template>
+		</b-table>
 	</section>
 </template>
 
@@ -78,6 +76,7 @@ import moment from 'moment/src/moment'
 import ByteAmount from './commons/ByteAmount.vue';
 import UnconfirmedEvents from './commons/UnconfirmedEvents.vue';
 import QuestionCreateModal from './QuestionCreateModal.vue';
+import SetNicknameModal from './SetNicknameModal.vue';
 
 import { EventBus } from './../event-bus.js';
 
@@ -127,7 +126,6 @@ export default {
 	methods: {
 
 		onClick: function(item){
-			this.selected = null;
 			this.$router.push({ name: 'landingPageQuestion', params: { question_id: item.question_id, question: item } })
 		},
 		applyFilter(){
@@ -232,6 +230,20 @@ export default {
 			this.$buefy.modal.open({
 				parent: this,
 				component: QuestionCreateModal,
+				hasModalCard: true,
+				width:"640",
+				customClass: 'custom-class custom-class-2',
+				onCancel:()=>{
+					this.$router.push({ name: 'landingPage'});
+					EventBus.$emit('refresh-questions');
+				},
+			})
+		},
+
+		setNickname() {
+			this.$buefy.modal.open({
+				parent: this,
+				component: SetNicknameModal,
 				hasModalCard: true,
 				width:"640",
 				customClass: 'custom-class custom-class-2',

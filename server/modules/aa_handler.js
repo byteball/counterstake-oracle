@@ -49,7 +49,7 @@ function refresh(){
 
 function indexFromStateVars(handle){
 	if (!handle)
-	handle = ()=>{};
+		handle = ()=>{};
 	getStateVarsForPrefixes(["question_", "nickname_"], function(error, objStateVars){
 		if (error)
 			return console.log(error);
@@ -134,7 +134,7 @@ function parseEvent(trigger, objResponse){
 		objEvent.event_type = "commit";
 		objEvent.paid_out = objResponse.paid_out_amount || 0;
 		objEvent.concerned_address = objResponse.paid_out_address || 'nobody';
-		objEvent.event_data.author = trigger.address;
+		objEvent.event_data.committer = trigger.address;
 	} else if (objResponse.paid_out_amount){
 		objEvent.event_type = "withdraw";
 		objEvent.paid_out = objResponse.paid_out_amount;
@@ -171,12 +171,12 @@ function updateOperationsHistory(){
 							db.query("INSERT "+db.getIgnore()+" INTO questions_history (question_id, paid_in, paid_out, concerned_address, event_type, mci, aa_address, event_data, trigger_unit,timestamp) VALUES \n\
 							(?,?,?,?,?,?,?,?,?,?)",[objEvent.question_id, objEvent.paid_in, objEvent.paid_out, objEvent.concerned_address,  objEvent.event_type, row.mci, row.aa_address, JSON.stringify(objEvent.event_data), row.trigger_unit, row.timestamp],
 							function(result){
-								console.log(result);
 								if (result.affectedRows === 1){ // trigger social network notification if the event was newly inserted
+									objEvent.concerned_address_nickname = assocNicknamesByAddress[objEvent.concerned_address] || objEvent.concerned_address;
+									objEvent.event_data.committer = assocNicknamesByAddress[objEvent.event_data.committer] || objEvent.event_data.committer;
 									social_networks.notify(
 										objEvent, 
-										assocAllQuestions[objEvent.question_id], 
-										assocNicknamesByAddress[objEvent.concerned_address] || objEvent.concerned_address
+										assocAllQuestions[objEvent.question_id]
 									);
 								}
 								cb();
@@ -336,7 +336,7 @@ function treatUnconfirmedEvents(arrUnits){
 	});
 }
 
-
+// this simulates the expected response by AA to an unit that is not confirmed yet
 function treatDryAaResponse(triggerUnit, trigger, objResponse){
 
 	if (!objResponse.response || !objResponse.response.responseVars)
@@ -356,7 +356,10 @@ function treatDryAaResponse(triggerUnit, trigger, objResponse){
 		}
 	} 
 
-	assocUnconfirmedEvents[triggerUnit] = parseEvent(trigger, objResponse.response.responseVars);
+	const objEvent =  parseEvent(trigger, objResponse.response.responseVars);
+	if (!objEvent)
+		return;
+	assocUnconfirmedEvents[triggerUnit] = objEvent;
 	assocUnconfirmedEvents[triggerUnit].trigger_unit = triggerUnit;
 	assocUnconfirmedEvents[triggerUnit].timestamp = trigger.timestamp;
 
@@ -369,8 +372,6 @@ function getLastEvents(handle){
 	 function(rows){
 		const confirmed_events = rows.map(function(row){
 			var objEventData = JSON.parse(row.event_data);
-			objEventData.author_nickname = assocNicknamesByAddress[objEventData.author] || null;
-
 			return {
 				event_data: objEventData, 
 				timestamp: row.timestamp, 
@@ -382,13 +383,14 @@ function getLastEvents(handle){
 				is_confirmed: true,
 				question_id: row.question_id,
 				question: assocAllQuestions[row.question_id] || null,
-				nickname:  assocNicknamesByAddress[row.concerned_address] || null
+				concerned_address_nickname:  assocNicknamesByAddress[row.concerned_address] || null
 			};
 		})
 		const unconfirmed_events = Object.values(assocUnconfirmedEvents)
 		unconfirmed_events.forEach((event)=>{
 			event.question = assocAllQuestions[event.operation_id] || null;
-			event.nickname = assocNicknamesByAddress[event.concerned_address] || null;
+			event.concerned_address_nickname = assocNicknamesByAddress[event.concerned_address] || null;
+			event.event_data.committer = assocNicknamesByAddress[event.event_data.committer] || event.event_data.committer;
 		});
 		const allEvents = confirmed_events.concat(unconfirmed_events).sort(function(a, b){
 			return a.timestamp - b.timestamp;
@@ -430,7 +432,7 @@ function getQuestionHistory(id, handle){
 		return handle(
 			rows.map(function(row){
 				var objEventData = JSON.parse(row.event_data);
-				const nickname = assocNicknamesByAddress[row.concerned_address] || null;
+				const concerned_address_nickname = assocNicknamesByAddress[row.concerned_address] || null;
 				return {
 					event_type: row.event_type, 
 					event_data: objEventData, 
@@ -439,7 +441,7 @@ function getQuestionHistory(id, handle){
 					paid_in: row.paid_in,
 					concerned_address: row.concerned_address,
 					unit: row.trigger_unit,
-					nickname
+					concerned_address_nickname
 				};
 			})
 		)

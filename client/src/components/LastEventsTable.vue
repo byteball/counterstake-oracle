@@ -15,6 +15,9 @@
 				aria-previous-label="Previous page"
 				aria-page-label="Page"
 				aria-current-label="Current page"
+				class="events-table"
+				:row-class="row => row.is_confirmed ? 'active' : 'pending' "
+				@click="onClick"
 		>
 			<template slot-scope="props">
 				<b-table-column field="event" label="Event">
@@ -79,6 +82,9 @@
 		},
 		methods: {
 			moment: moment,
+			onClick: function(item){
+				this.$router.push({ name: 'landingPageQuestion', params: { question_id: item.question_id} })
+			},
 			getData () {
 				this.axios.get('/api/last-events').then((response) => {
 					this.events = response.data.map((event)=>{
@@ -86,7 +92,8 @@
 							message: this.getEventMessage(event), 
 							is_confirmed: event.is_confirmed,
 							time: moment.unix(event.timestamp),
-							unit: event.trigger_unit
+							unit: event.trigger_unit,
+							question_id: event.question_id
 						}
 					})
 					this.totalRows = this.events.length

@@ -35,6 +35,10 @@ $hr-margin: 0.8rem 0;
 	color: gray;
 }
 
+.events-table .active {
+	cursor: pointer;
+}
+
 .main-block {
 	background-color: theme-color("main-block");
 }
