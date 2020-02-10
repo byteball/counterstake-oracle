@@ -46,7 +46,7 @@ function notify(event, question){
 		} else if (event.event_type == "commit") {
 			message += "Question: '" + question.question + "', " + event.event_data.author + " commits result " + question.outcome ;
 		} else if (event.event_type == "withdraw") {
-			message += "Question: '" + question.question + "', " + getByteAmountString(event.paid_out) + " paid to " + event.concerned_address_nickname;
+			message += "Question: '" + question.question + "', " + getByteAmountString(event.paid_out_amount) + " paid to " + event.concerned_address_nickname;
 		}
 
 	sendToDiscord(message);

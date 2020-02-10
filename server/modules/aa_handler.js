@@ -54,8 +54,8 @@ function indexFromStateVars(handle){
 		if (error)
 			return console.log(error);
 		purgeUnconfirmedEvents(function(){
-			indexQuestions(objStateVars);
 			indexNicknames(objStateVars);
+			indexQuestions(objStateVars);
 			handle();	
 		});
 	});
@@ -244,8 +244,11 @@ function indexQuestions(objStateVars){
 function appendUnconfirmedEvents(question){
 	question.unconfirmedEvents = [];
 	for (var key in assocUnconfirmedEvents){
-		if (assocUnconfirmedEvents[key].question_id === question.question_id)
+		if (assocUnconfirmedEvents[key].question_id === question.question_id){
+			assocUnconfirmedEvents[key].concerned_address_nickname = assocNicknamesByAddress[assocUnconfirmedEvents[key].concerned_address] || null;
+			assocUnconfirmedEvents[key].event_data.committer = assocNicknamesByAddress[assocUnconfirmedEvents[key].event_data.committer] || assocUnconfirmedEvents[key].event_data.committer;
 			question.unconfirmedEvents.push(assocUnconfirmedEvents[key]);
+		}
 	}
 }
 
@@ -374,6 +377,7 @@ function getLastEvents(handle){
 	 function(rows){
 		const confirmed_events = rows.map(function(row){
 			var objEventData = JSON.parse(row.event_data);
+			objEventData.committer = assocNicknamesByAddress[objEventData.committer] || objEventData.committer;
 			return {
 				event_data: objEventData, 
 				timestamp: row.timestamp, 

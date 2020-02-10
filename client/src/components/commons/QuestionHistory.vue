@@ -67,7 +67,7 @@
 											<b><byte-amount :amount="item.paid_out"/></b>
 										</template>
 										<template #user>
-											<b>{{item.concerned_address}}</b>
+											<b>{{item.concerned_address_nickname}}</b>
 										</template>
 									</i18n>
 								</div>
@@ -82,7 +82,7 @@
 											<b><byte-amount :amount="item.paid_out"/></b>
 										</template>
 										<template #user>
-											<b>{{item.concerned_address}}</b>
+											<b>{{item.concerned_address_nickname}}</b>
 										</template>
 									</i18n>
 								</div>
