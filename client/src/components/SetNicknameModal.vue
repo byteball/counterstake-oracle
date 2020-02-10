@@ -75,7 +75,7 @@ export default {
 
 			const json_string = JSON.stringify(data);
 			const base64data = base64url(json_string);
-			this.link = (conf.testnet ? "byteball-tn" :"byteball")+":"+conf.aa_address+"?amount=10000&base64data="+base64data;
+			this.link = conf.protocol+":"+conf.aa_address+"?amount=10000&base64data="+base64data;
 		}
 	}
 }

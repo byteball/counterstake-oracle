@@ -161,7 +161,7 @@ export default {
 
 				const json_string = JSON.stringify(data);
 				const base64data = base64url(json_string);
-				this.link = (conf.testnet ? "byteball-tn" :"byteball")+":"+conf.aa_address+"?amount="
+				this.link = conf.protocol+":"+conf.aa_address+"?amount="
 					+Math.round(this.stakeAmountGb*conf.gb_to_bytes)+"&base64data="+base64data;
 
 				this.$emit('link_created');

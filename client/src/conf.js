@@ -17,3 +17,4 @@ exports.options_website_base_url = "http://dev.twoogi.ru/";
 exports.github ='https://github.com/byteball/counterstats/';
 exports.nickname_min_length = 3;
 exports.nickname_max_length = 50;
+exports.protocol =  testnet ? "obyte-tn" : "obyte";
