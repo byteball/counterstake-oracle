@@ -9,7 +9,9 @@ const eventBus = require('ocore/event_bus.js');
 const db = require('ocore/db.js');
 const storage = require('ocore/storage.js');
 const aa_composer = require('ocore/aa_composer.js');
+const objectHash = require('ocore/object_hash.js');
 const social_networks = require('./social_networks.js');
+const moment = require('moment');
 
 const MAX_QUESTIONS = 200;
 
@@ -18,6 +20,12 @@ var assocNicknamesByAddress = {};
 
 const assocUnconfirmedQuestions = {};
 const assocUnconfirmedEvents = {};
+const assocQuestionIdsByOptionAas = {};
+const assocAasToWatch = {};
+
+assocAasToWatch[conf.options_base_aa_address] = true;
+assocAasToWatch[conf.token_registry_aa_address] = true;
+
 
 myWitnesses.readMyWitnesses(function (arrWitnesses) {
 	if (arrWitnesses.length > 0)
@@ -25,16 +33,22 @@ myWitnesses.readMyWitnesses(function (arrWitnesses) {
 	myWitnesses.insertWitnesses(conf.initial_witnesses, start);
 }, 'ignore');
 
+eventBus.on('connected', requestAasWatching);
 
 function start(){
 	lightWallet.setLightVendorHost(conf.hub);
-	wallet_general.addWatchedAddress(conf.aa_address, function(error){
+
+	wallet_general.addWatchedAddress(conf.counterstake_aa_address, function(error){
 		if (error)
 			console.log(error)
 		else
-			console.log(conf.aa_address + " added as watched address")
+			console.log(conf.counterstake_aa_address + " added as watched address")
+
 		refresh();
-		indexFromStateVars(updateOperationsHistory);
+		indexFromStateVars(function(){
+			updateOperationsHistory();
+			initializeOptionAaStatusForAllQuestions(checkRegistrar);
+		});
 		setInterval(refresh, 60 * 1000);
 		eventBus.on('new_my_transactions', treatUnconfirmedEvents);
 		eventBus.on('my_transactions_became_stable', discardUnconfirmedEventsAndUpdate);
@@ -47,10 +61,125 @@ function refresh(){
 	lightWallet.refreshLightClientHistory();
 }
 
+function requestAasWatching(){
+	for (var aa in assocAasToWatch){
+		network.addLightWatchedAa(aa);
+	}
+}
+
+
+function initializeOptionAaStatusForAllQuestions(handle){
+	var arrQuestionIds = [];
+	for (var question_id in assocAllQuestions){
+		if (assocAllQuestions[question_id].status == 'created'){
+				arrQuestionIds.push(question_id);
+		}
+	}
+	checkOptionAaStatusForQuestions(arrQuestionIds, handle);
+}
+
+
+function checkOptionAaStatusForQuestions(arrQuestionIds, handle){
+	console.log("----------------------- question_id " + JSON.stringify(arrQuestionIds));
+	async.eachOf(arrQuestionIds, function(question_id, index, cb) {
+		var option_address = getOptionAaAddress(question_id);
+		assocQuestionIdsByOptionAas[option_address] = question_id;
+		assocAllQuestions[question_id].option_address = option_address;
+		network.requestFromLightVendor('light/get_aa_state_vars', {
+			address: option_address,
+			var_prefix_from: "0",
+			var_prefix_to: "z"
+		}, function(ws, request, objResponse){
+			console.log(objResponse);
+			if (objResponse.error)
+				return cb();
+			assocAllQuestions[question_id].is_option_aa_defined = true;
+			if (objResponse.yes_asset)
+				assocAllQuestions[question_id].yes_asset = objResponse.yes_asset;
+			if (objResponse.no_asset)
+				assocAllQuestions[question_id].no_asset = objResponse.no_asset;
+			if (!objResponse.yes_asset || !objResponse.yes_asset) {//if one asset is not defined yet, we need to watch the AA to detect definition
+				network.addLightWatchedAa(option_address);
+				assocAasToWatch[option_address] = true;
+			} else
+				delete assocAasToWatch[option_address];
+
+			cb();
+		});
+	}, handle);
+}
+
+
+function checkRegistrar(){
+
+	getStateVarsForPrefixes(conf.token_registry_aa_address, ["a2s_"], function(error, objStateVars){
+
+		for (var question_id in assocAllQuestions){
+			var yes_asset = assocAllQuestions[question_id].yes_asset;
+			var no_asset = assocAllQuestions[question_id].no_asset;
+			if (yes_asset && objStateVars["a2s_" + yes_asset])
+				assocAllQuestions[question_id].yes_asset_symbol = objStateVars["a2s_" + yes_asset];
+			if (no_asset && objStateVars["a2s_" + no_asset])
+				assocAllQuestions[question_id].no_asset_symbol = objStateVars["a2s_" + no_asset];
+		}
+	});
+
+}
+
+function getOptionAaAddress(question_id){
+	var parameterized_aa = [
+		"autonomous agent",
+		{
+			"base_aa": conf.options_base_aa_address,
+			"params": {
+					"oracle_address": conf.counterstake_aa_address,
+					"comparison": "==",
+					"feed_name": question_id,
+					"feed_value": "yes",
+					"expiry_date": moment.unix(assocAllQuestions[question_id].deadline).format('YYYY-MM-DD')
+			}
+		}
+	];
+	return objectHash.getChash160(parameterized_aa);
+}
+
+
+
+eventBus.on("message_for_light", function(ws, subject, body){
+
+	if (subject == 'light/aa_definition'){
+
+		body.messages.forEach(function(message){
+			if (message.app == "definition"){
+				var template = message.payload.definition[1];
+				var params = template.params;
+				if (template.base_aa == conf.options_base_aa_address){
+					if (assocAllQuestions[params.feed_name]){
+						if (params.oracle_address == conf.counterstake_aa_address && params.comparison == "==" && params.feed_value == "yes"
+						&& params.expiry_date == moment.unix(assocAllQuestions[params.feed_name].deadline).format('YYYY-MM-DD')){
+							assocAllQuestions[params.feed_name].is_option_aa_defined = true;
+						}
+					}
+				}
+			}
+		});
+	}
+	
+	if(subject == 'light/aa_response'){
+		if (body.aa_address == conf.token_registry_aa_address)
+			return checkRegistrar();
+		if (assocQuestionIdsByOptionAas[body.aa_address]){
+			return checkOptionAaStatusForQuestions([assocQuestionIdsByOptionAas[body.aa_address]], ()=>{});
+		}
+	}
+
+});
+
+
 function indexFromStateVars(handle){
 	if (!handle)
 		handle = ()=>{};
-	getStateVarsForPrefixes(["question_", "nickname_"], function(error, objStateVars){
+	getStateVarsForPrefixes(conf.counterstake_aa_address, ["question_", "nickname_"], function(error, objStateVars){
 		if (error)
 			return console.log(error);
 		purgeUnconfirmedEvents(function(){
@@ -61,9 +190,9 @@ function indexFromStateVars(handle){
 	});
 }
 
-function getStateVarsForPrefixes(arrPrefixes, handle){
+function getStateVarsForPrefixes(aa_address, arrPrefixes, handle){
 	async.reduce(arrPrefixes, {}, function(memo, item, cb) {
-		getStateVarsRangeForPrefix(item, "0", "z", function(error, result ){
+		getStateVarsRangeForPrefix(aa_address, item, "0", "z", function(error, result ){
 			if (error)
 				return cb(error);
 			else
@@ -78,10 +207,10 @@ function getStateVarsForPrefixes(arrPrefixes, handle){
 	})
 }
 
-function getStateVarsRangeForPrefix(prefix, start, end, handle){
+function getStateVarsRangeForPrefix(aa_address, prefix, start, end, handle){
 	const CHUNK_SIZE = 2000;
 	network.requestFromLightVendor('light/get_aa_state_vars', {
-		address: conf.aa_address,
+		address: aa_address,
 		var_prefix_from: prefix + start,
 		var_prefix_to: prefix + end,
 		limit: CHUNK_SIZE
@@ -152,14 +281,14 @@ function updateOperationsHistory(){
 			CASE WHEN mci IS NOT NULL THEN MAX(mci) \n\
 			ELSE 0 \n\
 			END max_mci\n\
-			FROM questions_history) AND aa_address=?", [conf.aa_address], function(rows){
+			FROM questions_history) AND aa_address=?", [conf.counterstake_aa_address], function(rows){
 			async.eachOf(rows, function(row, index, cb) {
 					storage.readJoint(db, row.trigger_unit, {
 					ifNotFound: function(){
 						throw Error("bad unit not found: "+unit);
 					},
 					ifFound: function(objJoint){
-						const trigger = aa_composer.getTrigger(objJoint.unit, conf.aa_address);
+						const trigger = aa_composer.getTrigger(objJoint.unit, conf.counterstake_aa_address);
 						const objResponse = JSON.parse(row.response).responseVars;
 						if(!objResponse)
 							return cb();
@@ -317,7 +446,7 @@ function treatUnconfirmedEvents(arrUnits){
 	CROSS JOIN unit_authors USING(unit) \n\
 	CROSS JOIN units USING(unit) \n\
 	WHERE unit IN (?) AND app='data' AND outputs.address=? AND outputs.asset IS NULL GROUP BY messages.unit",
-	[arrUnits, conf.aa_address], function(rows){
+	[arrUnits, conf.counterstake_aa_address], function(rows){
 		rows.forEach(function(row){
 			const params = {};
 			params.trigger = {};
@@ -326,7 +455,7 @@ function treatUnconfirmedEvents(arrUnits){
 			params.trigger.timestamp = row.timestamp;
 			params.trigger.outputs = {};
 			params.trigger.outputs.base = row.amount;
-			params.address = conf.aa_address;
+			params.address = conf.counterstake_aa_address;
 			network.requestFromLightVendor('light/dry_run_aa',params, function(ws, request, arrResponses){
 				if (arrResponses.error)
 					return console.log(arrResponses.error);
@@ -353,8 +482,8 @@ function treatDryAaResponse(triggerUnit, trigger, objResponse){
 		const question_id =  responseVars.question_id;
 		assocUnconfirmedQuestions[triggerUnit] = {
 			question: responseVars.new_question,
-			deadline : Number(updatedStateVars[conf.aa_address][question_id + "_deadline"].value),
-			reward : Number(updatedStateVars[conf.aa_address][question_id + "_reward"].value),
+			deadline : Number(updatedStateVars[conf.counterstake_aa_address][question_id + "_deadline"].value),
+			reward : Number(updatedStateVars[conf.counterstake_aa_address][question_id + "_reward"].value),
 			is_pending : true
 		}
 	} 
@@ -419,7 +548,7 @@ function discardUnconfirmedEventsAndUpdate(arrUnits){
 // that were actually taken into account in state vars
 // to do: update questions history from there as well
 function purgeUnconfirmedEvents(handle){
-	network.requestFromLightVendor('light/get_aa_responses', {aas: [conf.aa_address]}, function(ws, request, response){
+	network.requestFromLightVendor('light/get_aa_responses', {aas: [conf.counterstake_aa_address]}, function(ws, request, response){
 		if (!Array.isArray(response)){
 			console.log("light/get_aa_responses didn't return an array");
 			return handle();

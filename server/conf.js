@@ -8,7 +8,11 @@ exports.api_port = 1300;
 exports.hub = process.env.testnet ? 'obyte.org/bb-test' : 'obyte.org/bb';
 exports.min_reward_to_display = 10000000;
 
-exports.aa_address = process.env.testnet ? 'ADGSEEQOJQSNCK22GRUJ5BOK7WRDNYON' : ''; //7OUC7TREROTSUUM7AJBJGKBBRJK5R24E
+exports.counterstake_aa_address = process.env.testnet ? 'ADGSEEQOJQSNCK22GRUJ5BOK7WRDNYON' : ''; //7OUC7TREROTSUUM7AJBJGKBBRJK5R24E
+
+exports.options_base_aa_address = process.env.testnet ? "WZFFFKQR4XRFQKR6NFV7Z7ICDOS67FEX" : "";
+exports.token_registry_aa_address = process.env.testnet ? "JKRVB732FRXEB5H2HZE22O4UDD64MML5" : "";
+
 
 exports.initial_witnesses = !process.env.testnet ? [
 	'BVVJ2K7ENPZZ3VYZFWQWK7ISPCATFIW3',
