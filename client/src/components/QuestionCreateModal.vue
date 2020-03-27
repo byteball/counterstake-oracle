@@ -77,7 +77,7 @@
 const conf = require("../conf.js");
 import ByteAmount from './commons/ByteAmount.vue';
 import { EventBus } from './../event-bus.js';
-import WalletLink from './WalletLink.vue'
+import WalletLink from './commons/WalletLink.vue'
 
 export default {
 	components: {

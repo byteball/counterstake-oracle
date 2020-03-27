@@ -53,7 +53,7 @@ const conf = require("../conf.js")
 import ByteAmount from './commons/ByteAmount.vue'
 import QuestionHistory from './commons/QuestionHistory.vue';
 import UnconfirmedEvents from './commons/UnconfirmedEvents.vue';
-import WalletLink from './WalletLink.vue'
+import WalletLink from './commons/WalletLink.vue'
 
 export default {
 	components: {

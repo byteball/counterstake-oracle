@@ -1,6 +1,14 @@
 module.exports = {
 	devServer: {
-		proxy: process.env.local_server ? 'http://127.0.0.1:1300/' : 'https://counterstake.org/',
+		proxy: {
+			"^/api/pairs" : { 
+				target: 'https://testnet.odex.ooo/'
+			},
+			"^/api" : { 
+				target: process.env.local_server ? 'http://127.0.0.1:1300/' : 'https://counterstake.org/'
+			}
+		}
+		
 	},
 	configureWebpack: {
 

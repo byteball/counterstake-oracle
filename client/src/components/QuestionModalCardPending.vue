@@ -1,7 +1,7 @@
 <template>
 	<div class="modal-card" style="min-width:400px;">
 		<header class="modal-card-head">
-			<p class="modal-card-title">{{$t('questionPendingModalTitle')}}Question</p>
+			<p class="modal-card-title">{{$t('questionPendingModalTitle')}}</p>
 		</header>
 		<section class="modal-card-body">
 			<h4 class="title is-4">{{question.question}}</h4>
@@ -24,10 +24,12 @@
 						</template>
 					</i18n>
 				</div>
-				<create-option :question="question" />
 			</div>
-			<div class="py-2">
+			<div class="pt-2">
 				<question-history :question="question"/>
+			</div>
+			<div class="py-1">
+				<manage-option :question="question" />
 			</div>
 		</section>
 		<footer class="modal-card-foot">
@@ -40,12 +42,12 @@
 
 const conf = require("../conf.js");
 import QuestionHistory from './commons/QuestionHistory.vue';
-import CreateOption from './commons/CreateOption.vue';
+import ManageOption from './commons/ManageOption.vue';
 
 export default  {
 	components:{
 		QuestionHistory,
-		CreateOption
+		ManageOption
 	},
 	props: {
 		question: {

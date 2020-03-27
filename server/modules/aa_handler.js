@@ -47,7 +47,7 @@ function start(){
 		refresh();
 		indexFromStateVars(function(){
 			updateOperationsHistory();
-			initializeOptionAaStatusForAllQuestions(checkRegistrar);
+			getOptionAaStatusForAllQuestions(checkRegistrar);
 		});
 		setInterval(refresh, 60 * 1000);
 		eventBus.on('new_my_transactions', treatUnconfirmedEvents);
@@ -68,7 +68,7 @@ function requestAasWatching(){
 }
 
 
-function initializeOptionAaStatusForAllQuestions(handle){
+function getOptionAaStatusForAllQuestions(handle){
 	var arrQuestionIds = [];
 	for (var question_id in assocAllQuestions){
 		if (assocAllQuestions[question_id].status == 'created'){
@@ -99,8 +99,10 @@ function checkOptionAaStatusForQuestions(arrQuestionIds, handle){
 			if (objResponse.no_asset)
 				assocAllQuestions[question_id].no_asset = objResponse.no_asset;
 			if (!objResponse.yes_asset || !objResponse.yes_asset) {//if one asset is not defined yet, we need to watch the AA to detect definition
-				network.addLightWatchedAa(option_address);
-				assocAasToWatch[option_address] = true;
+				if (!assocAasToWatch[option_address]){
+					network.addLightWatchedAa(option_address);
+					assocAasToWatch[option_address] = true;
+				}
 			} else
 				delete assocAasToWatch[option_address];
 
@@ -164,7 +166,7 @@ eventBus.on("message_for_light", function(ws, subject, body){
 			}
 		});
 	}
-	
+
 	if(subject == 'light/aa_response'){
 		if (body.aa_address == conf.token_registry_aa_address)
 			return checkRegistrar();
@@ -461,7 +463,10 @@ function treatUnconfirmedEvents(arrUnits){
 					return console.log(arrResponses.error);
 				else {
 					treatDryAaResponse(row.unit, params.trigger, arrResponses[0]);
-					indexFromStateVars(updateOperationsHistory);
+					indexFromStateVars(function(){
+						updateOperationsHistory();
+						getOptionAaStatusForAllQuestions(checkRegistrar);
+					});
 				}
 			})
 		});
@@ -541,8 +546,11 @@ function discardUnconfirmedEventsAndUpdate(arrUnits){
 		delete assocUnconfirmedQuestions[unit];
 		delete assocUnconfirmedEvents[unit];
 	});
-	indexFromStateVars(updateOperationsHistory);
-}
+		indexFromStateVars(function(){
+			updateOperationsHistory();
+			getOptionAaStatusForAllQuestions(checkRegistrar);
+		});
+	}
 
 // we purge unconfirmed events that are now stable from the hub point of view, so we won't show unconfirmed events 
 // that were actually taken into account in state vars

@@ -43,7 +43,7 @@
 const conf = require("../conf.js");
 import QuestionHistory from './commons/QuestionHistory.vue';
 import UnconfirmedEvents from './commons/UnconfirmedEvents.vue';
-import WalletLink from './WalletLink.vue'
+import WalletLink from './commons/WalletLink.vue'
 
 export default {	
 	components: {
@@ -73,7 +73,6 @@ export default {
 			const json_string = JSON.stringify(data);
 			const base64data = base64url(json_string);
 			this.link = conf.protocol+":"+conf.aa_address+"?amount=10000&base64data="+base64data;
-			this.$emit('link_created');
 		}
 	}
 }

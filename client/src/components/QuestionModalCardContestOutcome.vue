@@ -14,7 +14,7 @@
 				<div class="pt-1">
 					<div class="is-inline">
 						{{$t('contestOutcomeCurrentOutcome')}}
-					</div >
+					</div>
 					<b-tag 
 						:class="{
 							'is-success ml-05' : question.outcome == 'yes',
@@ -26,7 +26,7 @@
 					<div class="mt-05">{{$t('contestOutcomePeriodEnd')}}<b>{{challengeCountdown}}</b></div>
 				</div>
 				<div class="py-3">
-					<div >
+					<div>
 						<label for="range-1">{{$t("contestOutcomeAmountToStake")}} on <b>{{my_outcome}}</b></label>
 						<b-slider v-if="sliderEnabled" id="range-1" 
 						v-model="stakeAmountGb" 
@@ -35,7 +35,7 @@
 						:step="0.00000001"
 						class="px-1"
 						/>
-					</div >
+					</div>
 
 					<div class="pt-3">
 						<i18n path="contestOutcomeGainIfReversed" id="potential-gain">
@@ -84,7 +84,7 @@ import ByteAmount from './commons/ByteAmount.vue';
 import QuestionHistory from './commons/QuestionHistory.vue';
 import moment from 'moment/src/moment'
 import UnconfirmedEvents from './commons/UnconfirmedEvents.vue';
-import WalletLink from './WalletLink.vue'
+import WalletLink from './commons/WalletLink.vue'
 
 export default {	
 	components: {
@@ -157,15 +157,10 @@ export default {
 						question_id: this.question.question_id,
 						outcome: this.my_outcome
 				};
-
-
 				const json_string = JSON.stringify(data);
 				const base64data = base64url(json_string);
 				this.link = conf.protocol+":"+conf.aa_address+"?amount="
 					+Math.round(this.stakeAmountGb*conf.gb_to_bytes)+"&base64data="+base64data;
-
-				this.$emit('link_created');
-
 		}
 	}
 }
