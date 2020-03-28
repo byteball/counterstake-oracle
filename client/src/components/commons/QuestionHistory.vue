@@ -6,7 +6,7 @@
 				role="button"
 				aria-controls="contentIdForA11y3">
 				<p class="card-header-title">
-					History - {{historyItems.length}} event{{historyItems.length>1 ? "s" :""}}
+					{{$tc('questionHistoryCollapseTitle', historyItems.length, {count: historyItems.length})}}
 				</p>
 				<a class="card-header-icon">
 					<v-icon :name="isHistoryOpen ? 'chevron-up' : 'chevron-down'" />
@@ -21,7 +21,6 @@
 									- {{$t('questionHistoryUnit')}} <unit-link :unit="item.unit"/>
 								 </div>
 								<div>
-
 									<i18n path="questionHistoryCreatedBy">
 										<template #author>
 											<b><user :address="item.concerned_address" :nickname="item.concerned_address_nickname"/></b>
@@ -67,7 +66,7 @@
 											<b><byte-amount :amount="item.paid_out"/></b>
 										</template>
 										<template #user>
-											<b>{{item.concerned_address_nickname}}</b>
+											<b><user :address="item.concerned_address" :nickname="item.concerned_address_nickname"/></b>
 										</template>
 									</i18n>
 								</div>
@@ -82,7 +81,7 @@
 											<b><byte-amount :amount="item.paid_out"/></b>
 										</template>
 										<template #user>
-											<b>{{item.concerned_address_nickname}}</b>
+											<b><user :address="item.concerned_address" :nickname="item.concerned_address_nickname"/></b>
 										</template>
 									</i18n>
 								</div>

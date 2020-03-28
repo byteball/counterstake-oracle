@@ -1,7 +1,22 @@
 <template>
 	<div class="pt-1">
-		<span v-if="is_asset_listed">This asset is listed on <a :link="conf.odex_url">Odex</a></span>
-		<span v-else>This asset is not listed on Odex.</span>
+		<span v-if="is_asset_listed">
+			<i18n path="manageOptionAssetListingAssetListed">
+				<template #symbol>
+					{{symbol || asset.slice(0,5)}}
+				</template>
+				<template #link>
+					<a :href="conf.odex_url" target="blank">ODEX</a>
+				</template>
+			</i18n>
+		</span>
+		<span v-else>
+			<i18n path="manageOptionAssetListingAssetNotListed">
+				<template #link>
+					<a :href="conf.odex_url" target="blank">ODEX</a>
+				</template>
+			</i18n>
+		</span>
 	</div>
 </template>
 
@@ -17,6 +32,10 @@ export default {
 		asset: {
 			type: String,
 			required: true
+		},
+		symbol: {
+			type: String,
+			required: false
 		}
 	},
 	data(){

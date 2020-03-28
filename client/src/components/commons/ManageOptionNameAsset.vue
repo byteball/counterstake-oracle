@@ -13,7 +13,7 @@
 				</b-field>
 			</div>
 			<div class="column">
-					<label for="range-1"><b>Deposit {{amount}}GB</b></label>
+					<label for="range-1"><b>{{$t('manageOptionNameAssetDepositAmount', {amount: amount})}}</b></label>
 					<b-slider id="range-1" 
 					v-model="amount" 
 					:min="conf.token_registry_min_deposit_gb" 
@@ -24,7 +24,7 @@
 			</div >
 		</div>
 		<div v-if="symbol.length>0">
-			Register asset: <wallet-link  :href="name_asset_link" :isSmall="true" />
+			{{$t('manageOptionNameAssetRegisterAsset')}}Register asset: <wallet-link  :href="name_asset_link" :isSmall="true" />
 		</div>
 	</div>
 </template>

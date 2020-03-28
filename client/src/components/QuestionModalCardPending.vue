@@ -8,9 +8,7 @@
 			<hr>
 			<div class="pt-1"><b>{{question.description}}</b></div>
 			<div class="pt-1">{{$t('questionPendingReportingStart')}}<b>{{question.countdown}}</b></div>
-			<div class="pt-2">
-				<div>{{$t('questionPendingModalHowToOfferContract')}}</div>
-				</div>
+
 			<div class="py-1">
 				<div>{{$t('questionPendingOracleAddress')}}<b>{{conf.aa_address}}</b></div>
 				<div>{{$t('questionPendingFeedName')}}<b>{{question.question_id}}</b></div>
@@ -25,9 +23,6 @@
 					</i18n>
 				</div>
 			</div>
-			<div class="pt-2">
-				<question-history :question="question"/>
-			</div>
 			<div class="py-1">
 				<manage-option :question="question" />
 			</div>
@@ -41,12 +36,10 @@
 <script>
 
 const conf = require("../conf.js");
-import QuestionHistory from './commons/QuestionHistory.vue';
 import ManageOption from './commons/ManageOption.vue';
 
 export default  {
 	components:{
-		QuestionHistory,
 		ManageOption
 	},
 	props: {

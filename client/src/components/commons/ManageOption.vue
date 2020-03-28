@@ -7,7 +7,7 @@
 					role="button"
 					aria-controls="contentIdForA11y3">
 					<p class="card-header-title">
-						Manage option
+						{{$t('manageOptionCollapseTitle')}}
 					</p>
 					<a class="card-header-icon">
 						<v-icon :name="isOptionManagingOpen ? 'chevron-up' : 'chevron-down'" />
@@ -16,10 +16,10 @@
 			<div class="card-content">
 				<div class="container">
 					<div v-if="!question.is_option_aa_defined" class="row">
-						{{$t('createOptionLinkLabel')}}: <wallet-link  :href="create_option_link" :isSmall="true" />
+						{{$t('createOptionLinkLabel')}} <wallet-link  :href="create_option_link" :isSmall="true" />
 					</div>
 					<div v-else>
-						An option AA exists for this question: <a  :href="see_option_aa_link" target="_blank">{{question.option_address}}</a>
+						{{$t('manageOptionAssetIssuer')}}<a  :href="see_option_aa_link" target="_blank">{{question.option_address}}</a> 
 						<div class="mt-1">
 							<assets :question="question"/>
 						</div>
