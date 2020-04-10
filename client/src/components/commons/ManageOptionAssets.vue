@@ -1,54 +1,55 @@
 <template>
 	<span>
-
-		<b-tabs v-model="activeTab">
-			<b-tab-item label="Yes asset">
-				<div v-if="question.yes_asset" class="row">
-					{{$t("manageOptionNameAssetAsset")}} <a :link="conf.explorer_link + '#' + question.yes_asset">{{question.yes_asset}}</a>
-					<div v-if="!question.yes_asset_symbol">
-						{{$t("manageOptionNameAssetRegister")}}
-						<name-asset :question="question" asset_type="yes" />
+		<div class="tabs-container">
+			<b-tabs v-model="activeTab">
+				<b-tab-item label="Yes asset">
+					<div v-if="question.yes_asset" class="row">
+						{{$t("manageOptionNameAssetAsset")}} <a :link="conf.explorer_link + '#' + question.yes_asset">{{question.yes_asset}}</a>
+						<div v-if="!question.yes_asset_symbol">
+							{{$t("manageOptionNameAssetRegister")}}
+							<name-asset :question="question" asset_type="yes" />
+						</div>
+						<div v-else>
+							{{$t("manageOptionNameAssetRegisteredSymbol")}}<b>{{question.yes_asset_symbol}}</b>
+						</div>
+						<asset-listing :asset="question.yes_asset"/>
 					</div>
-					<div v-else>
-						{{$t("manageOptionNameAssetRegisteredSymbol")}}<b>{{question.yes_asset_symbol}}</b>
+					<div v-else class="row">
+						<i18n path="manageOptionNameAssetIssueAsset">
+							<template #asset>
+								<b>yes</b>
+							</template>
+							<template #link>
+								<wallet-link  :href="issue_asset_link" :isSmall="true" />
+							</template>
+						</i18n>
 					</div>
-					<asset-listing :asset="question.yes_asset"/>
-				</div>
-				<div v-else class="row">
-					<i18n path="manageOptionNameAssetIssueAsset">
-						<template #asset>
-							<b>yes</b>
-						</template>
-						<template #link>
-							<wallet-link  :href="issue_asset_link" :isSmall="true" />
-						</template>
-					</i18n>
-				</div>
-			</b-tab-item>
-			<b-tab-item label="No asset">
-				<div v-if="question.no_asset" class="row">
-					{{$t("manageOptionNameAssetAsset")}} <a :link="conf.explorer_link + '#' + question.no_asset">{{question.no_asset}}</a>
-					<div v-if="!question.no_asset_symbol">
-						{{$t("manageOptionNameAssetRegister")}}
-						<name-asset :question="question" asset_type="no" />
+				</b-tab-item>
+				<b-tab-item label="No asset">
+					<div v-if="question.no_asset" class="row">
+						{{$t("manageOptionNameAssetAsset")}} <a :link="conf.explorer_link + '#' + question.no_asset">{{question.no_asset}}</a>
+						<div v-if="!question.no_asset_symbol">
+							{{$t("manageOptionNameAssetRegister")}}
+							<name-asset :question="question" asset_type="no" />
+						</div>
+						<div v-else>
+							{{$t("manageOptionNameAssetRegisteredSymbol")}} <b>{{question.no_asset_symbol}}</b>
+						</div>
+						<asset-listing :asset="question.no_asset"/>
 					</div>
-					<div v-else>
-						{{$t("manageOptionNameAssetRegisteredSymbol")}} <b>{{question.no_asset_symbol}}</b>
+					<div v-else class="row">
+						<i18n path="manageOptionNameAssetIssueAsset">
+							<template #asset>
+								<b>no</b>
+							</template>
+							<template #link>
+								<wallet-link  :href="issue_asset_link" :isSmall="true" />
+							</template>
+						</i18n>
 					</div>
-					<asset-listing :asset="question.no_asset"/>
-				</div>
-				<div v-else class="row">
-					<i18n path="manageOptionNameAssetIssueAsset">
-						<template #asset>
-							<b>no</b>
-						</template>
-						<template #link>
-							<wallet-link  :href="issue_asset_link" :isSmall="true" />
-						</template>
-					</i18n>
-				</div>
-			</b-tab-item>
-		</b-tabs>
+				</b-tab-item>
+			</b-tabs>
+		</div>
 	</span>
 </template>
 
@@ -93,5 +94,12 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-
+.tabs-container {
+	@import "../../assets/custom.scss";
+	min-height: 18rem;
+	border: solid;
+	border-color: $primary;
+	border-width: 0.15rem;
+	padding: 0.5rem;
+}
 </style>
