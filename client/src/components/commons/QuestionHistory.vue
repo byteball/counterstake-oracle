@@ -1,10 +1,10 @@
 <template>
-	<b-collapse :open.sync="isHistoryOpen" class="card" aria-id="contentIdForA11y3">
+	<b-collapse :open.sync="isHistoryOpen" class="card" aria-id="historyCollapse">
 		<div
 				slot="trigger" 
 				class="card-header"
 				role="button"
-				aria-controls="contentIdForA11y3">
+				aria-controls="historyCollapse">
 				<p class="card-header-title">
 					{{$tc('questionHistoryCollapseTitle', historyItems.length, {count: historyItems.length})}}
 				</p>

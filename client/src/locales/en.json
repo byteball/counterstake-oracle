@@ -60,7 +60,7 @@
 	"contestOutcomeLinkFooter" : "It will be taken into account a few minutes after the transaction is confirmed. Note that it could be canceled if in the meantime another user contests the operation. In this case, the AA would bounce the transaction to refund you.",
 	"manageOptionCollapseTitle": "Prediction market",
 	"manageOptionAssetIssuer": "Prediction assets issuer (autonomous agent): ",
-	"manageOptionAssetListingAssetListed" : "Trade {symbol} on {link} decentralized exchange",
+	"manageOptionAssetListingAssetListed" : "Trade {symbol} on {link} decentralized exchange:",
 	"manageOptionAssetListingAssetNotListed" : "This asset is not listed yet on {link}",
 	"manageOptionNameAssetRegister" : "You can register a symbol for it:",
 	"manageOptionNameAssetAsset" : "Asset: ",

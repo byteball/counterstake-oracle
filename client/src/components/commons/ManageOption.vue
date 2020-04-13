@@ -1,11 +1,11 @@
 <template>
 	<span>
-		<b-collapse :open.sync="isOptionManagingOpen" class="card" aria-id="contentIdForA11y3">
+		<b-collapse :open.sync="isOptionManagingOpen" class="card" aria-id="opionsManagingCollapse">
 			<div
 					slot="trigger" 
 					class="card-header"
 					role="button"
-					aria-controls="contentIdForA11y3">
+					aria-controls="opionsManagingCollapse">
 					<p class="card-header-title">
 						{{$t('manageOptionCollapseTitle')}}
 					</p>

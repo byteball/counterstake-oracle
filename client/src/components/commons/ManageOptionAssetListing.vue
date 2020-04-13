@@ -9,6 +9,11 @@
 					<a :href="conf.odex_url" target="blank">ODEX</a>
 				</template>
 			</i18n>
+			<ul>
+			<li v-for="(pair, index) in arrPairs" :key="'pair_'+ index">
+				- <a :href="conf.odex_url+'/trade/'+pair.baseTokenSymbol+'/'+pair.quoteTokenSymbol" target="blank">{{pair.baseTokenSymbol+'/'+pair.quoteTokenSymbol}}</a>
+			</li>
+			</ul>
 		</span>
 		<span v-else>
 			<i18n path="manageOptionAssetListingAssetNotListed">
@@ -41,6 +46,7 @@ export default {
 	data(){
 		return {
 			is_asset_listed: false,
+			arrPairs: [],
 			conf: conf
 		}
 	},
@@ -50,8 +56,12 @@ export default {
 	created (){
 		this.axios.get(conf.odex_url + '/api/pairs').then((response) => {
 			response.data.data.forEach((objPair)=>{
-				if (objPair.baseAsset == this.asset || objPair.quoteAsset == this.asset)
+				if (objPair.baseAsset == this.asset || objPair.quoteAsset == this.asset){
+				
+					this.arrPairs.push(objPair);
 					this.is_asset_listed = true;
+
+				}
 			});
 		});
 	}
