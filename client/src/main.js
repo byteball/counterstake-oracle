@@ -14,19 +14,6 @@ import store from './store'
 
 import Buefy from 'buefy'
 
-/*
-import { library } from '@fortawesome/fontawesome-svg-core';
-// internal icons
-import { faCheck, faCheckCircle, faInfoCircle, faExclamationTriangle, faExclamationCircle,
-    faArrowUp, faAngleRight, faAngleLeft, faAngleDown,faAngleUp,
-    faEye, faEyeSlash, faCaretDown, faCaretUp, faUpload, } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-
-library.add(faCheck, faCheckCircle, faInfoCircle, faExclamationTriangle, faExclamationCircle,
-    faArrowUp, faAngleRight, faAngleLeft, faAngleDown,faAngleUp,
-    faEye, faEyeSlash, faCaretDown, faCaretUp, faUpload);
-Vue.component('vue-fontawesome', FontAwesomeIcon);
-*/
 Vue.use(Buefy);
 Vue.use(VueAxios, axios);
 Vue.use(feather, 'v-icon');
