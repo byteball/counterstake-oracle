@@ -2,7 +2,7 @@ module.exports = {
 	devServer: {
 		proxy: {
 			"^/api/pairs" : { 
-				target: 'https://testnet.odex.ooo/'
+				target: process.env.testnet ? 'https://testnet.odex.ooo/' : 'https://odex.ooo/' 
 			},
 			"^/api" : { 
 				target: process.env.local_server ? 'http://127.0.0.1:1300/' : 'https://counterstake.org/'
