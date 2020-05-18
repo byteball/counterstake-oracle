@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
-    "base64url": "^3.0.1",
     "buefy": "^0.8.13",
     "chai": "^4.2.0",
     "core-js": "^3.6.4",

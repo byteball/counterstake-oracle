@@ -58,7 +58,6 @@ const conf = require("../../conf.js");
 import moment from 'moment'
 import NameAsset from './ManageOptionNameAsset.vue';
 import AssetListing from './ManageOptionAssetListing.vue';
-const base64url = require('base64url');
 import WalletLink from './WalletLink.vue'
 
 export default {
@@ -83,7 +82,7 @@ export default {
 		issue_asset_link() {
 			const data = this.activeTab ? {define_yes: 1} : {define_no: 1}
 			const json_string = JSON.stringify(data);
-			const base64data = base64url(json_string);
+			const base64data = encodeURIComponent(btoa(json_string));
 			return conf.protocol+":"+this.question.option_address+"?amount=10000&base64data="+base64data;
 		}
 	},

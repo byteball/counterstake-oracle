@@ -2,7 +2,6 @@ import { shallowMount, createLocalVue } from '@vue/test-utils'
 import QuestionCreateModal from '../src/components/QuestionCreateModal.vue'
 import Buefy from 'buefy'
 const conf = require("./../src/conf.js")
-import { parseWalletUrl } from './utils.js'
 
 const localVue = createLocalVue()
 
@@ -60,47 +59,11 @@ describe('QuestionCreateModal', () => {
 		buttonCreate.trigger('click')
 		await localVue.nextTick()
 		const divCreate = wrapper.find({ ref: 'div-create' })
-		expect(divCreate.exists()).to.be.false
+		expect(divCreate.isVisible()).to.be.false
 		const divLink = wrapper.find({ ref: 'div-link' })
 		expect(divLink.exists()).to.be.true
-	})
-
-	it('is url correct', async() => {
-
-		const divLink = wrapper.find({ ref: 'div-link' })
-		expect(divLink.exists()).to.be.true
-		console.log(divLink)
-		console.log(divLink.find('a').text())
-		const parsedUrl = parseWalletUrl(divLink.find('a').text())
-		expect(parsedUrl.amount).to.be.equal(800000000)
-		expect(parsedUrl.recipient).to.be.string(conf.aa_address)
-		expect(parsedUrl.network).to.be.string(conf.testnet ? 'byteball-tn' : 'byteball')
-		console.log(JSON.stringify(parsedUrl.data))
-		console.log(parsedUrl.data.question)
-
-		expect(parsedUrl.data.question).to.be.string(question)
-		expect(parsedUrl.data.deadline).to.be.equal(expectedDeadline)
-
 	})
 
 
 })
 
-
-
-/*import { shallowMount, createLocalVue } from "@vue/test-utils";
-import App from "@/App.vue";
-
-import HelloWorld from "@/components/HelloWorld";
-
-localVue.component("HelloWorld", HelloWorld);
-
-describe("App.vue", () => {
-    test("renders snap correctly if passed in true value prop", () => {
-        const wrapper = shallowMount(App, {
-            localVue
-        });
-
-        expect(wrapper.html()).toMatchSnapshot();
-    });
-});*/

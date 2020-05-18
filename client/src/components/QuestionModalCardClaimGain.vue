@@ -71,7 +71,6 @@ export default {
 	},
 	methods:{
 		handleOk:function(outcome){
-			const base64url = require('base64url');
 			const data = {
 				question_id: this.question.question_id,
 				withdraw: true,
@@ -79,7 +78,7 @@ export default {
 			};
 
 			const json_string = JSON.stringify(data);
-			const base64data = base64url(json_string);
+			const base64data = encodeURIComponent(btoa(json_string));
 			this.link = conf.protocol+":"+conf.aa_address+"?amount=10000&base64data="+base64data;
 		}
 	}

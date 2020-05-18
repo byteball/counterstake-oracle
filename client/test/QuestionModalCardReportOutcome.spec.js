@@ -1,8 +1,6 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils'
 import QuestionModalCardReportOutcome from '../src/components/QuestionModalCardReportOutcome.vue'
 import Buefy from 'buefy'
-const conf = require("./../src/conf.js")
-import { parseWalletUrl } from './utils.js'
 
 const localVue = createLocalVue()
 
@@ -75,38 +73,7 @@ describe('QuestionModalCardReportOutcome', () => {
 		expect(divLink.exists()).to.be.true
 	})
 
-	it('is url correct', async() => {
-
-		const divLink = wrapper.find({ ref: 'div-link' })
-		expect(divLink.exists()).to.be.true
-
-		const parsedUrl = parseWalletUrl(divLink.find('a').text())
-		expect(parsedUrl.amount).to.be.equal(10000000 * conf.challenge_coeff)
-		expect(parsedUrl.recipient).to.be.string(conf.aa_address)
-		expect(parsedUrl.network).to.be.string(conf.testnet ? 'byteball-tn' : 'byteball')
-		expect(parsedUrl.data.question_id).to.be.string
-		expect(parsedUrl.data.outcome).to.be.string('no')
-
-	})
 
 
 })
 
-
-
-/*import { shallowMount, createLocalVue } from "@vue/test-utils";
-import App from "@/App.vue";
-
-import HelloWorld from "@/components/HelloWorld";
-
-localVue.component("HelloWorld", HelloWorld);
-
-describe("App.vue", () => {
-    test("renders snap correctly if passed in true value prop", () => {
-        const wrapper = shallowMount(App, {
-            localVue
-        });
-
-        expect(wrapper.html()).toMatchSnapshot();
-    });
-});*/

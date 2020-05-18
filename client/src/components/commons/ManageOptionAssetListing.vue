@@ -28,7 +28,6 @@
 <script>
 const conf = require("../../conf.js");
 import moment from 'moment'
-const base64url = require('base64url');
 
 export default {
 	components:{

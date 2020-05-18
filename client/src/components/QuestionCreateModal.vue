@@ -137,7 +137,6 @@ export default {
 		},
 		handleOk(bvModalEvt){
 			bvModalEvt.preventDefault()	;
-			const base64url = require('base64url');
 			const data = {
 				question: this.question,
 				deadline: this.deadline.toISOString().slice(0,-5)
@@ -146,7 +145,7 @@ export default {
 				data.description = this.description
 
 			const json_string = JSON.stringify(data);
-			const base64data = base64url(json_string);
+			const base64data = encodeURIComponent(btoa(json_string));
 			this.link = conf.protocol+":"+conf.aa_address+"?amount="
 				+Math.round(this.amount * conf.gb_to_bytes)+"&base64data="+base64data;
 		}

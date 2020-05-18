@@ -19,7 +19,7 @@
 						{{$t('createOptionLinkLabel')}} <wallet-link  :href="create_option_link" :isSmall="true" />
 					</div>
 					<div v-else>
-						{{$t('manageOptionAssetIssuer')}}<a  :href="see_option_aa_link" target="_blank">{{question.option_address}}</a> 
+						{{$t('manageOptionAssetIssuer')}}<a :href="see_option_aa_link" target="_blank">{{question.option_address}}</a> 
 						<div class="mt-1">
 							<assets :question="question"/>
 						</div>

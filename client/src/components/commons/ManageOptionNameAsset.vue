@@ -32,7 +32,6 @@
 <script>
 const conf = require("../../conf.js");
 import moment from 'moment'
-const base64url = require('base64url');
 import WalletLink from './WalletLink.vue'
 
 export default {
@@ -71,7 +70,7 @@ export default {
 			};
 
 			const json_string = JSON.stringify(data);
-			const base64data = base64url(json_string);
+			const base64data = encodeURIComponent(btoa(json_string));
 			return conf.protocol+":"+conf.token_registry_aa_address+"?amount="+this.amount*conf.gb_to_bytes+"&base64data="+base64data;
 		}
 	},

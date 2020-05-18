@@ -1,6 +1,6 @@
 <template>
 	<span>
-		<a target='_blank' :href="(isTestnet ? 'https://testnetexplorer.obyte.org/#' : 'https://explorer.obyte.org/#')+unit">
+		<a target='_blank' :href="(isTestnet ? 'https://testnetexplorer.obyte.org/#' : 'https://explorer.obyte.org/#')+unit" >
 			<v-icon
 				name="external-link"
 				size="is-small"

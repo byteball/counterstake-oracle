@@ -1,5 +1,6 @@
 <template>
-	<a :href="link" target="blank">
+<div ref="wallet-link">
+	<a :href="link" target="blank" >
 		<v-icon 
 			name='external-link' 
 			:class="{
@@ -8,6 +9,7 @@
 			}"
 		/>
 	</a>
+	</div>
 </template>
 
 <script>
