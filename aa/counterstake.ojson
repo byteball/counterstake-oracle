@@ -1,0 +1,305 @@
+["autonomous agent", {
+	"doc_url": "https://counterstake.org/counterstake.json",
+	"init": "{
+		if (trigger.output[[asset!=base]].asset != 'none')
+			bounce('foreign coins');
+		$payment_amount = trigger.output[[asset=base]];
+		$min_reward = 1e5;
+		$default_initial_coeff = 1.5;
+		$default_counterstake_coeff = 1.5;
+		$overpayment_fee = 1000;
+		$min_delay_before_deadline = 15*60;
+		$period_length = 3600;
+	//$period_length = 3*24*3600;
+		$question = trigger.data.question;
+		$description = trigger.data.description;
+		$question_id = trigger.data.question_id;
+		$proposed_outcome = trigger.data.outcome;
+		$nickname = trigger.data.nickname;
+
+		if ($question AND trigger.data.question_id)
+			bounce("Question and question_id not allowed together");
+
+		if (!$nickname AND !$question AND !trigger.data.question_id)
+			bounce("No question nor key nor nickname");
+
+		if ($question AND length($question) > 128)
+			bounce("Question cannot be over 128 chars");
+
+		if ($question AND length($question) < 10)
+			bounce("Question must be over 10 chars");
+		
+		if ($description AND length($description) > 256)
+			bounce("Additional description cannot be over 256 chars");
+
+		if ($nickname AND length($nickname) < 3)
+			bounce('Nickname must be over at least 3 chars');
+
+		if ($nickname AND length($nickname) > 50)
+			bounce("Nickname can't be over 50 chars");
+
+		if ($question_id AND !var[$question_id])
+			bounce("This question doesn't exist");
+
+		if ($proposed_outcome AND $proposed_outcome != "no" AND $proposed_outcome != "yes")
+			bounce("Outcome must be yes or no");
+
+		if ($question_id AND !$proposed_outcome AND !trigger.data.withdraw AND !trigger.data.commit)
+			bounce("You must either provide an outcome, commit or withdraw");
+
+		if (trigger.data.initial_coeff){
+			if (typeof(trigger.data.initial_coeff) != 'number')
+				bounce("initial_coeff must be a number");
+		if (trigger.data.initial_coeff < 1)
+				bounce("initial_coeff must be >= 1");
+			$initial_coeff = trigger.data.initial_coeff;
+		}	else {
+			$initial_coeff = $default_initial_coeff;
+		}
+
+		if (trigger.data.counterstake_coeff){
+			if (typeof(trigger.data.counterstake_coeff) != 'number')
+				bounce("counterstake_coeff must be a number");
+		if (trigger.data.counterstake_coeff < 1)
+				bounce("counterstake_coeff must be >= 1");
+			$counterstake_coeff = trigger.data.counterstake_coeff;
+		}	else {
+			$counterstake_coeff = $default_counterstake_coeff;
+		}
+
+	}",
+	"messages": {
+		"cases": [
+			{
+				"if": "{$question}",
+				"init": "{
+					if ($payment_amount < $min_reward)
+						bounce("Reward must be at least "||$min_reward||" bytes");
+
+					$key = "question_"||substring(sha256($question||' '||$description||' '||$payment_amount, 'hex'),0,16);
+					if (var[$key])
+						bounce("This question already exists");
+
+					if (!trigger.data.deadline)
+						bounce("You must specify a deadline");
+
+					$deadline = parse_date(trigger.data.deadline);
+					if (!$deadline)
+						bounce("Deadline is not a valid ISO string");
+
+					if ($deadline < timestamp + $min_delay_before_deadline)
+						bounce("Deadline must be at least "||$min_delay_before_deadline||" seconds from now");
+				}",
+				"messages": [
+					{
+						"app": "state",
+						"state": "{
+							var[$key] = "created";
+							var[$key||"_question"] = $question;
+							if ($initial_coeff != $default_initial_coeff)
+								var[$key||"_initial_coeff"] = $initial_coeff;
+							if ($counterstake_coeff != $default_counterstake_coeff)
+								var[$key||"_counterstake_coeff"] = $counterstake_coeff;
+							if ($description)
+								var[$key||"_description"] = $description;
+							var[$key||"_deadline"] = $deadline;
+							var[$key||"_reward"] = $payment_amount;
+							response['new_question'] = $question;
+							response['question_id'] = $key;
+						}"
+					}
+				]
+			},
+			{
+				"if": "{$proposed_outcome AND $question_id}",
+				"init": "{
+					$key = $question_id;
+					if (var[$key||"_deadline"] > timestamp)
+						bounce("Deadline isn't reached, cannot be graded yet");
+
+					if(var[$key||'_outcome']){ // it's a counterstake
+						if(var[$key||'_outcome'] == $proposed_outcome)
+							bounce("Question is already graded with this outcome");
+						if (timestamp - var[$key || '_countdown_start'] > $period_length)
+							bounce('challenging period expired');
+						$current_outcome = var[$key || '_outcome'];
+
+						$stake_on_current_outcome = var[$key || '_total_staked_on_' || $current_outcome];
+						$stake_on_proposed_outcome = var[$key || '_total_staked_on_' || $proposed_outcome];
+						$required_to_challenge = round($counterstake_coeff * $stake_on_current_outcome);
+						$would_override_current_outcome = ($stake_on_proposed_outcome + $payment_amount) >= $required_to_challenge;
+						if ($would_override_current_outcome)
+							$excess = $stake_on_proposed_outcome + $payment_amount - $required_to_challenge;
+					} else {
+						$min_stake = round(var[$key||"_reward"] * $initial_coeff);
+						if ($payment_amount < $min_stake)
+							bounce("You must stake at least "||$min_stake||" bytes to grade this question");
+						$excess = $payment_amount - $min_stake;
+						$bInitialStake = true;
+					}
+
+				}",
+				"messages": [
+					{
+						"if": "{$excess}",
+						"app": "payment",
+						"payload": {
+							"asset": "base",
+							"outputs": [
+								{
+									"address": "{trigger.address}",
+									"amount": "{$excess - $overpayment_fee}"
+								}
+							]
+						}
+					},
+					{
+						"app": "state",
+						"state": "{
+							var[$key] = "being_graded";
+							if ($bInitialStake OR $would_override_current_outcome){
+								var[$key||'_outcome'] = $proposed_outcome;
+								var[$key || '_countdown_start'] = timestamp;
+							}
+							$accepted_amount = $payment_amount - $excess;
+							var[$key||'_total_staked_on_'||$proposed_outcome] += $accepted_amount;
+							var[$key || '_total_staked'] += $accepted_amount;
+							var[$key || '_total_staked_on_' || $proposed_outcome || '_by_' || trigger.address] += $accepted_amount;
+
+							
+							if ($bInitialStake){
+								var[$key || '_initial_reporter'] = trigger.address;
+									response['expected_reward'] = var[$key||"_reward"];   
+							} 
+
+							response['accepted_amount'] = $accepted_amount;
+							response['total_staked_on_yes'] = var[$key || '_total_staked_on_yes'];
+							response['total_staked_on_no'] = var[$key || '_total_staked_on_no'];
+							response['question_id'] = $key;
+							response['reported_outcome'] = $proposed_outcome;
+							response['resulting_outcome'] = var[$key||'_outcome'];
+						}"
+					}
+				]
+			},
+			{
+				"if": "{trigger.data.commit AND $question_id}",
+				"init": "{
+				if ($payment_amount>10000)
+					bounce("payment amount over 10000 bytes");
+				$key = $question_id;
+				$outcome = var[$key||'_outcome'];
+				if (var[$key] == 'committed')
+					bounce('already committed');
+				if (timestamp - var[$key || '_countdown_start'] <= $period_length)
+					bounce('challenge period is still running');
+				// immediately pay to the initial reporter.  Other stakers (if any) will have to manually request withdrawals
+				$address = var[$key || '_initial_reporter'];
+				$initial_reporter_stake = var[$key || '_total_staked_on_' || $outcome || '_by_' || $address];
+
+				if ($initial_reporter_stake){
+					$reward = var[$key||"_reward"];
+					$total_winning_stake = var[$key || '_total_staked_on_' || $outcome];
+					$total_stake = var[$key || '_total_staked'];
+					$full_amount = round($initial_reporter_stake / $total_winning_stake * ($total_stake + $reward));
+				}
+			}",
+				"messages": [
+					{
+						"app": "data_feed",
+						"payload": {
+							"{$key}": "{$outcome}"
+						}
+					},
+					{
+						"if": "{$initial_reporter_stake}",
+						"app": "payment",
+						"payload": {
+							"asset": "base",
+							"outputs": [
+								{
+									"address": "{$address}",
+									"amount": "{$full_amount}"
+								}
+							]
+						}
+					},
+					{
+						"app": "state",
+						"state": "{
+						var[$key] = 'committed';
+						if ($initial_reporter_stake){
+							var[$key || '_total_staked_on_' || $outcome || '_by_' || $address] = false;
+							response['paid_out_amount'] = $full_amount;
+							response['paid_out_address'] = $address;
+						}
+						response['question_id'] = $key;
+						response['committed_outcome'] = $outcome;
+					}"
+					}
+				]
+			},
+			{
+				"if": "{trigger.data.withdraw AND $question_id}",
+				"init": "{
+					if ($payment_amount>10000)
+						bounce("payment amount over 10000 bytes");
+					$key = $question_id;
+					if (var[$key] != 'committed')
+						bounce('not committed yet');
+					$address = trigger.data.address otherwise trigger.address; // withdrawal can be triggered by anybody
+					$outcome = var[$key || '_outcome'];
+					$my_stake = var[$key || '_total_staked_on_' || $outcome || '_by_' || $address];
+					if (!$my_stake)
+						bounce("you didn't stake on the winning outcome or you already withdrew");
+					$reward = var[$key||"_reward"];
+					$total_winning_stake = var[$key || '_total_staked_on_' || $outcome];
+					$total_stake = var[$key || '_total_staked'];
+					$full_amount = round($my_stake / $total_winning_stake * ($total_stake + $reward));
+				}",
+				"messages": [
+					{
+						"app": "payment",
+						"payload": {
+							"asset": "base",
+							"outputs": [
+								{
+									"address": "{$address}",
+									"amount": "{$full_amount}"
+								}
+							]
+						}
+					},
+					{
+						"app": "state",
+						"state": "{
+							var[$key || '_total_staked_on_' || $outcome || '_by_' || $address] = false;
+							response['message'] = "paid " || $full_amount || " bytes";
+							response['question_id'] = $key;
+							response['paid_out_amount'] = $full_amount;
+							response['paid_out_address'] = $address;
+						}"
+					}
+				]
+			},
+			{
+				"if": "{trigger.data.nickname}",
+				"init": "{
+					if ($payment_amount>10000)
+						bounce("payment amount over 10000 bytes");
+				}",
+				"messages": [
+					{
+						"app": "state",
+						"state": "{
+							var['nickname_' || trigger.address] = trigger.data.nickname;
+							response['your_address'] = trigger.address;
+							response['nickname'] = trigger.data.nickname;
+							response['message'] = "Nickname changed for " || trigger.data.nickname;
+						}"
+					}
+				]
+			}
+		]
+	}
+}]
