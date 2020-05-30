@@ -11,7 +11,7 @@
 			</i18n>
 			<ul>
 			<li v-for="(pair, index) in arrPairs" :key="'pair_'+ index">
-				- <a :href="conf.odex_url+'/trade/'+pair.baseTokenSymbol+'/'+pair.quoteTokenSymbol" target="blank">{{pair.baseTokenSymbol+'/'+pair.quoteTokenSymbol}}</a>
+				- <a :href="conf.odex_url+'trade/'+pair.baseTokenSymbol+'/'+pair.quoteTokenSymbol" target="blank">{{pair.baseTokenSymbol+'/'+pair.quoteTokenSymbol}}</a>
 			</li>
 			</ul>
 		</span>
@@ -56,10 +56,8 @@ export default {
 		this.axios.get(conf.odex_url + '/api/pairs').then((response) => {
 			response.data.data.forEach((objPair)=>{
 				if (objPair.baseAsset == this.asset || objPair.quoteAsset == this.asset){
-				
 					this.arrPairs.push(objPair);
 					this.is_asset_listed = true;
-
 				}
 			});
 		});

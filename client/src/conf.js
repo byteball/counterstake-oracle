@@ -19,6 +19,6 @@ exports.github ='https://github.com/byteball/counterstats/';
 exports.nickname_min_length = 3;
 exports.nickname_max_length = 50;
 exports.protocol =  testnet ? "obyte-tn" : "obyte";
-exports.token_registry_aa_address = testnet ? "JKRVB732FRXEB5H2HZE22O4UDD64MML5" : "";
+exports.token_registry_aa_address = testnet ? "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ" : "";
 exports.token_registry_min_deposit_gb = 0.1;
 exports.odex_url = "https://testnet.odex.ooo/";
