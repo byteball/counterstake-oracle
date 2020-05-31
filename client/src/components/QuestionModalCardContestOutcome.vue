@@ -66,7 +66,7 @@
 			<div v-else fluid >
 				<div class="py-3">
 					<p>{{$t("contestOutcomeLinkHeader", {outcome: my_outcome})}}</p>
-						<wallet-link :link="link" />
+						<icon-link :link="link" />
 					<p class="mt-1">{{$t('contestOutcomeLinkFooter')}}</p>
 				</div>
 			</div>
@@ -84,14 +84,14 @@ import ByteAmount from './commons/ByteAmount.vue';
 import QuestionHistory from './commons/QuestionHistory.vue';
 import moment from 'moment/src/moment'
 import UnconfirmedEvents from './commons/UnconfirmedEvents.vue';
-import WalletLink from './commons/WalletLink.vue'
+import IconLink from './commons/IconLink.vue'
 
 export default {	
 	components: {
 		ByteAmount,
 		QuestionHistory,
 		UnconfirmedEvents,
-		WalletLink
+		IconLink
 	},
 	props: {
 		question: {

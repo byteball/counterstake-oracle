@@ -1,6 +1,6 @@
 <template>
 	<div class="pt-1">
-		<span v-if="is_asset_listed">
+		<span v-if="symbol">
 			<i18n path="manageOptionAssetListingAssetListed">
 				<template #symbol>
 					{{symbol || asset.slice(0,5)}}
@@ -14,13 +14,6 @@
 				- <a :href="conf.odex_url+'trade/'+pair.baseTokenSymbol+'/'+pair.quoteTokenSymbol" target="blank">{{pair.baseTokenSymbol+'/'+pair.quoteTokenSymbol}}</a>
 			</li>
 			</ul>
-		</span>
-		<span v-else>
-			<i18n path="manageOptionAssetListingAssetNotListed">
-				<template #link>
-					<a :href="conf.odex_url" target="blank">ODEX</a>
-				</template>
-			</i18n>
 		</span>
 	</div>
 </template>
@@ -44,7 +37,6 @@ export default {
 	},
 	data(){
 		return {
-			is_asset_listed: false,
 			arrPairs: [],
 			conf: conf
 		}
@@ -53,13 +45,14 @@ export default {
 
 	},
 	created (){
-		this.axios.get(conf.odex_url + '/api/pairs').then((response) => {
-			response.data.data.forEach((objPair)=>{
-				if (objPair.baseAsset == this.asset || objPair.quoteAsset == this.asset){
-					this.arrPairs.push(objPair);
-					this.is_asset_listed = true;
+		this.axios.get(conf.odex_url + '/api/info/fees').then((response) => {
+				const assocQuotes = response.data.data;
+				for (var quote in assocQuotes){
+					this.arrPairs.push({
+						quoteTokenSymbol: quote,
+						baseTokenSymbol:this.symbol
+					});
 				}
-			});
 		});
 	}
 }

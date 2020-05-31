@@ -16,7 +16,7 @@
 			<div class="card-content">
 				<div class="container">
 					<div v-if="!question.is_option_aa_defined" class="row">
-						{{$t('createOptionLinkLabel')}} <wallet-link  :href="create_option_link" :isSmall="true" />
+						{{$t('createOptionLinkLabel')}} <icon-link  :link="create_option_link" :isSmall="true" newTab />
 					</div>
 					<div v-else>
 						{{$t('manageOptionAssetIssuer')}}<a :href="see_option_aa_link" target="_blank">{{question.option_address}}</a> 
@@ -34,12 +34,12 @@
 const conf = require("../../conf.js")
 import moment from 'moment'
 import Assets from './ManageOptionAssets.vue'
-import WalletLink from './WalletLink.vue'
+import IconLink from './IconLink.vue'
 
 export default {
 	components:{
 		Assets,
-		WalletLink
+		IconLink
 	},
 	props: {
 		question: {

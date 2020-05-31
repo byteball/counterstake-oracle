@@ -27,7 +27,7 @@
 			<div v-else>
 				<div class="py-2">
 					<p>{{$t("commitOutcomeLinkHeader")}}</p>
-						<wallet-link :link="link" />
+						<icon-link :link="link" />
 					<p class="mt-1">{{$t('commitOutcomeLinkFooter')}}</p>
 				</div>
 			</div>
@@ -43,13 +43,13 @@
 const conf = require("../conf.js");
 import QuestionHistory from './commons/QuestionHistory.vue';
 import UnconfirmedEvents from './commons/UnconfirmedEvents.vue';
-import WalletLink from './commons/WalletLink.vue'
+import IconLink from './commons/IconLink.vue'
 
 export default {	
 	components: {
 		QuestionHistory,
 		UnconfirmedEvents,
-		WalletLink
+		IconLink
 	},
 	props: {
 		question: {

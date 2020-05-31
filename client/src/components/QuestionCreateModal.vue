@@ -58,7 +58,7 @@
 						<b>{{$t('questionCreateReward')}}<byte-amount :amount="Math.round(amount*conf.gb_to_bytes)"/></b>
 					</div>
 					<p class="mt-2">{{$t('questionCreateLinkHeader')}}</p>
-						<wallet-link :link="link" />
+						<icon-link :link="link" />
 					<p class="mt-1 pb-5">{{$t('questionCreateLinkFooter')}}</p>
 				</div>
 			</section>
@@ -77,12 +77,12 @@
 const conf = require("../conf.js");
 import ByteAmount from './commons/ByteAmount.vue';
 import { EventBus } from './../event-bus.js';
-import WalletLink from './commons/WalletLink.vue'
+import IconLink from './commons/IconLink.vue'
 
 export default {
 	components: {
 		ByteAmount,
-		WalletLink
+		IconLink
 	},
 	data() {
 		return {

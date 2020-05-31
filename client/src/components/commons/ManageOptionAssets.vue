@@ -12,7 +12,7 @@
 						<div v-else>
 							{{$t("manageOptionNameAssetRegisteredSymbol")}}<b>{{question.yes_asset_symbol}}</b>
 						</div>
-						<asset-listing :asset="question.yes_asset"/>
+						<asset-listing :asset="question.yes_asset" :symbol="question.yes_asset_symbol"/>
 					</div>
 					<div v-else class="row">
 						<i18n path="manageOptionNameAssetIssueAsset">
@@ -20,7 +20,7 @@
 								<b>yes</b>
 							</template>
 							<template #link>
-								<wallet-link  :href="issue_asset_link" :isSmall="true" />
+								<icon-link  :link="issue_asset_link" :isSmall="true" />
 							</template>
 						</i18n>
 					</div>
@@ -35,7 +35,7 @@
 						<div v-else>
 							{{$t("manageOptionNameAssetRegisteredSymbol")}} <b>{{question.no_asset_symbol}}</b>
 						</div>
-						<asset-listing :asset="question.no_asset"/>
+						<asset-listing :asset="question.no_asset" :symbol="question.no_asset_symbol"/>
 					</div>
 					<div v-else class="row">
 						<i18n path="manageOptionNameAssetIssueAsset">
@@ -43,7 +43,7 @@
 								<b>no</b>
 							</template>
 							<template #link>
-								<wallet-link  :href="issue_asset_link" :isSmall="true" />
+								<icon-link  :link="issue_asset_link" :isSmall="true" />
 							</template>
 						</i18n>
 					</div>
@@ -58,12 +58,12 @@ const conf = require("../../conf.js");
 import moment from 'moment'
 import NameAsset from './ManageOptionNameAsset.vue';
 import AssetListing from './ManageOptionAssetListing.vue';
-import WalletLink from './WalletLink.vue'
+import IconLink from './IconLink.vue'
 
 export default {
 	components:{
 		NameAsset,
-		WalletLink,
+		IconLink,
 		AssetListing
 	},
 	props: {

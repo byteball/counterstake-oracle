@@ -1,6 +1,6 @@
 <template>
-<div ref="wallet-link">
-	<a :href="link" target="blank" >
+<div ref="icon-link">
+	<a :href="link" :target="newTab ? '_blank' : ''" rel="noopener noreferrer">
 		<v-icon 
 			name='external-link' 
 			:class="{
@@ -14,17 +14,21 @@
 
 <script>
 
-	export default {
-		props: {
-			link: {
-				type: String
-			},
-			isSmall:{
-				type:Boolean,
-				required: false
-			}
-		}
+export default {
+	props: {
+		link: {
+			type: String
+		},
+		isSmall:{
+			type:Boolean,
+			required: false
+		},
+		newTab:{
+			type:Boolean,
+			required: false
+		},
 	}
+}
 </script>
 
 <style lang='scss'>

@@ -61,7 +61,6 @@
 	"manageOptionCollapseTitle": "Prediction market",
 	"manageOptionAssetIssuer": "Prediction assets issuer (autonomous agent): ",
 	"manageOptionAssetListingAssetListed" : "Trade {symbol} on {link} decentralized exchange:",
-	"manageOptionAssetListingAssetNotListed" : "This asset is not listed yet on {link}",
 	"manageOptionNameAssetRegister" : "You can register a symbol for it:",
 	"manageOptionNameAssetAsset" : "Asset: ",
 	"manageOptionNameAssetRegisteredSymbol": "Registered symbol: ",

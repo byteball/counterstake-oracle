@@ -24,7 +24,7 @@
 			</div >
 		</div>
 		<div v-if="symbol.length>0">
-			{{$t('manageOptionNameAssetRegisterAsset')}}Register asset: <wallet-link  :href="name_asset_link" :isSmall="true" />
+			{{$t('manageOptionNameAssetRegisterAsset')}}Register asset: <icon-link  :link="name_asset_link" :isSmall="true" />
 		</div>
 	</div>
 </template>
@@ -32,11 +32,11 @@
 <script>
 const conf = require("../../conf.js");
 import moment from 'moment'
-import WalletLink from './WalletLink.vue'
+import IconLink from './IconLink.vue'
 
 export default {
 	components: {
-		WalletLink
+		IconLink
 	},
 	props: {
 		question: {
