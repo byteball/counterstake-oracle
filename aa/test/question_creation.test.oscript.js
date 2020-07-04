@@ -347,8 +347,8 @@ describe('Check AA counterstake question creation', function () {
 
 		expect(vars[question_id]).to.be.equal('created');
 		expect(vars[question_id+"_question"]).to.be.equal(question);
-		expect(vars[question_id+"_deadline"]).to.be.equal(Math.floor(deadline.getTime()/1000).toString());
-		expect(vars[question_id+"_reward"]).to.be.equal(paymentAmount.toString());
+		expect(vars[question_id+"_deadline"]).to.be.equal(Math.floor(deadline.getTime()/1000));
+		expect(vars[question_id+"_reward"]).to.be.equal(paymentAmount);
 
 	})
 
@@ -386,8 +386,8 @@ describe('Check AA counterstake question creation', function () {
 		expect(vars[question_id]).to.be.equal('created');
 		expect(vars[question_id+"_question"]).to.be.equal(question);
 		expect(vars[question_id+"_description"]).to.be.equal(description);
-		expect(vars[question_id+"_deadline"]).to.be.equal(Math.floor(deadline.getTime()/1000).toString());
-		expect(vars[question_id+"_reward"]).to.be.equal(paymentAmount.toString());
+		expect(vars[question_id+"_deadline"]).to.be.equal(Math.floor(deadline.getTime()/1000));
+		expect(vars[question_id+"_reward"]).to.be.equal(paymentAmount);
 
 	})
 
@@ -456,10 +456,10 @@ describe('Check AA counterstake question creation', function () {
 
 		expect(vars[question_id]).to.be.equal('created');
 		expect(vars[question_id+"_question"]).to.be.equal(question);
-		expect(vars[question_id+"_initial_coeff"]).to.be.equal(initial_coeff.toString());
+		expect(vars[question_id+"_initial_coeff"]).to.be.equal(initial_coeff);
 		expect(vars[question_id+"_description"]).to.be.equal(description);
-		expect(vars[question_id+"_deadline"]).to.be.equal(Math.floor(deadline.getTime()/1000).toString());
-		expect(vars[question_id+"_reward"]).to.be.equal(paymentAmount.toString());
+		expect(vars[question_id+"_deadline"]).to.be.equal(Math.floor(deadline.getTime()/1000));
+		expect(vars[question_id+"_reward"]).to.be.equal(paymentAmount);
 
 	})
 
@@ -497,10 +497,10 @@ describe('Check AA counterstake question creation', function () {
 
 		expect(vars[question_id]).to.be.equal('created');
 		expect(vars[question_id+"_question"]).to.be.equal(question);
-		expect(vars[question_id+"_counterstake_coeff"]).to.be.equal(counterstake_coeff.toString());
+		expect(vars[question_id+"_counterstake_coeff"]).to.be.equal(counterstake_coeff);
 		expect(vars[question_id+"_description"]).to.be.equal(description);
-		expect(vars[question_id+"_deadline"]).to.be.equal(Math.floor(deadline.getTime()/1000).toString());
-		expect(vars[question_id+"_reward"]).to.be.equal(paymentAmount.toString());
+		expect(vars[question_id+"_deadline"]).to.be.equal(Math.floor(deadline.getTime()/1000));
+		expect(vars[question_id+"_reward"]).to.be.equal(paymentAmount);
 
 	})
 
@@ -544,8 +544,8 @@ describe('Check AA counterstake question creation', function () {
 		expect(vars[question_id+"_initial_coeff"]).to.be.undefined
 		expect(vars[question_id+"_counterstake_coeff"]).to.be.undefined
 		expect(vars[question_id+"_description"]).to.be.equal(description);
-		expect(vars[question_id+"_deadline"]).to.be.equal(Math.floor(deadline.getTime()/1000).toString());
-		expect(vars[question_id+"_reward"]).to.be.equal(paymentAmount.toString());
+		expect(vars[question_id+"_deadline"]).to.be.equal(Math.floor(deadline.getTime()/1000));
+		expect(vars[question_id+"_reward"]).to.be.equal(paymentAmount);
 
 	})
 

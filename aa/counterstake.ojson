@@ -9,8 +9,7 @@
 		$default_counterstake_coeff = 1.5;
 		$overpayment_fee = 1000;
 		$min_delay_before_deadline = 15*60;
-		$period_length = 3600;
-	//$period_length = 3*24*3600;
+		$period_length = 3*24*3600;
 		$question = trigger.data.question;
 		$description = trigger.data.description;
 		$question_id = trigger.data.question_id;
@@ -166,7 +165,6 @@
 							var[$key || '_total_staked'] += $accepted_amount;
 							var[$key || '_total_staked_on_' || $proposed_outcome || '_by_' || trigger.address] += $accepted_amount;
 
-							
 							if ($bInitialStake){
 								var[$key || '_initial_reporter'] = trigger.address;
 									response['expected_reward'] = var[$key||"_reward"];   
@@ -227,15 +225,15 @@
 					{
 						"app": "state",
 						"state": "{
-						var[$key] = 'committed';
-						if ($initial_reporter_stake){
-							var[$key || '_total_staked_on_' || $outcome || '_by_' || $address] = false;
-							response['paid_out_amount'] = $full_amount;
-							response['paid_out_address'] = $address;
-						}
-						response['question_id'] = $key;
-						response['committed_outcome'] = $outcome;
-					}"
+							var[$key] = 'committed';
+							if ($initial_reporter_stake){
+								var[$key || '_total_staked_on_' || $outcome || '_by_' || $address] = false;
+								response['paid_out_amount'] = $full_amount;
+								response['paid_out_address'] = $address;
+							}
+							response['question_id'] = $key;
+							response['committed_outcome'] = $outcome;
+						}"
 					}
 				]
 			},

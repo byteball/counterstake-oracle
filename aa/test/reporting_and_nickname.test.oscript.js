@@ -7,7 +7,7 @@ const { Network } = Testkit({
 
 
 const overpayment_fee = 1000;
-const challenge_period_length = 3600;
+const challenge_period_length = 3*24*3600;
 const coeff = 1.5
 
 const rewardAmount_1= 1e6
@@ -168,9 +168,9 @@ describe('Check AA counterstake reporting', function () {
 		expect(vars[question_id_1]).to.be.equal("being_graded");
 		expect(vars[question_id_1 + "_initial_reporter"]).to.be.equal(await this.reporter_1.getAddress());
 		expect(vars[question_id_1 + "_outcome"]).to.be.equal("yes");
-		expect(vars[question_id_1 + "_total_staked_on_yes"]).to.be.equal((q1_initial_stake_by_rpt1).toString());
-		expect(vars[question_id_1 + "_total_staked_on_yes_by_" + (await this.reporter_1.getAddress())]).to.be.equal((q1_initial_stake_by_rpt1).toString());
-		expect(vars[question_id_1 + "_total_staked"]).to.be.equal((q1_initial_stake_by_rpt1).toString());
+		expect(vars[question_id_1 + "_total_staked_on_yes"]).to.be.equal((q1_initial_stake_by_rpt1));
+		expect(vars[question_id_1 + "_total_staked_on_yes_by_" + (await this.reporter_1.getAddress())]).to.be.equal((q1_initial_stake_by_rpt1));
+		expect(vars[question_id_1 + "_total_staked"]).to.be.equal((q1_initial_stake_by_rpt1));
 
 	})
 
@@ -244,11 +244,11 @@ describe('Check AA counterstake reporting', function () {
 		expect(vars[question_id_2]).to.be.equal("being_graded");
 		expect(vars[question_id_2 + "_outcome"]).to.be.equal("yes");
 		expect(vars[question_id_2 + "_total_staked_on_no"]).to.be.undefined
-		expect(vars[question_id_2 + "_total_staked_on_yes"]).to.be.equal((q2_initial_stake_by_rpt1).toString());
+		expect(vars[question_id_2 + "_total_staked_on_yes"]).to.be.equal((q2_initial_stake_by_rpt1));
 		expect(vars[question_id_2 + "_initial_reporter"]).to.be.equal(await this.reporter_1.getAddress());
 
-		expect(vars[question_id_2 + "_total_staked_on_yes_by_" + (await this.reporter_1.getAddress())]).to.be.equal((q2_initial_stake_by_rpt1).toString());
-		expect(vars[question_id_2 + "_total_staked"]).to.be.equal((q2_initial_stake_by_rpt1).toString());
+		expect(vars[question_id_2 + "_total_staked_on_yes_by_" + (await this.reporter_1.getAddress())]).to.be.equal((q2_initial_stake_by_rpt1));
+		expect(vars[question_id_2 + "_total_staked"]).to.be.equal((q2_initial_stake_by_rpt1));
 	})
 
 	const q2_counterstake_1_by_rpt2 = q2_initial_stake_by_rpt1 * coeff
@@ -277,12 +277,12 @@ describe('Check AA counterstake reporting', function () {
 		const { vars } = await this.deployer.readAAStateVars(this.aaAddress)
 		expect(vars[question_id_2]).to.be.equal("being_graded");
 		expect(vars[question_id_2 + "_outcome"]).to.be.equal("no");
-		expect(vars[question_id_2 + "_total_staked_on_no"]).to.be.equal((q2_counterstake_1_by_rpt2).toString());
-		expect(vars[question_id_2 + "_total_staked_on_yes"]).to.be.equal((q2_initial_stake_by_rpt1).toString());
+		expect(vars[question_id_2 + "_total_staked_on_no"]).to.be.equal((q2_counterstake_1_by_rpt2));
+		expect(vars[question_id_2 + "_total_staked_on_yes"]).to.be.equal((q2_initial_stake_by_rpt1));
 		expect(vars[question_id_2 + "_initial_reporter"]).to.be.equal(await this.reporter_1.getAddress());
 
-		expect(vars[question_id_2 + "_total_staked_on_no_by_" + (await this.reporter_2.getAddress())]).to.be.equal((q2_counterstake_1_by_rpt2).toString());
-		expect(vars[question_id_2 + "_total_staked"]).to.be.equal((q2_counterstake_1_by_rpt2 + q2_initial_stake_by_rpt1).toString());
+		expect(vars[question_id_2 + "_total_staked_on_no_by_" + (await this.reporter_2.getAddress())]).to.be.equal((q2_counterstake_1_by_rpt2));
+		expect(vars[question_id_2 + "_total_staked"]).to.be.equal((q2_counterstake_1_by_rpt2 + q2_initial_stake_by_rpt1));
 	})
 
 
@@ -312,12 +312,12 @@ describe('Check AA counterstake reporting', function () {
 		const { vars } = await this.deployer.readAAStateVars(this.aaAddress)
 		expect(vars[question_id_2]).to.be.equal("being_graded");
 		expect(vars[question_id_2 + "_outcome"]).to.be.equal("yes");
-		expect(vars[question_id_2 + "_total_staked_on_no"]).to.be.equal((q2_counterstake_1_by_rpt2).toString());
-		expect(vars[question_id_2 + "_total_staked_on_yes"]).to.be.equal((q2_initial_stake_by_rpt1 + q2_counterstake_2_by_rpt1).toString());
+		expect(vars[question_id_2 + "_total_staked_on_no"]).to.be.equal((q2_counterstake_1_by_rpt2));
+		expect(vars[question_id_2 + "_total_staked_on_yes"]).to.be.equal((q2_initial_stake_by_rpt1 + q2_counterstake_2_by_rpt1));
 		expect(vars[question_id_2 + "_initial_reporter"]).to.be.equal(await this.reporter_1.getAddress());
 
-		expect(vars[question_id_2 + "_total_staked_on_yes_by_" + (await this.reporter_1.getAddress())]).to.be.equal((q2_initial_stake_by_rpt1 + q2_counterstake_2_by_rpt1).toString());
-		expect(vars[question_id_2 + "_total_staked"]).to.be.equal((q2_counterstake_1_by_rpt2 + q2_initial_stake_by_rpt1 + q2_counterstake_2_by_rpt1).toString());
+		expect(vars[question_id_2 + "_total_staked_on_yes_by_" + (await this.reporter_1.getAddress())]).to.be.equal((q2_initial_stake_by_rpt1 + q2_counterstake_2_by_rpt1));
+		expect(vars[question_id_2 + "_total_staked"]).to.be.equal((q2_counterstake_1_by_rpt2 + q2_initial_stake_by_rpt1 + q2_counterstake_2_by_rpt1));
 	})
 
 
@@ -367,11 +367,11 @@ describe('Check AA counterstake reporting', function () {
 		const { vars } = await this.deployer.readAAStateVars(this.aaAddress)
 		expect(vars[question_id_1]).to.be.equal("being_graded");
 		expect(vars[question_id_1 + "_outcome"]).to.be.equal("no");
-		expect(vars[question_id_1 + "_total_staked_on_yes"]).to.be.equal((q1_initial_stake_by_rpt1).toString());
-		expect(vars[question_id_1 + "_total_staked_on_no"]).to.be.equal((q1_counterstake_1_by_rpt2).toString());
+		expect(vars[question_id_1 + "_total_staked_on_yes"]).to.be.equal((q1_initial_stake_by_rpt1));
+		expect(vars[question_id_1 + "_total_staked_on_no"]).to.be.equal((q1_counterstake_1_by_rpt2));
 
-		expect(vars[question_id_1 + "_total_staked_on_no_by_" + (await this.reporter_2.getAddress())]).to.be.equal((q1_counterstake_1_by_rpt2).toString());
-		expect(vars[question_id_1 + "_total_staked"]).to.be.equal((q1_initial_stake_by_rpt1 + q1_counterstake_1_by_rpt2).toString());
+		expect(vars[question_id_1 + "_total_staked_on_no_by_" + (await this.reporter_2.getAddress())]).to.be.equal((q1_counterstake_1_by_rpt2));
+		expect(vars[question_id_1 + "_total_staked"]).to.be.equal((q1_initial_stake_by_rpt1 + q1_counterstake_1_by_rpt2));
 
 	})
 
@@ -802,7 +802,7 @@ describe('Check AA counterstake reporting', function () {
 		const { vars } = await this.deployer.readAAStateVars(this.aaAddress)
 
 		expect(vars[question_id_1 + '_total_staked_on_no_by_' + address_reporter_2]).to.be.undefined;
-		expect(vars[question_id_1 + '_total_staked_on_no_by_' + (await this.reporter_3.getAddress())]).to.be.equal(q1_partial_counterstake_3_by_rpt3.toString());
+		expect(vars[question_id_1 + '_total_staked_on_no_by_' + (await this.reporter_3.getAddress())]).to.be.equal(q1_partial_counterstake_3_by_rpt3);
 
 		const { unitObj: payoutUnit, error: payoutError } = await this.deployer.getUnitInfo({ unit: response.response_unit })
 		expect(payoutError).to.be.null
