@@ -74,8 +74,8 @@
 			}
 		},
 		created () {
-			this.getData()
-			this.timerId = setInterval(this.getData, 60000)
+			this.getLastEvents()
+			this.timerId = setInterval(this.getLastEvents, 60000)
 		},
 		beforeDestroy () {
 			clearInterval(this.timerId)
@@ -83,12 +83,11 @@
 		methods: {
 			moment: moment,
 			onClick: function(item){
-				console.log(item.question_id)
 				if (!item.question_id)
 					return
 				this.$router.push({ name: 'landingPageQuestion', params: { question_id: item.question_id} })
 			},
-			getData () {
+			getLastEvents () {
 				this.axios.get('/api/last-events').then((response) => {
 					this.events = response.data.map((event)=>{
 						return {

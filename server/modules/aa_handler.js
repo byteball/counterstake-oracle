@@ -115,7 +115,8 @@ function checkOptionAaStatusForQuestions(arrQuestionIds, handle){
 function checkRegistrar(){
 
 	getStateVarsForPrefixes(conf.token_registry_aa_address, ["a2s_"], function(error, objStateVars){
-
+		if (error)
+			return console.log(error);
 		for (var question_id in assocAllQuestions){
 			var yes_asset = assocAllQuestions[question_id].yes_asset;
 			var no_asset = assocAllQuestions[question_id].no_asset;
@@ -223,10 +224,10 @@ function getStateVarsRangeForPrefix(aa_address, prefix, start, end, handle){
 		if (Object.keys(objResponse).length >= CHUNK_SIZE){
 			const delimiter =  Math.floor((end.charCodeAt(0) - start.charCodeAt(0)) / 2 + start.charCodeAt(0));
 			async.parallel([function(cb){
-				getStateVarsRange(prefix, start, String.fromCharCode(delimiter), cb)
+				getStateVarsRangeForPrefix(aa_address, prefix, start, String.fromCharCode(delimiter), cb)
 			},
 			function(cb){
-				getStateVarsRange(prefix, String.fromCharCode(delimiter +1), end, cb)
+				getStateVarsRangeForPrefix(aa_address, prefix, String.fromCharCode(delimiter +1), end, cb)
 			}
 			], function(error, results){
 				if (error)

@@ -78,8 +78,8 @@ export default {
 	methods:{
 		handleOk:function(){
 			const data = {
-					question_id: this.question.question_id,
-					outcome: this.selectedOutcome
+				question_id: this.question.question_id,
+				outcome: this.selectedOutcome
 			};
 
 			const json_string = JSON.stringify(data);
@@ -87,9 +87,6 @@ export default {
 			this.link = conf.protocol+":"+conf.aa_address+"?amount="
 				+(this.amountToStake)+"&base64data="+base64data;
 		}
-	},
-	created(){
-
 	}
 }
 </script>
