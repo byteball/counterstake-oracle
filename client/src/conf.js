@@ -1,12 +1,12 @@
-const testnet = true;
+const testnet = process.env.VUE_APP_TESNET;
 
 exports.testnet = testnet;
-exports.aa_address = testnet ? "ADGSEEQOJQSNCK22GRUJ5BOK7WRDNYON" : "";
+exports.aa_address = testnet ? "4SZ7RR3PPWZXJ2RB27ZUPWD2AYWFB7R7" : "4SZ7RR3PPWZXJ2RB27ZUPWD2AYWFB7R7";
 exports.challenge_period_in_days = testnet ? 1/24 : 3;
 exports.challenge_min_stake_gb = 0.001;
 exports.challenge_coeff = 1.5;
 exports.gb_to_bytes = 1000000000;
-exports.website_name = "Counterstake.org - testnet beta";
+exports.website_name = testnet ? "Counterstake.org - testnet beta" : "Counterstake.org";
 exports.question_max_length = 128;
 exports.question_min_length = 10;
 exports.description_max_length = 256;
@@ -19,6 +19,6 @@ exports.github ='https://github.com/byteball/counterstats/';
 exports.nickname_min_length = 3;
 exports.nickname_max_length = 50;
 exports.protocol =  testnet ? "obyte-tn" : "obyte";
-exports.token_registry_aa_address = testnet ? "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ" : "";
+exports.token_registry_aa_address = testnet ? "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ" : "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ";
 exports.token_registry_min_deposit_gb = 0.1;
-exports.odex_url = "https://testnet.odex.ooo/";
+exports.odex_url = testnet ? "https://testnet.odex.ooo/" : "https://odex.ooo/";

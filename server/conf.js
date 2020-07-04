@@ -3,15 +3,15 @@
 exports.bServeAsHub = false;
 exports.bLight = true;
 
-exports.api_port = 1300;
+exports.api_port = process.env.testnet ? 1300 : 1400;
 
 exports.hub = process.env.testnet ? 'obyte.org/bb-test' : 'obyte.org/bb';
 exports.min_reward_to_display = 10000000;
 
-exports.counterstake_aa_address = process.env.testnet ? 'ADGSEEQOJQSNCK22GRUJ5BOK7WRDNYON' : ''; //7OUC7TREROTSUUM7AJBJGKBBRJK5R24E
+exports.counterstake_aa_address = process.env.testnet ? '4SZ7RR3PPWZXJ2RB27ZUPWD2AYWFB7R7' : '4SZ7RR3PPWZXJ2RB27ZUPWD2AYWFB7R7';
 
 exports.options_base_aa_address = process.env.testnet ? "WZFFFKQR4XRFQKR6NFV7Z7ICDOS67FEX" : "";
-exports.token_registry_aa_address = process.env.testnet ? "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ" : "";
+exports.token_registry_aa_address = process.env.testnet ? "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ" : "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ";
 
 
 exports.initial_witnesses = !process.env.testnet ? [

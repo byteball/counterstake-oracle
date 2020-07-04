@@ -1,16 +1,24 @@
-# counterstake
+# Counterstake
+
+Decentralized oracle on Obyte platform.
+
+Live on: https://counterstake.org and https://testnet.counterstake.org
+
 
 This project has 2 parts.
 
 ## Client Webapp (/client)
 - Single Page Application made with VueJS. 
 Can be run locally for development with vue-cli: `npm run serve`
-Then built into a dist folder that is served by Nginx: `npm run build`
+Or built into a dist folder that is served by Nginx: `npm run build`
+For both cases, uncomment `VUE_APP_TESNET=1` in `client/.env` if you want to run testnet version.
+
 
 ## Server (/server)
 - Based on an Obyte light node, reads state vars and responses from counterstake AA
-- Serves rest API for webapp
+- Serve rest API for webapp
 To be started with: `node start.js`
+Uncomment `testnet=1` in `server/.env` if you want to run testnet version. 
 
 #### Nginx conf for webapp and API
 

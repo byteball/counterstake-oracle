@@ -1,16 +1,9 @@
 # counterstake-aa-tests
 
-## Requirements
-* Node.js >= 10.16.0
-* yarn >= 1.17.3
+Test suite for counterstake AA
 
-## Project setup
-```bash
-yarn
-```
+## Installation
+`nmp install`
 
-## Run tests
-```bash
-# Run  tests
-yarn test
-```
+## run tests
+`npm run test`

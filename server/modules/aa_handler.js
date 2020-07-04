@@ -329,21 +329,21 @@ function indexQuestions(objStateVars){
 
 	operationKeys.forEach(function(key){
 		const question = {};
-		question.reward = Number(objStateVars[key+"_reward"]);
+		question.reward = objStateVars[key+"_reward"];
 		if (question.reward < conf.min_reward_to_display)
 			return;
 		question.status = objStateVars[key];
 		question.question = objStateVars[key+"_question"];
 		question.description = objStateVars[key + "_description"];
-		question.deadline = Number(objStateVars[key+"_deadline"]);
+		question.deadline = objStateVars[key+"_deadline"];
 		var outcome = objStateVars[key+"_outcome"];
 		question.outcome = outcome;
 		question.committed_outcome = objStateVars[key + "_committed_outcome"];
 		question.initial_outcome = objStateVars[key + "_initial_outcome"];
-		question.staked_on_outcome = Number(objStateVars[key + "_total_staked_on_" + outcome]) || 0;
-		question.staked_on_opposite = Number(objStateVars[key + "_total_staked_on_" + (outcome == "yes" ? "no" : "yes") ]) || 0;
-		question.countdown_start= Number(objStateVars[key + "_countdown_start"]);
-		question.total_staked = Number(objStateVars[key + "_total_staked"]);
+		question.staked_on_outcome = objStateVars[key + "_total_staked_on_" + outcome] || 0;
+		question.staked_on_opposite = objStateVars[key + "_total_staked_on_" + (outcome == "yes" ? "no" : "yes") ] || 0;
+		question.countdown_start= objStateVars[key + "_countdown_start"];
+		question.total_staked = objStateVars[key + "_total_staked"];
 		question.question_id = key;
 		question.staked_by_address = assocStakedByKeyAndAddress[key];
 		appendUnconfirmedEvents(question);
@@ -484,8 +484,8 @@ function treatDryAaResponse(triggerUnit, trigger, objResponse){
 		const question_id =  responseVars.question_id;
 		assocUnconfirmedQuestions[triggerUnit] = {
 			question: responseVars.new_question,
-			deadline : Number(updatedStateVars[conf.counterstake_aa_address][question_id + "_deadline"].value),
-			reward : Number(updatedStateVars[conf.counterstake_aa_address][question_id + "_reward"].value),
+			deadline : updatedStateVars[conf.counterstake_aa_address][question_id + "_deadline"].value,
+			reward : updatedStateVars[conf.counterstake_aa_address][question_id + "_reward"].value,
 			is_pending : true
 		}
 	} 
