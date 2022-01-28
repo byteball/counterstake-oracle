@@ -2,7 +2,7 @@
 
 Decentralized oracle on Obyte platform.
 
-Live on: https://oracle.counterstake.org/ and https://testnet-oracle.counterstake.org/
+Live on: https://oracle.counterstake.org and https://testnet-oracle.counterstake.org
 
 
 This project has 2 parts.
